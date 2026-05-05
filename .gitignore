@@ -1,5 +1,9 @@
 node_modules
 
+# Yarn PnP (auto-generated, not used with pnpm)
+.pnp.cjs
+.pnp.loader.mjs
+
 # Output
 .output
 .vercel
