@@ -1,11 +1,82 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import { page } from '$app/stores'
+  import { getSettings } from '$lib/db/settings'
+  import '../app.css'
 
-	let { children } = $props();
+  let { children } = $props()
+
+  const navItems = [
+    { href: '/', label: 'Capture', icon: '📷' },
+    { href: '/history', label: 'History', icon: '📋' },
+    { href: '/settings', label: 'Settings', icon: '⚙️' }
+  ]
+
+  onMount(async () => {
+    const settings = await getSettings()
+    if ((!settings.claudeApiKey || !settings.zenmoneyToken) && !$page.url.pathname.startsWith('/settings')) {
+      goto('/settings')
+    }
+  })
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
+<div class="app">
+  <main class="content">
+    {@render children()}
+  </main>
+  <nav class="bottom-nav">
+    {#each navItems as item}
+      <a
+        href={item.href}
+        class="nav-item"
+        class:active={$page.url.pathname === item.href}
+        aria-label={item.label}
+      >
+        <span class="icon">{item.icon}</span>
+        <span class="label">{item.label}</span>
+      </a>
+    {/each}
+  </nav>
+</div>
 
-{@render children()}
+<style>
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .content {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    height: var(--nav-height);
+    display: flex;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    z-index: 100;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    transition: color 0.15s;
+  }
+  .nav-item.active { color: var(--color-primary); }
+  .icon { font-size: 22px; line-height: 1; }
+</style>
