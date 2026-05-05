@@ -76,7 +76,7 @@
       {useFileInput ? '📁 Choose a receipt photo' : 'or upload from gallery'}
     </label>
     <input id="receipt-file" type="file" accept="image/*"
-      capture="environment" onchange={handleFileChange} class="file-input" />
+      onchange={handleFileChange} class="file-input" />
   </div>
 
   <canvas bind:this={canvasEl} style="display:none"></canvas>

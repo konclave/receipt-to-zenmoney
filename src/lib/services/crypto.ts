@@ -1,17 +1,27 @@
-const STORAGE_KEY = 'rzm_key'
+// src/lib/services/crypto.ts
+import { openDB } from 'idb'
+
+const KEY_STORE = 'crypto-keys'
+const DB_NAME = 'rzm-keys'
+const KEY_ID = 'main'
+
+async function getKeyDb() {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      db.createObjectStore(KEY_STORE)
+    }
+  })
+}
 
 async function getOrCreateKey(): Promise<CryptoKey> {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored) {
-    const keyData = Uint8Array.from(atob(stored), (c) => c.charCodeAt(0))
-    return crypto.subtle.importKey('raw', keyData, 'AES-GCM', false, ['encrypt', 'decrypt'])
-  }
-  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, [
+  const db = await getKeyDb()
+  const stored: CryptoKey | undefined = await db.get(KEY_STORE, KEY_ID)
+  if (stored) return stored
+  const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, [
     'encrypt',
     'decrypt'
   ])
-  const exported = await crypto.subtle.exportKey('raw', key)
-  localStorage.setItem(STORAGE_KEY, btoa(String.fromCharCode(...new Uint8Array(exported))))
+  await db.put(KEY_STORE, key, KEY_ID)
   return key
 }
 

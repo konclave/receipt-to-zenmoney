@@ -6,7 +6,7 @@
   import { captureStore } from '$lib/stores/capture'
   import { parseReceipt } from '$lib/services/claude'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
-  import { getSettings } from '$lib/db/settings'
+  import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories } from '$lib/db/categories'
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
   import CategoryPicker from '$lib/components/CategoryPicker.svelte'
@@ -68,7 +68,8 @@
       if (!settings.zenmoneyAccountId)
         throw new Error('No default account set — go to Settings → Reload Categories')
       const payload = buildTransactionPayload(tx, settings.zenmoneyAccountId)
-      await syncDiff(settings.zenmoneyToken, settings.zenmoneyServerTimestamp, [payload])
+      const diffResponse = await syncDiff(settings.zenmoneyToken, settings.zenmoneyServerTimestamp, [payload])
+      await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
       await updateTransaction(txId, { status: 'submitted', zenmoneyId: txId })
     } catch (e) {
       await updateTransaction(txId, { status: 'failed' })
