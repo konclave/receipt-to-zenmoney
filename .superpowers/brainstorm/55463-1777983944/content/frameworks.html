@@ -1,0 +1,112 @@
+<h2>Framework & UI Library Alternatives</h2>
+<p class="subtitle">Pick a frontend framework and a component library — choose one from each group</p>
+
+<div class="section">
+  <div class="label">Frontend Framework</div>
+  <div class="options" style="margin-top:12px;">
+
+    <div class="option" data-choice="react" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>React + Vite</h3>
+        <p>Largest ecosystem, most familiar, best tooling. Bundle ~40KB gzipped (core). Good PWA support via vite-plugin-pwa. All UI libraries support it. <em>Verbose but predictable.</em></p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Huge ecosystem</li><li>All UI libs support it</li><li>Easy to hire/find help</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Largest bundle</li><li>Boilerplate-heavy</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="svelte" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>Svelte 5 + Vite</h3>
+        <p>Compiles to vanilla JS — smallest bundle (~10KB core), fastest runtime. Excellent for mobile PWAs. Native reactivity with runes. Good PWA plugin. Smaller (but growing) ecosystem.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Smallest bundle</li><li>Fastest on mobile</li><li>Less boilerplate</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Fewer UI libs</li><li>Smaller community</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="vue" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>Vue 3 + Vite</h3>
+        <p>Mature, pragmatic, good PWA support. Bundle ~25KB gzipped. Composition API is clean. Good UI library options (PrimeVue, Quasar, Vuetify). Very popular in Russian dev community.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Clean DX</li><li>Good mobile libs</li><li>Well documented</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Middle-ground (not smallest, not biggest)</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="solid" onclick="toggleSelect(this)">
+      <div class="letter">D</div>
+      <div class="content">
+        <h3>Solid.js + Vite</h3>
+        <p>React-like JSX syntax but compiled like Svelte. Tiny bundle (~7KB), fastest reactivity. Smaller ecosystem. UI: solid-ui (shadcn port), Kobalte primitives.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Fastest runtime</li><li>React-like syntax</li><li>Tiny bundle</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Small ecosystem</li><li>Fewer ready-made components</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <div class="label">UI Component Library</div>
+  <div class="options" style="margin-top:12px;">
+
+    <div class="option" data-choice="mantine" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>Mantine (React only)</h3>
+        <p>Rich component set, good defaults, built-in dark mode, form handling. Mobile-friendly. Large bundle addition (~200KB). React only.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>100+ components</li><li>Great DX</li><li>Good docs</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>React only</li><li>Large bundle</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="shadcn" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>shadcn/ui (React) or shadcn-svelte</h3>
+        <p>Headless, copy-paste components — you own the code. Tailwind CSS. Very popular, modern look. Only install what you need (minimal bundle). Available for React and Svelte.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Own the code</li><li>Minimal bundle</li><li>Beautiful defaults</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Tailwind dependency</li><li>More setup</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="skeleton" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>Skeleton (Svelte) / Quasar (Vue)</h3>
+        <p>Framework-native component libraries. Skeleton for Svelte is mobile-first and PWA-friendly. Quasar for Vue has Capacitor/Cordova support if you ever want native wrapping.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Native to framework</li><li>Mobile-first</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Tied to framework choice</li><li>Smaller than Mantine</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option" data-choice="tailwind" onclick="toggleSelect(this)">
+      <div class="letter">D</div>
+      <div class="content">
+        <h3>Tailwind CSS only (no component lib)</h3>
+        <p>Maximum control, no bloat. Write your own mobile-optimized components. Pairs well with any framework. More work upfront but nothing you didn't write.</p>
+        <div class="pros-cons" style="margin-top:8px;">
+          <div class="pros"><h4>Pros</h4><ul><li>Zero lock-in</li><li>Smallest bundle</li><li>Full control</li></ul></div>
+          <div class="cons"><h4>Cons</h4><ul><li>Most upfront work</li><li>No premade components</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
