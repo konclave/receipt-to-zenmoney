@@ -31,7 +31,7 @@
     try {
       await onRetry(transaction)
     } catch (e) {
-      retryError = String(e)
+      retryError = e instanceof Error ? e.message : String(e)
     } finally {
       retrying = false
     }

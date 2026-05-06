@@ -33,6 +33,7 @@
         [payload]
       )
       await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
+      // ZenMoney accepts the client-supplied UUID as the canonical ID, so tx.id is the correct zenmoneyId
       await updateTransaction(tx.id, { status: 'submitted', zenmoneyId: tx.id })
     } catch (e) {
       await updateTransaction(tx.id, { status: 'failed' })
@@ -55,7 +56,7 @@
   {:else}
     <div class="list">
       {#each transactions as tx (tx.id)}
-        <TransactionCard transaction={tx} {categories} onRetry={retryTransaction} />
+        <TransactionCard transaction={tx} {categories} onRetry={tx.status === 'failed' ? retryTransaction : undefined} />
       {/each}
     </div>
   {/if}
