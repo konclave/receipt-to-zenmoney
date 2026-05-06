@@ -108,7 +108,22 @@ describe('buildTransactionPayload', () => {
       outcomeInstrument: 2,
       tag: ['tag-1'],
       comment: 'Magnit',
-      deleted: false
+      deleted: false,
+      viewed: false,
+      hold: false,
+      qrCode: null,
+      originalPayee: null,
+      payee: null,
+      opIncome: null,
+      opOutcome: null,
+      opIncomeInstrument: null,
+      opOutcomeInstrument: null,
+      latitude: null,
+      longitude: null,
+      merchant: null,
+      incomeBankID: null,
+      outcomeBankID: null,
+      reminderMarker: null
     })
   })
 })
