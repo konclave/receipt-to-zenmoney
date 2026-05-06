@@ -3,6 +3,7 @@
   import { onMount, onDestroy } from 'svelte'
   import { goto } from '$app/navigation'
   import { captureStore } from '$lib/stores/capture'
+  import { savePendingCapture } from '$lib/db/pending-capture'
 
   let videoEl = $state<HTMLVideoElement | null>(null)
   let canvasEl = $state<HTMLCanvasElement | null>(null)
@@ -59,7 +60,9 @@
     const rawBase64 = canvasEl.toDataURL('image/jpeg', 1).split(',')[1]
     stream?.getTracks().forEach((t) => t.stop())
     const imageBase64 = await compressToJpeg(rawBase64, 'image/jpeg')
-    captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
+    const capture = { imageBase64, mimeType: 'image/jpeg' as const }
+    await savePendingCapture(capture)
+    captureStore.set(capture)
     goto('/review')
   }
 
@@ -72,7 +75,9 @@
         const dataUrl = reader.result
         if (typeof dataUrl !== 'string') return
         const imageBase64 = await compressToJpeg(dataUrl.split(',')[1], file.type)
-        captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
+        const capture = { imageBase64, mimeType: 'image/jpeg' as const }
+        await savePendingCapture(capture)
+        captureStore.set(capture)
         goto('/review')
       } catch {
         cameraError = 'Could not process the selected image. Please try another file.'

@@ -1,3 +1,8 @@
+export interface PendingCapture {
+  imageBase64: string
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp'
+}
+
 export interface Category {
   id: string
   title: string

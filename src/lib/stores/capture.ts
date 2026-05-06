@@ -1,8 +1,6 @@
 import { writable } from 'svelte/store'
+import type { PendingCapture } from '$lib/types'
 
-export interface CaptureData {
-  imageBase64: string
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp'
-}
+export type CaptureData = PendingCapture
 
 export const captureStore = writable<CaptureData | null>(null)

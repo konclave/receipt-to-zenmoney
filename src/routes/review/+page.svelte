@@ -1,4 +1,3 @@
-<!-- src/routes/review/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte'
   import { get } from 'svelte/store'
@@ -9,10 +8,11 @@
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories } from '$lib/db/categories'
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
+  import { getPendingCapture, clearPendingCapture } from '$lib/db/pending-capture'
   import CategoryPicker from '$lib/components/CategoryPicker.svelte'
-  import type { Category } from '$lib/types'
+  import type { Category, PendingCapture } from '$lib/types'
 
-  let capture = get(captureStore)
+  let capture = $state<PendingCapture | null>(get(captureStore))
   let categories = $state<Category[]>([])
   let parsing = $state(true)
   let submitting = $state(false)
@@ -27,7 +27,15 @@
   let currency = $state('RUB')
 
   onMount(async () => {
+    if (!capture) {
+      const persisted = await getPendingCapture()
+      if (persisted) {
+        capture = persisted
+        captureStore.set(persisted)
+      }
+    }
     if (!capture) { goto('/'); return }
+
     categories = await getCategories()
     try {
       const settings = await getSettings()
@@ -45,6 +53,12 @@
       parsing = false
     }
   })
+
+  async function handleBack() {
+    await clearPendingCapture()
+    captureStore.set(null)
+    goto('/')
+  }
 
   async function handleSubmit() {
     submitting = true
@@ -77,6 +91,7 @@
       submitting = false
       return
     }
+    await clearPendingCapture()
     captureStore.set(null)
     goto('/history')
   }
@@ -84,7 +99,7 @@
 
 <div class="page">
   <div class="header">
-    <button class="back" onclick={() => goto('/')}>← Back</button>
+    <button class="back" onclick={handleBack}>← Back</button>
     <h1>Review</h1>
   </div>
 

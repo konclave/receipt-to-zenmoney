@@ -1,6 +1,5 @@
-// src/lib/db/index.ts
 import { openDB, type IDBPDatabase } from 'idb'
-import type { Category, Transaction } from '$lib/types'
+import type { Category, Transaction, PendingCapture } from '$lib/types'
 
 interface AppDB {
   settings: { key: string; value: string | number }
@@ -10,18 +9,24 @@ interface AppDB {
     value: Transaction
     indexes: { 'by-date': string }
   }
+  'pending-capture': { key: string; value: PendingCapture }
 }
 
 let _db: IDBPDatabase<AppDB> | null = null
 
 export async function getDb(): Promise<IDBPDatabase<AppDB>> {
   if (!_db) {
-    _db = await openDB<AppDB>('rzm', 1, {
-      upgrade(db) {
-        db.createObjectStore('settings')
-        db.createObjectStore('categories', { keyPath: 'id' })
-        const txStore = db.createObjectStore('transactions', { keyPath: 'id' })
-        txStore.createIndex('by-date', 'date')
+    _db = await openDB<AppDB>('rzm', 2, {
+      upgrade(db, oldVersion) {
+        if (oldVersion < 1) {
+          db.createObjectStore('settings')
+          db.createObjectStore('categories', { keyPath: 'id' })
+          const txStore = db.createObjectStore('transactions', { keyPath: 'id' })
+          txStore.createIndex('by-date', 'date')
+        }
+        if (oldVersion < 2) {
+          db.createObjectStore('pending-capture')
+        }
       }
     })
   }
