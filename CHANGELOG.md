@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/konclave/receipt-to-zenmoney/compare/v1.3.0...v1.3.1) (2026-05-06)
+
+
+### Bug Fixes
+
+* add vercel rewrites config ([dae7e79](https://github.com/konclave/receipt-to-zenmoney/commit/dae7e793d99fae1116cf5e62f9be150ba0e3931a))
+* replace category select with native ([853c8af](https://github.com/konclave/receipt-to-zenmoney/commit/853c8af464fd4e0423b6b5456100fcf4ae55b137))
+
 # [1.3.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.2.0...v1.3.0) (2026-05-06)
 
 
