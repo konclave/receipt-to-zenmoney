@@ -3,6 +3,7 @@
   import { onMount } from 'svelte'
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories, saveCategories } from '$lib/db/categories'
+  import { getAccounts, saveAccounts } from '$lib/db/accounts'
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
   import type { ZenMoneyAccount } from '$lib/types'
 
@@ -26,8 +27,9 @@
     selectedAccountId = s.zenmoneyAccountId
     claudeApiKeySaved = s.claudeApiKey.length > 0
     zenmoneyTokenSaved = s.zenmoneyToken.length > 0
-    const cats = await getCategories()
+    const [cats, savedAccounts] = await Promise.all([getCategories(), getAccounts()])
     categoryCount = cats.length
+    accounts = savedAccounts
     if (cats.length > 0) lastSyncDate = new Date(cats[0].syncedAt).toLocaleDateString()
   })
 
@@ -56,7 +58,7 @@
       if (!s.zenmoneyToken) throw new Error('ZenMoney token is required')
       const response = await syncDiff(s.zenmoneyToken, 0)
       const cats = mapResponseToCategories(response)
-      await saveCategories(cats)
+      await Promise.all([saveCategories(cats), saveAccounts(response.account)])
       await saveSettings({ zenmoneyServerTimestamp: response.serverTimestamp })
       categoryCount = cats.length
       lastSyncDate = new Date().toLocaleDateString()

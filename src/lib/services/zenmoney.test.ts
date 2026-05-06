@@ -82,6 +82,7 @@ describe('buildTransactionPayload', () => {
     const tx: Transaction = {
       id: 'local-uuid',
       zenmoneyId: null,
+      accountId: 'acc-1',
       amount: 1250,
       currency: 'RUB',
       merchant: 'Magnit',
@@ -95,6 +96,7 @@ describe('buildTransactionPayload', () => {
       id: 'local-uuid',
       date: '2026-05-05',
       income: 0,
+      incomeAccount: 'acc-1',
       outcome: 1250,
       outcomeAccount: 'acc-1',
       tag: ['tag-1'],
