@@ -74,14 +74,20 @@
   {#if success}<div class="alert success">{success}</div>{/if}
 
   <section>
-    <label for="claude-key">Claude API Key</label>
+    <label for="claude-key">
+      Claude API Key
+      <span class="key-dot" class:set={claudeApiKey.length > 0} aria-label={claudeApiKey.length > 0 ? 'saved' : 'not saved'}>●</span>
+    </label>
     <input id="claude-key" type="password" bind:value={claudeApiKey}
       placeholder="sk-ant-api03-…" autocomplete="off" />
     <p class="hint">Get yours at console.anthropic.com</p>
   </section>
 
   <section>
-    <label for="zm-token">ZenMoney Token</label>
+    <label for="zm-token">
+      ZenMoney Token
+      <span class="key-dot" class:set={zenmoneyToken.length > 0} aria-label={zenmoneyToken.length > 0 ? 'saved' : 'not saved'}>●</span>
+    </label>
     <input id="zm-token" type="password" bind:value={zenmoneyToken}
       placeholder="Paste your ZenMoney token" autocomplete="off" />
     <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
@@ -131,4 +137,6 @@
   .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; }
   .alert.error { background: color-mix(in srgb, var(--color-error) 15%, transparent); border: 1px solid var(--color-error); color: var(--color-error); }
   .alert.success { background: color-mix(in srgb, var(--color-success) 15%, transparent); border: 1px solid var(--color-success); color: var(--color-success); }
+  .key-dot { font-size: 10px; margin-left: 6px; vertical-align: middle; color: var(--color-text-muted); }
+  .key-dot.set { color: var(--color-success); }
 </style>
