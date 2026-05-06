@@ -1,3 +1,19 @@
+# [1.2.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.1.0...v1.2.0) (2026-05-06)
+
+
+### Bug Fixes
+
+* add created and changed timestamps to ZenMoney transaction payload ([ad2e16b](https://github.com/konclave/receipt-to-zenmoney/commit/ad2e16bb5a29b6819bf1bafb54c0cb52b6116de7))
+* add incomeInstrument and outcomeInstrument to ZenMoney transaction payload ([920b326](https://github.com/konclave/receipt-to-zenmoney/commit/920b326ba17f71c08b75fbb135f21edaad0f1417))
+* include all required ZenMoney transaction fields in payload ([8832099](https://github.com/konclave/receipt-to-zenmoney/commit/88320998d28d8974f0665d3fe46b49bb8691bad1))
+* include user ID in ZenMoney transaction payload ([3767f99](https://github.com/konclave/receipt-to-zenmoney/commit/3767f99e24d842e35737f8e5eee948bcd4d37fb9))
+* sort accounts alphabetical ([fc036d2](https://github.com/konclave/receipt-to-zenmoney/commit/fc036d2d51ec04a8488f81379e43f528557c17b9))
+
+
+### Features
+
+* disable save buttons until settings are changed ([c815ac8](https://github.com/konclave/receipt-to-zenmoney/commit/c815ac85596fa5588339196dcf53ace0a89f8f7d))
+
 # [1.1.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.0.0...v1.1.0) (2026-05-06)
 
 
