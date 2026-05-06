@@ -12,7 +12,6 @@
   import { getCategories } from '$lib/db/categories'
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
   import { getPendingCapture, clearPendingCapture } from '$lib/db/pending-capture'
-  import CategoryPicker from '$lib/components/CategoryPicker.svelte'
   import type { Category, PendingCapture, ZenMoneyAccount } from '$lib/types'
 
   let capture = $state<PendingCapture | null>(get(captureStore))
@@ -41,8 +40,8 @@
     }
     if (!capture) { goto('/'); return }
 
-    const settings = await getSettings()
-    ;[categories, accounts] = await Promise.all([getCategories(), getAccounts()])
+    const settings = await getSettings();
+    [categories, accounts] = await Promise.all([getCategories(), getAccounts()])
     selectedAccountId = resolveReviewAccountId(accounts, settings.zenmoneyAccountId)
 
     try {
@@ -146,8 +145,13 @@
         <input id="merchant" type="text" bind:value={merchant} required />
       </div>
       <div class="field">
-        <span class="label">Category</span>
-        <CategoryPicker {categories} bind:value={categoryId} />
+        <label for="category">Category</label>
+        <select id="category" bind:value={categoryId}>
+          <option value="" disabled>Select category</option>
+          {#each categories as cat}
+            <option value={cat.id}>{cat.title}</option>
+          {/each}
+        </select>
       </div>
       {#if accounts.length > 1}
         <div class="field">

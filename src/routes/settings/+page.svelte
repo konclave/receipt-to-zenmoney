@@ -146,7 +146,6 @@
   <hr />
 
   <section>
-    <h2>App</h2>
     <p class="hint">App Version {data.appVersion}</p>
   </section>
 </div>
