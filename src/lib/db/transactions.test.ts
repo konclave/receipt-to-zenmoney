@@ -1,5 +1,5 @@
 // src/lib/db/transactions.test.ts
-import { describe, it, expect, beforeEach } from 'vitest'
+import { it, expect, beforeEach } from 'vitest'
 import { getTransactions, saveTransaction, updateTransaction } from './transactions'
 import { _resetDb } from './index'
 import type { Transaction } from '$lib/types'

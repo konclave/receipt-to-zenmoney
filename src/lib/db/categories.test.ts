@@ -1,5 +1,5 @@
 // src/lib/db/categories.test.ts
-import { describe, it, expect, beforeEach } from 'vitest'
+import { it, expect, beforeEach } from 'vitest'
 import { getCategories, saveCategories } from './categories'
 import { _resetDb } from './index'
 import type { Category } from '$lib/types'
