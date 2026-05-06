@@ -16,12 +16,16 @@
   let syncing = $state(false)
   let error = $state<string | null>(null)
   let success = $state<string | null>(null)
+  let claudeApiKeySaved = $state(false)
+  let zenmoneyTokenSaved = $state(false)
 
   onMount(async () => {
     const s = await getSettings()
     claudeApiKey = s.claudeApiKey
     zenmoneyToken = s.zenmoneyToken
     selectedAccountId = s.zenmoneyAccountId
+    claudeApiKeySaved = s.claudeApiKey.length > 0
+    zenmoneyTokenSaved = s.zenmoneyToken.length > 0
     const cats = await getCategories()
     categoryCount = cats.length
     if (cats.length > 0) lastSyncDate = new Date(cats[0].syncedAt).toLocaleDateString()
@@ -33,6 +37,8 @@
     try {
       await saveSettings({ claudeApiKey, zenmoneyToken })
       if (selectedAccountId) await saveSettings({ zenmoneyAccountId: selectedAccountId })
+      claudeApiKeySaved = claudeApiKey.length > 0
+      zenmoneyTokenSaved = zenmoneyToken.length > 0
       success = 'Saved'
       setTimeout(() => (success = null), 2000)
     } catch (e) {
@@ -76,7 +82,7 @@
   <section>
     <label for="claude-key">
       Claude API Key
-      <span class="key-dot" class:set={claudeApiKey.length > 0} aria-label={claudeApiKey.length > 0 ? 'saved' : 'not saved'}>●</span>
+      <span class="key-dot" class:set={claudeApiKeySaved} role="img" aria-label={claudeApiKeySaved ? 'saved' : 'not saved'}>●</span>
     </label>
     <input id="claude-key" type="password" bind:value={claudeApiKey}
       placeholder="sk-ant-api03-…" autocomplete="off" />
@@ -86,7 +92,7 @@
   <section>
     <label for="zm-token">
       ZenMoney Token
-      <span class="key-dot" class:set={zenmoneyToken.length > 0} aria-label={zenmoneyToken.length > 0 ? 'saved' : 'not saved'}>●</span>
+      <span class="key-dot" class:set={zenmoneyTokenSaved} role="img" aria-label={zenmoneyTokenSaved ? 'saved' : 'not saved'}>●</span>
     </label>
     <input id="zm-token" type="password" bind:value={zenmoneyToken}
       placeholder="Paste your ZenMoney token" autocomplete="off" />
