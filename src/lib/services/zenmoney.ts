@@ -40,6 +40,8 @@ export function buildTransactionPayload(tx: Transaction, accountId: string, user
     id: tx.id,
     user: userId,
     date: tx.date,
+    created: Math.floor(tx.createdAt / 1000),
+    changed: Math.floor(tx.createdAt / 1000),
     income: 0,
     incomeAccount: accountId,
     outcome: tx.amount,

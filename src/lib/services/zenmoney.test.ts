@@ -97,6 +97,8 @@ describe('buildTransactionPayload', () => {
       id: 'local-uuid',
       user: 42,
       date: '2026-05-05',
+      created: 1,
+      changed: 1,
       income: 0,
       incomeAccount: 'acc-1',
       outcome: 1250,
