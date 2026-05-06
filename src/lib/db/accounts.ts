@@ -3,7 +3,7 @@ import type { ZenMoneyAccount } from '$lib/types'
 
 export async function getAccounts(): Promise<ZenMoneyAccount[]> {
   const db = await getDb()
-  return db.getAll('accounts')
+  return (await db.getAll('accounts')).sort((a, b) => a.title.localeCompare(b.title))
 }
 
 export async function saveAccounts(accounts: ZenMoneyAccount[]): Promise<void> {
