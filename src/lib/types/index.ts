@@ -55,9 +55,15 @@ export interface ZenMoneyUser {
   id: number
 }
 
+export interface ZenMoneyInstrument {
+  id: number
+  shortTitle: string
+}
+
 export interface ZenMoneySyncResponse {
   serverTimestamp: number
   user: ZenMoneyUser[]
+  instrument: ZenMoneyInstrument[]
   tag: ZenMoneyTag[]
   account: ZenMoneyAccount[]
 }

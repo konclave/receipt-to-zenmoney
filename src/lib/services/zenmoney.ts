@@ -35,7 +35,12 @@ export function mapResponseToCategories(response: ZenMoneySyncResponse): Categor
   }))
 }
 
-export function buildTransactionPayload(tx: Transaction, accountId: string, userId: number): object {
+export function buildTransactionPayload(
+  tx: Transaction,
+  accountId: string,
+  userId: number,
+  instrumentId: number
+): object {
   return {
     id: tx.id,
     user: userId,
@@ -44,8 +49,10 @@ export function buildTransactionPayload(tx: Transaction, accountId: string, user
     changed: Math.floor(tx.createdAt / 1000),
     income: 0,
     incomeAccount: accountId,
+    incomeInstrument: instrumentId,
     outcome: tx.amount,
     outcomeAccount: accountId,
+    outcomeInstrument: instrumentId,
     tag: tx.categoryId ? [tx.categoryId] : [],
     comment: tx.merchant,
     deleted: false

@@ -5,6 +5,7 @@ import type { ZenMoneySyncResponse, Transaction } from '$lib/types'
 const MOCK_RESPONSE: ZenMoneySyncResponse = {
   serverTimestamp: 1746441600,
   user: [{ id: 42 }],
+  instrument: [{ id: 2, shortTitle: 'RUB' }],
   tag: [
     { id: 'tag-1', title: 'Groceries', parent: null },
     { id: 'tag-2', title: 'Transport', parent: null },
@@ -92,7 +93,7 @@ describe('buildTransactionPayload', () => {
       status: 'pending',
       createdAt: 1000
     }
-    const payload = buildTransactionPayload(tx, 'acc-1', 42)
+    const payload = buildTransactionPayload(tx, 'acc-1', 42, 2)
     expect(payload).toMatchObject({
       id: 'local-uuid',
       user: 42,
@@ -101,8 +102,10 @@ describe('buildTransactionPayload', () => {
       changed: 1,
       income: 0,
       incomeAccount: 'acc-1',
+      incomeInstrument: 2,
       outcome: 1250,
       outcomeAccount: 'acc-1',
+      outcomeInstrument: 2,
       tag: ['tag-1'],
       comment: 'Magnit',
       deleted: false

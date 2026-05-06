@@ -1,10 +1,11 @@
 import { openDB, type IDBPDatabase } from 'idb'
-import type { Category, Transaction, PendingCapture, ZenMoneyAccount } from '$lib/types'
+import type { Category, Transaction, PendingCapture, ZenMoneyAccount, ZenMoneyInstrument } from '$lib/types'
 
 interface AppDB {
   settings: { key: string; value: string | number }
   categories: { key: string; value: Category }
   accounts: { key: string; value: ZenMoneyAccount }
+  instruments: { key: number; value: ZenMoneyInstrument }
   transactions: {
     key: string
     value: Transaction
@@ -17,7 +18,7 @@ let _db: IDBPDatabase<AppDB> | null = null
 
 export async function getDb(): Promise<IDBPDatabase<AppDB>> {
   if (!_db) {
-    _db = await openDB<AppDB>('rzm', 3, {
+    _db = await openDB<AppDB>('rzm', 4, {
       upgrade(db, oldVersion) {
         if (oldVersion < 1) {
           db.createObjectStore('settings')
@@ -30,6 +31,9 @@ export async function getDb(): Promise<IDBPDatabase<AppDB>> {
         }
         if (oldVersion < 3) {
           db.createObjectStore('accounts', { keyPath: 'id' })
+        }
+        if (oldVersion < 4) {
+          db.createObjectStore('instruments', { keyPath: 'id' })
         }
       }
     })

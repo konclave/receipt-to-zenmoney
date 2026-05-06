@@ -7,6 +7,7 @@
   import { resolveReviewAccountId } from '$lib/services/review-account'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import { getAccounts } from '$lib/db/accounts'
+  import { getInstrumentByCurrency } from '$lib/db/instruments'
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories } from '$lib/db/categories'
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
@@ -91,7 +92,10 @@
         throw new Error('No ZenMoney account available — go to Settings and reload categories')
       if (!settings.zenmoneyUserId)
         throw new Error('No ZenMoney user ID — go to Settings and reload categories')
-      const payload = buildTransactionPayload(tx, reviewAccountId, settings.zenmoneyUserId)
+      const instrument = await getInstrumentByCurrency(tx.currency)
+      if (!instrument)
+        throw new Error(`No ZenMoney instrument for currency ${tx.currency} — go to Settings and reload categories`)
+      const payload = buildTransactionPayload(tx, reviewAccountId, settings.zenmoneyUserId, instrument.id)
       const diffResponse = await syncDiff(settings.zenmoneyToken, settings.zenmoneyServerTimestamp, [payload])
       await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
       await updateTransaction(txId, { status: 'submitted', zenmoneyId: txId })

@@ -4,6 +4,7 @@
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories, saveCategories } from '$lib/db/categories'
   import { getAccounts, saveAccounts } from '$lib/db/accounts'
+  import { saveInstruments } from '$lib/db/instruments'
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
   import type { ZenMoneyAccount } from '$lib/types'
 
@@ -58,7 +59,7 @@
       if (!s.zenmoneyToken) throw new Error('ZenMoney token is required')
       const response = await syncDiff(s.zenmoneyToken, 0)
       const cats = mapResponseToCategories(response)
-      await Promise.all([saveCategories(cats), saveAccounts(response.account)])
+      await Promise.all([saveCategories(cats), saveAccounts(response.account), saveInstruments(response.instrument)])
       const userId = response.user[0]?.id ?? 0
       await saveSettings({ zenmoneyServerTimestamp: response.serverTimestamp, zenmoneyUserId: userId })
       categoryCount = cats.length
