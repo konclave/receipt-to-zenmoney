@@ -55,6 +55,21 @@ export function buildTransactionPayload(
     outcomeInstrument: instrumentId,
     tag: tx.categoryId ? [tx.categoryId] : [],
     comment: tx.merchant,
-    deleted: false
+    deleted: false,
+    viewed: false,
+    hold: false,
+    qrCode: null,
+    originalPayee: null,
+    payee: null,
+    opIncome: null,
+    opOutcome: null,
+    opIncomeInstrument: null,
+    opOutcomeInstrument: null,
+    latitude: null,
+    longitude: null,
+    merchant: null,
+    incomeBankID: null,
+    outcomeBankID: null,
+    reminderMarker: null
   }
 }
