@@ -8,6 +8,7 @@ export default defineConfig({
     sveltekit(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['icons/apple-touch-icon.png'],
       manifest: {
         name: 'Receipt to ZenMoney',
         short_name: 'ReceiptZM',
@@ -17,8 +18,11 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/icons/icon.svg', type: 'image/svg+xml', purpose: 'any' },
+          { src: '/icons/icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+          { src: '/icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {

@@ -8,6 +8,8 @@
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
   import type { ZenMoneyAccount } from '$lib/types'
 
+  let { data }: { data: { appVersion: string } } = $props()
+
   let claudeApiKey = $state('')
   let zenmoneyToken = $state('')
   let categoryCount = $state(0)
@@ -140,6 +142,13 @@
       <button class="btn-primary" onclick={handleSave} disabled={saving || !accountDirty}>Save Account</button>
     </section>
   {/if}
+
+  <hr />
+
+  <section>
+    <h2>App</h2>
+    <p class="hint">App Version {data.appVersion}</p>
+  </section>
 </div>
 
 <style>
