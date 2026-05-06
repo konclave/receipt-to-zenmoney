@@ -1,33 +1,45 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { Category, ParseResult } from '$lib/types'
+import Anthropic from '@anthropic-ai/sdk';
+import type { Category, ParseResult } from '$lib/types';
 
 function validateParseResult(raw: unknown): ParseResult {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw))
-    throw new Error('Invalid parse result: expected a JSON object')
-  const r = raw as Record<string, unknown>
+    throw new Error('Invalid parse result: expected a JSON object');
+  const r = raw as Record<string, unknown>;
   if (typeof r.amount !== 'number' || !isFinite(r.amount) || r.amount <= 0)
-    throw new Error(`Invalid parse result: amount must be a positive number, got ${r.amount}`)
-  if (typeof r.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r.date) || isNaN(new Date(r.date).getTime()))
-    throw new Error(`Invalid parse result: date must be a valid YYYY-MM-DD date, got ${r.date}`)
+    throw new Error(`Invalid parse result: amount must be a positive number, got ${r.amount}`);
+  if (
+    typeof r.date !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(r.date) ||
+    isNaN(new Date(r.date).getTime())
+  )
+    throw new Error(`Invalid parse result: date must be a valid YYYY-MM-DD date, got ${r.date}`);
   if (typeof r.merchant !== 'string' || r.merchant.trim() === '')
-    throw new Error(`Invalid parse result: merchant must be a non-empty string, got ${JSON.stringify(r.merchant)}`)
+    throw new Error(
+      `Invalid parse result: merchant must be a non-empty string, got ${JSON.stringify(r.merchant)}`,
+    );
   if (typeof r.categoryId !== 'string' || r.categoryId.trim() === '')
-    throw new Error(`Invalid parse result: categoryId must be a non-empty string, got ${JSON.stringify(r.categoryId)}`)
+    throw new Error(
+      `Invalid parse result: categoryId must be a non-empty string, got ${JSON.stringify(r.categoryId)}`,
+    );
   if (!['high', 'medium', 'low'].includes(r.confidence as string))
-    throw new Error(`Invalid parse result: confidence must be high/medium/low, got ${r.confidence}`)
+    throw new Error(
+      `Invalid parse result: confidence must be high/medium/low, got ${r.confidence}`,
+    );
   if (typeof r.currency !== 'string' || r.currency.trim() === '')
-    throw new Error(`Invalid parse result: currency must be a non-empty string, got ${JSON.stringify(r.currency)}`)
-  return raw as ParseResult
+    throw new Error(
+      `Invalid parse result: currency must be a non-empty string, got ${JSON.stringify(r.currency)}`,
+    );
+  return raw as ParseResult;
 }
 
 export async function parseReceipt(
   imageBase64: string,
   categories: Category[],
-  apiKey: string
+  apiKey: string,
 ): Promise<ParseResult> {
-  const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true })
-  const categoryList = categories.map((c) => `${c.id}: ${c.title}`).join('\n')
-  const today = new Date().toISOString().slice(0, 10)
+  const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+  const categoryList = categories.map((c) => `${c.id}: ${c.title}`).join('\n');
+  const today = new Date().toISOString().slice(0, 10);
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
@@ -38,7 +50,7 @@ export async function parseReceipt(
         content: [
           {
             type: 'image',
-            source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 }
+            source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 },
           },
           {
             type: 'text',
@@ -51,13 +63,13 @@ ${categoryList}
 - transaction date (ISO 8601, use today ${today} if not visible)
 
 Respond ONLY with valid JSON, no markdown:
-{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low"}`
-          }
-        ]
-      }
-    ]
-  })
+{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low"}`,
+          },
+        ],
+      },
+    ],
+  });
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : ''
-  return validateParseResult(JSON.parse(text))
+  const text = response.content[0].type === 'text' ? response.content[0].text : '';
+  return validateParseResult(JSON.parse(text));
 }
