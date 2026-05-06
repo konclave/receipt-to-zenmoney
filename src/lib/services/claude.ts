@@ -1,6 +1,21 @@
 import Anthropic from '@anthropic-ai/sdk'
 import type { Category, ParseResult } from '$lib/types'
 
+function validateParseResult(raw: unknown): ParseResult {
+  const r = raw as Record<string, unknown>
+  if (typeof r.amount !== 'number' || !isFinite(r.amount) || r.amount <= 0)
+    throw new Error(`Invalid parse result: amount must be a positive number, got ${r.amount}`)
+  if (typeof r.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(r.date))
+    throw new Error(`Invalid parse result: date must be YYYY-MM-DD, got ${r.date}`)
+  if (typeof r.merchant !== 'string' || r.merchant.trim() === '')
+    throw new Error('Invalid parse result: merchant must be a non-empty string')
+  if (!['high', 'medium', 'low'].includes(r.confidence as string))
+    throw new Error(`Invalid parse result: confidence must be high/medium/low, got ${r.confidence}`)
+  if (typeof r.currency !== 'string' || r.currency.trim() === '')
+    throw new Error('Invalid parse result: currency must be a non-empty string')
+  return raw as ParseResult
+}
+
 export async function parseReceipt(
   imageBase64: string,
   categories: Category[],
@@ -40,5 +55,5 @@ Respond ONLY with valid JSON, no markdown:
   })
 
   const text = response.content[0].type === 'text' ? response.content[0].text : ''
-  return JSON.parse(text) as ParseResult
+  return validateParseResult(JSON.parse(text))
 }

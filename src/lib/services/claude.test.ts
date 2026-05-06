@@ -61,4 +61,34 @@ describe('parseReceipt', () => {
     mockAnthropic('not json at all')
     await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow()
   })
+
+  it('throws when amount is not a positive number', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, amount: -5 }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('amount')
+  })
+
+  it('throws when amount is zero', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, amount: 0 }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('amount')
+  })
+
+  it('throws when date is not YYYY-MM-DD format', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, date: '05/05/2026' }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('date')
+  })
+
+  it('throws when merchant is empty string', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, merchant: '' }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('merchant')
+  })
+
+  it('throws when confidence is not high/medium/low', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, confidence: 'very-high' }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('confidence')
+  })
+
+  it('throws when currency is empty string', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, currency: '' }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('currency')
+  })
 })
