@@ -4,6 +4,7 @@
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories, saveCategories } from '$lib/db/categories'
   import { getAccounts, saveAccounts } from '$lib/db/accounts'
+  import { saveInstruments } from '$lib/db/instruments'
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
   import type { ZenMoneyAccount } from '$lib/types'
 
@@ -17,16 +18,23 @@
   let syncing = $state(false)
   let error = $state<string | null>(null)
   let success = $state<string | null>(null)
-  let claudeApiKeySaved = $state(false)
-  let zenmoneyTokenSaved = $state(false)
+  let savedClaudeApiKey = $state('')
+  let savedZenmoneyToken = $state('')
+  let savedAccountId = $state('')
+
+  let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0)
+  let zenmoneyTokenSaved = $derived(savedZenmoneyToken.length > 0)
+  let settingsDirty = $derived(claudeApiKey !== savedClaudeApiKey || zenmoneyToken !== savedZenmoneyToken)
+  let accountDirty = $derived(selectedAccountId !== savedAccountId)
 
   onMount(async () => {
     const s = await getSettings()
     claudeApiKey = s.claudeApiKey
     zenmoneyToken = s.zenmoneyToken
     selectedAccountId = s.zenmoneyAccountId
-    claudeApiKeySaved = s.claudeApiKey.length > 0
-    zenmoneyTokenSaved = s.zenmoneyToken.length > 0
+    savedClaudeApiKey = s.claudeApiKey
+    savedZenmoneyToken = s.zenmoneyToken
+    savedAccountId = s.zenmoneyAccountId
     const [cats, savedAccounts] = await Promise.all([getCategories(), getAccounts()])
     categoryCount = cats.length
     accounts = savedAccounts
@@ -39,8 +47,9 @@
     try {
       await saveSettings({ claudeApiKey, zenmoneyToken })
       if (selectedAccountId) await saveSettings({ zenmoneyAccountId: selectedAccountId })
-      claudeApiKeySaved = claudeApiKey.length > 0
-      zenmoneyTokenSaved = zenmoneyToken.length > 0
+      savedClaudeApiKey = claudeApiKey
+      savedZenmoneyToken = zenmoneyToken
+      savedAccountId = selectedAccountId
       success = 'Saved'
       setTimeout(() => (success = null), 2000)
     } catch (e) {
@@ -58,13 +67,15 @@
       if (!s.zenmoneyToken) throw new Error('ZenMoney token is required')
       const response = await syncDiff(s.zenmoneyToken, 0)
       const cats = mapResponseToCategories(response)
-      await Promise.all([saveCategories(cats), saveAccounts(response.account)])
-      await saveSettings({ zenmoneyServerTimestamp: response.serverTimestamp })
+      await Promise.all([saveCategories(cats), saveAccounts(response.account), saveInstruments(response.instrument)])
+      const userId = response.user[0]?.id ?? 0
+      await saveSettings({ zenmoneyServerTimestamp: response.serverTimestamp, zenmoneyUserId: userId })
       categoryCount = cats.length
       lastSyncDate = new Date().toLocaleDateString()
       accounts = response.account
       if (response.account.length === 1) {
         selectedAccountId = response.account[0].id
+        savedAccountId = response.account[0].id
         await saveSettings({ zenmoneyAccountId: response.account[0].id })
       }
     } catch (e) {
@@ -101,7 +112,7 @@
     <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
   </section>
 
-  <button class="btn-primary" onclick={handleSave} disabled={saving}>
+  <button class="btn-primary" onclick={handleSave} disabled={saving || !settingsDirty}>
     {saving ? 'Saving…' : 'Save Settings'}
   </button>
 
@@ -126,7 +137,7 @@
           <option value={acc.id}>{acc.title}</option>
         {/each}
       </select>
-      <button class="btn-primary" onclick={handleSave}>Save Account</button>
+      <button class="btn-primary" onclick={handleSave} disabled={saving || !accountDirty}>Save Account</button>
     </section>
   {/if}
 </div>

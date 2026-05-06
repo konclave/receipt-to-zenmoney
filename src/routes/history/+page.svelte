@@ -3,6 +3,7 @@
   import { getTransactions, updateTransaction } from '$lib/db/transactions'
   import { getCategories } from '$lib/db/categories'
   import { getSettings, saveSettings } from '$lib/db/settings'
+  import { getInstrumentByCurrency } from '$lib/db/instruments'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import TransactionCard from '$lib/components/TransactionCard.svelte'
   import type { Transaction, Category } from '$lib/types'
@@ -22,12 +23,17 @@
     const accountId = tx.accountId || settings.zenmoneyAccountId
     if (!accountId)
       throw new Error('No ZenMoney account set — go to Settings → Reload Categories')
+    if (!settings.zenmoneyUserId)
+      throw new Error('No ZenMoney user ID — go to Settings → Reload Categories')
+    const instrument = await getInstrumentByCurrency(tx.currency)
+    if (!instrument)
+      throw new Error(`No ZenMoney instrument for currency ${tx.currency} — go to Settings → Reload Categories`)
 
     await updateTransaction(tx.id, { status: 'pending' })
     transactions = await getTransactions()
 
     try {
-      const payload = buildTransactionPayload(tx, accountId)
+      const payload = buildTransactionPayload(tx, accountId, settings.zenmoneyUserId, instrument.id)
       const diffResponse = await syncDiff(
         settings.zenmoneyToken,
         settings.zenmoneyServerTimestamp,
