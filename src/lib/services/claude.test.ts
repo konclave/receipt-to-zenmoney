@@ -91,4 +91,19 @@ describe('parseReceipt', () => {
     mockAnthropic(JSON.stringify({ ...PARSE_RESULT, currency: '' }))
     await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('currency')
   })
+
+  it('throws when response is not a JSON object', async () => {
+    mockAnthropic('null')
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('expected a JSON object')
+  })
+
+  it('throws when amount is a string instead of number', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, amount: '1250' }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('amount')
+  })
+
+  it('throws when categoryId is empty', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, categoryId: '' }))
+    await expect(parseReceipt('img', CATEGORIES, 'key')).rejects.toThrow('categoryId')
+  })
 })
