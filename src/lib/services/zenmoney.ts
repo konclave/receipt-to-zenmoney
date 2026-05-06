@@ -35,9 +35,10 @@ export function mapResponseToCategories(response: ZenMoneySyncResponse): Categor
   }))
 }
 
-export function buildTransactionPayload(tx: Transaction, accountId: string): object {
+export function buildTransactionPayload(tx: Transaction, accountId: string, userId: number): object {
   return {
     id: tx.id,
+    user: userId,
     date: tx.date,
     income: 0,
     incomeAccount: accountId,

@@ -4,6 +4,7 @@ import type { ZenMoneySyncResponse, Transaction } from '$lib/types'
 
 const MOCK_RESPONSE: ZenMoneySyncResponse = {
   serverTimestamp: 1746441600,
+  user: [{ id: 42 }],
   tag: [
     { id: 'tag-1', title: 'Groceries', parent: null },
     { id: 'tag-2', title: 'Transport', parent: null },
@@ -91,9 +92,10 @@ describe('buildTransactionPayload', () => {
       status: 'pending',
       createdAt: 1000
     }
-    const payload = buildTransactionPayload(tx, 'acc-1')
+    const payload = buildTransactionPayload(tx, 'acc-1', 42)
     expect(payload).toMatchObject({
       id: 'local-uuid',
+      user: 42,
       date: '2026-05-05',
       income: 0,
       incomeAccount: 'acc-1',

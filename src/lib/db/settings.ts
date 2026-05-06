@@ -5,17 +5,19 @@ import type { Settings } from '$lib/types'
 
 export async function getSettings(): Promise<Settings> {
   const db = await getDb()
-  const [apiKeyRaw, tokenRaw, ts, accountId] = await Promise.all([
+  const [apiKeyRaw, tokenRaw, ts, accountId, userId] = await Promise.all([
     db.get('settings', 'claudeApiKey'),
     db.get('settings', 'zenmoneyToken'),
     db.get('settings', 'zenmoneyServerTimestamp'),
-    db.get('settings', 'zenmoneyAccountId')
+    db.get('settings', 'zenmoneyAccountId'),
+    db.get('settings', 'zenmoneyUserId')
   ])
   return {
     claudeApiKey: apiKeyRaw ? await decrypt(apiKeyRaw as string) : '',
     zenmoneyToken: tokenRaw ? await decrypt(tokenRaw as string) : '',
     zenmoneyServerTimestamp: (ts as number) ?? 0,
-    zenmoneyAccountId: (accountId as string) ?? ''
+    zenmoneyAccountId: (accountId as string) ?? '',
+    zenmoneyUserId: (userId as number) ?? 0
   }
 }
 
@@ -41,6 +43,8 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     puts.push(tx.store.put(partial.zenmoneyServerTimestamp, 'zenmoneyServerTimestamp'))
   if (partial.zenmoneyAccountId !== undefined)
     puts.push(tx.store.put(partial.zenmoneyAccountId, 'zenmoneyAccountId'))
+  if (partial.zenmoneyUserId !== undefined)
+    puts.push(tx.store.put(partial.zenmoneyUserId, 'zenmoneyUserId'))
   await Promise.all(puts)
   await tx.done
 }

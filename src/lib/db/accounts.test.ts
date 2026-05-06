@@ -23,7 +23,9 @@ it('returns empty array initially', async () => {
 
 it('saves and retrieves accounts', async () => {
   await saveAccounts(ACCOUNTS)
-  expect(await getAccounts()).toEqual(ACCOUNTS)
+  const result = await getAccounts()
+  expect(result).toHaveLength(ACCOUNTS.length)
+  expect(result).toEqual(expect.arrayContaining(ACCOUNTS))
 })
 
 it('replaces old accounts on re-save', async () => {

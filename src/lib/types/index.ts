@@ -37,6 +37,7 @@ export interface Settings {
   zenmoneyToken: string
   zenmoneyServerTimestamp: number
   zenmoneyAccountId: string
+  zenmoneyUserId: number
 }
 
 export interface ZenMoneyTag {
@@ -50,8 +51,13 @@ export interface ZenMoneyAccount {
   title: string
 }
 
+export interface ZenMoneyUser {
+  id: number
+}
+
 export interface ZenMoneySyncResponse {
   serverTimestamp: number
+  user: ZenMoneyUser[]
   tag: ZenMoneyTag[]
   account: ZenMoneyAccount[]
 }

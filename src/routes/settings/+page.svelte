@@ -59,7 +59,8 @@
       const response = await syncDiff(s.zenmoneyToken, 0)
       const cats = mapResponseToCategories(response)
       await Promise.all([saveCategories(cats), saveAccounts(response.account)])
-      await saveSettings({ zenmoneyServerTimestamp: response.serverTimestamp })
+      const userId = response.user[0]?.id ?? 0
+      await saveSettings({ zenmoneyServerTimestamp: response.serverTimestamp, zenmoneyUserId: userId })
       categoryCount = cats.length
       lastSyncDate = new Date().toLocaleDateString()
       accounts = response.account

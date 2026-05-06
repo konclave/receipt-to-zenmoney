@@ -22,12 +22,14 @@
     const accountId = tx.accountId || settings.zenmoneyAccountId
     if (!accountId)
       throw new Error('No ZenMoney account set — go to Settings → Reload Categories')
+    if (!settings.zenmoneyUserId)
+      throw new Error('No ZenMoney user ID — go to Settings → Reload Categories')
 
     await updateTransaction(tx.id, { status: 'pending' })
     transactions = await getTransactions()
 
     try {
-      const payload = buildTransactionPayload(tx, accountId)
+      const payload = buildTransactionPayload(tx, accountId, settings.zenmoneyUserId)
       const diffResponse = await syncDiff(
         settings.zenmoneyToken,
         settings.zenmoneyServerTimestamp,
