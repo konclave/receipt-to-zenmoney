@@ -25,27 +25,52 @@
 
   onDestroy(() => stream?.getTracks().forEach((t) => t.stop()))
 
-  function captureFromVideo() {
+  async function compressToJpeg(base64: string, mimeType: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => {
+        const MAX = 1280
+        let { width, height } = img
+        if (width > MAX || height > MAX) {
+          if (width > height) {
+            height = Math.round((height * MAX) / width)
+            width = MAX
+          } else {
+            width = Math.round((width * MAX) / height)
+            height = MAX
+          }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', 0.85).split(',')[1])
+      }
+      img.onerror = reject
+      img.src = `data:${mimeType};base64,${base64}`
+    })
+  }
+
+  async function captureFromVideo() {
     if (!videoEl || !canvasEl) return
     canvasEl.width = videoEl.videoWidth
     canvasEl.height = videoEl.videoHeight
     canvasEl.getContext('2d')!.drawImage(videoEl, 0, 0)
-    const imageBase64 = canvasEl.toDataURL('image/jpeg', 0.9).split(',')[1]
-    captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
+    const rawBase64 = canvasEl.toDataURL('image/jpeg', 1).split(',')[1]
     stream?.getTracks().forEach((t) => t.stop())
+    const imageBase64 = await compressToJpeg(rawBase64, 'image/jpeg')
+    captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
     goto('/review')
   }
 
-  function handleFileChange(e: Event) {
+  async function handleFileChange(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = () => {
+    reader.onload = async () => {
       const dataUrl = reader.result as string
-      captureStore.set({
-        imageBase64: dataUrl.split(',')[1],
-        mimeType: file.type as 'image/jpeg' | 'image/png' | 'image/webp'
-      })
+      const imageBase64 = await compressToJpeg(dataUrl.split(',')[1], file.type)
+      captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
       goto('/review')
     }
     reader.readAsDataURL(file)
