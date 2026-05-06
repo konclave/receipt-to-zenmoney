@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.2.0...v1.3.0) (2026-05-06)
+
+
+### Features
+
+* add app version to settings page ([5d61a09](https://github.com/konclave/receipt-to-zenmoney/commit/5d61a096909f6dcf40de301a5cd2b61cce0d1a29))
+* update icons ([ab7d9aa](https://github.com/konclave/receipt-to-zenmoney/commit/ab7d9aab4b30eb006a4e4e5862bf7f6baa323fd2))
+
 # [1.2.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.1.0...v1.2.0) (2026-05-06)
 
 
