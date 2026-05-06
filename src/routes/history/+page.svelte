@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { getTransactions } from '$lib/db/transactions'
+  import { getTransactions, updateTransaction } from '$lib/db/transactions'
   import { getCategories } from '$lib/db/categories'
+  import { getSettings, saveSettings } from '$lib/db/settings'
+  import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import TransactionCard from '$lib/components/TransactionCard.svelte'
   import type { Transaction, Category } from '$lib/types'
 
@@ -13,6 +15,32 @@
     ;[transactions, categories] = await Promise.all([getTransactions(), getCategories()])
     loading = false
   })
+
+  async function retryTransaction(tx: Transaction): Promise<void> {
+    const settings = await getSettings()
+    if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
+    if (!settings.zenmoneyAccountId)
+      throw new Error('No default account set — go to Settings → Reload Categories')
+
+    await updateTransaction(tx.id, { status: 'pending' })
+    transactions = await getTransactions()
+
+    try {
+      const payload = buildTransactionPayload(tx, settings.zenmoneyAccountId)
+      const diffResponse = await syncDiff(
+        settings.zenmoneyToken,
+        settings.zenmoneyServerTimestamp,
+        [payload]
+      )
+      await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
+      await updateTransaction(tx.id, { status: 'submitted', zenmoneyId: tx.id })
+    } catch (e) {
+      await updateTransaction(tx.id, { status: 'failed' })
+      throw e
+    } finally {
+      transactions = await getTransactions()
+    }
+  }
 </script>
 
 <div class="page">
@@ -27,7 +55,7 @@
   {:else}
     <div class="list">
       {#each transactions as tx (tx.id)}
-        <TransactionCard transaction={tx} {categories} />
+        <TransactionCard transaction={tx} {categories} onRetry={retryTransaction} />
       {/each}
     </div>
   {/if}
