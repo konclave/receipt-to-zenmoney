@@ -1,4 +1,5 @@
 node_modules
+package-lock.json
 
 # Yarn PnP (auto-generated, not used with pnpm)
 .pnp.cjs
