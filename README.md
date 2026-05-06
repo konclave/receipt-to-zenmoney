@@ -50,6 +50,12 @@ Preview the production build locally:
 pnpm preview
 ```
 
+## Key storage and security
+
+Your Claude API key and ZenMoney token are encrypted with AES-GCM-256 before being written to IndexedDB. The encryption key is generated once, stored as a non-extractable `CryptoKey` object in a separate IndexedDB store, and never serialised to a string. It cannot be read back by JavaScript — only used for encrypt/decrypt operations within the same browser origin.
+
+This protects your credentials from casual inspection (DevTools, browser backups, exported storage). It does not protect against malicious code running on the same origin, which is an inherent limitation of any client-side secret store. For a personal single-user tool this is the appropriate trade-off.
+
 ## Installing as a PWA
 
 After opening the production build in a mobile browser, use the browser menu to **Add to Home Screen**. The app then opens in standalone mode (no browser chrome) and works like a native app.
