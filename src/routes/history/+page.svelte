@@ -19,14 +19,15 @@
   async function retryTransaction(tx: Transaction): Promise<void> {
     const settings = await getSettings()
     if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
-    if (!settings.zenmoneyAccountId)
-      throw new Error('No default account set — go to Settings → Reload Categories')
+    const accountId = tx.accountId || settings.zenmoneyAccountId
+    if (!accountId)
+      throw new Error('No ZenMoney account set — go to Settings → Reload Categories')
 
     await updateTransaction(tx.id, { status: 'pending' })
     transactions = await getTransactions()
 
     try {
-      const payload = buildTransactionPayload(tx, settings.zenmoneyAccountId)
+      const payload = buildTransactionPayload(tx, accountId)
       const diffResponse = await syncDiff(
         settings.zenmoneyToken,
         settings.zenmoneyServerTimestamp,

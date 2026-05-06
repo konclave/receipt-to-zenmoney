@@ -8,6 +8,7 @@ function makeTx(overrides: Partial<Transaction> = {}): Transaction {
   return {
     id: crypto.randomUUID(),
     zenmoneyId: null,
+    accountId: 'acc-1',
     amount: 100,
     currency: 'RUB',
     merchant: 'Test Store',
@@ -41,11 +42,12 @@ it('returns newest date first', async () => {
 })
 
 it('saves and retrieves a transaction', async () => {
-  const tx = makeTx({ id: 'tx-1', amount: 500 })
+  const tx = makeTx({ id: 'tx-1', amount: 500, accountId: 'acc-cash' })
   await saveTransaction(tx)
   const result = await getTransactions()
   expect(result).toHaveLength(1)
   expect(result[0].amount).toBe(500)
+  expect(result[0].accountId).toBe('acc-cash')
 })
 
 it('updateTransaction changes status and zenmoneyId', async () => {

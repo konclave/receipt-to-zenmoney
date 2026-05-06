@@ -4,16 +4,19 @@
   import { goto } from '$app/navigation'
   import { captureStore } from '$lib/stores/capture'
   import { parseReceipt } from '$lib/services/claude'
+  import { resolveReviewAccountId } from '$lib/services/review-account'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
+  import { getAccounts } from '$lib/db/accounts'
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories } from '$lib/db/categories'
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
   import { getPendingCapture, clearPendingCapture } from '$lib/db/pending-capture'
   import CategoryPicker from '$lib/components/CategoryPicker.svelte'
-  import type { Category, PendingCapture } from '$lib/types'
+  import type { Category, PendingCapture, ZenMoneyAccount } from '$lib/types'
 
   let capture = $state<PendingCapture | null>(get(captureStore))
   let categories = $state<Category[]>([])
+  let accounts = $state<ZenMoneyAccount[]>([])
   let parsing = $state(true)
   let submitting = $state(false)
   let parseError = $state<string | null>(null)
@@ -23,6 +26,7 @@
   let amount = $state('')
   let merchant = $state('')
   let categoryId = $state('')
+  let selectedAccountId = $state('')
   let date = $state(new Date().toISOString().slice(0, 10))
   let currency = $state('RUB')
 
@@ -36,9 +40,11 @@
     }
     if (!capture) { goto('/'); return }
 
-    categories = await getCategories()
+    const settings = await getSettings()
+    ;[categories, accounts] = await Promise.all([getCategories(), getAccounts()])
+    selectedAccountId = resolveReviewAccountId(accounts, settings.zenmoneyAccountId)
+
     try {
-      const settings = await getSettings()
       if (!settings.claudeApiKey) throw new Error('Claude API key not set in Settings')
       const result = await parseReceipt(capture.imageBase64, categories, settings.claudeApiKey)
       amount = String(result.amount)
@@ -63,10 +69,12 @@
   async function handleSubmit() {
     submitting = true
     submitError = null
+    const reviewAccountId = selectedAccountId
     const txId = crypto.randomUUID()
     const tx = {
       id: txId,
       zenmoneyId: null,
+      accountId: reviewAccountId,
       amount: parseFloat(amount) || 0,
       currency,
       merchant,
@@ -79,9 +87,9 @@
     try {
       const settings = await getSettings()
       if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
-      if (!settings.zenmoneyAccountId)
-        throw new Error('No default account set — go to Settings → Reload Categories')
-      const payload = buildTransactionPayload(tx, settings.zenmoneyAccountId)
+      if (!reviewAccountId)
+        throw new Error('No ZenMoney account available — go to Settings and reload categories')
+      const payload = buildTransactionPayload(tx, reviewAccountId)
       const diffResponse = await syncDiff(settings.zenmoneyToken, settings.zenmoneyServerTimestamp, [payload])
       await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
       await updateTransaction(txId, { status: 'submitted', zenmoneyId: txId })
@@ -119,6 +127,7 @@
   {:else}
     {#if parseError}<div class="alert warning">{parseError}</div>{/if}
     {#if lowConfidence}<div class="alert warning">Low confidence — please double-check values.</div>{/if}
+    {#if accounts.length === 0}<div class="alert warning">No accounts loaded — go to Settings and tap Reload Categories before submitting.</div>{/if}
     {#if submitError}<div class="alert error">{submitError}</div>{/if}
 
     <form class="form" onsubmit={(e) => { e.preventDefault(); handleSubmit() }}>
@@ -134,6 +143,16 @@
         <span class="label">Category</span>
         <CategoryPicker {categories} bind:value={categoryId} />
       </div>
+      {#if accounts.length > 1}
+        <div class="field">
+          <label for="account">Account</label>
+          <select id="account" bind:value={selectedAccountId}>
+            {#each accounts as account}
+              <option value={account.id}>{account.title}</option>
+            {/each}
+          </select>
+        </div>
+      {/if}
       <div class="field">
         <label for="date">Date</label>
         <input id="date" type="date" bind:value={date} required />
@@ -157,6 +176,7 @@
   .form { display: flex; flex-direction: column; gap: 16px; }
   .field { display: flex; flex-direction: column; gap: 6px; }
   label, .label { font-size: 13px; font-weight: 500; color: var(--color-text-muted); }
+  select { appearance: none; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px; font-size: 15px; color: var(--color-text); }
   .btn-primary { background: var(--color-primary); color: white; border-radius: var(--radius-sm); padding: 16px; font-weight: 600; font-size: 16px; margin-top: 8px; }
   .btn-primary:disabled { opacity: 0.5; }
   .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; }
