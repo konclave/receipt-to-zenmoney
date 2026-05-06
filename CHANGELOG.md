@@ -1,3 +1,22 @@
+# [1.1.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.0.0...v1.1.0) (2026-05-06)
+
+
+### Bug Fixes
+
+* clarify zenmoneyId strategy, scope onRetry to failed cards, improve error display ([85da8fb](https://github.com/konclave/receipt-to-zenmoney/commit/85da8fb61472a0cb6ac389615bd20831ef748168))
+* handle compression error and null check in file picker ([b478f34](https://github.com/konclave/receipt-to-zenmoney/commit/b478f34aa0a4d4fb6694a9a312071beac3024d58))
+* key-presence dot reflects saved state, add role=img for accessibility ([8403b28](https://github.com/konclave/receipt-to-zenmoney/commit/8403b28bc30be2e9ff93984be0cdcd37eaec3ac9))
+* strengthen Claude output validation (null guard, categoryId, date validity) ([28be6d9](https://github.com/konclave/receipt-to-zenmoney/commit/28be6d9d7ad298ce6e2dbba0ee7ccab32314692a))
+
+
+### Features
+
+* add key-presence indicator to settings screen ([11b7616](https://github.com/konclave/receipt-to-zenmoney/commit/11b761626bb6c5df1ff9f36c223ca6d33df20def))
+* add retry button for failed transactions in history ([ef7b41a](https://github.com/konclave/receipt-to-zenmoney/commit/ef7b41a7cd50228105aeaa61f22dd3acb30c6686))
+* compress receipt images to JPEG before capture (max 1280px, q=0.85) ([bfd1681](https://github.com/konclave/receipt-to-zenmoney/commit/bfd168156803823d8d0d798d2cc6bd7024b77984))
+* persist pending capture in IndexedDB to survive PWA refresh ([8904042](https://github.com/konclave/receipt-to-zenmoney/commit/8904042d707ea3d942cdb90479aff6098f8e897a))
+* validate Claude parse result fields before use ([b245d6f](https://github.com/konclave/receipt-to-zenmoney/commit/b245d6f21eec11fd52bdc89f475976938e492974))
+
 # 1.0.0 (2026-05-06)
 
 
