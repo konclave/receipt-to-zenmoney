@@ -68,10 +68,15 @@
     if (!file) return
     const reader = new FileReader()
     reader.onload = async () => {
-      const dataUrl = reader.result as string
-      const imageBase64 = await compressToJpeg(dataUrl.split(',')[1], file.type)
-      captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
-      goto('/review')
+      try {
+        const dataUrl = reader.result
+        if (typeof dataUrl !== 'string') return
+        const imageBase64 = await compressToJpeg(dataUrl.split(',')[1], file.type)
+        captureStore.set({ imageBase64, mimeType: 'image/jpeg' })
+        goto('/review')
+      } catch {
+        cameraError = 'Could not process the selected image. Please try another file.'
+      }
     }
     reader.readAsDataURL(file)
   }
