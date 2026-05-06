@@ -13,7 +13,7 @@ export interface Category {
 export interface Transaction {
   id: string
   zenmoneyId: string | null
-  accountId: string
+  accountId?: string
   amount: number
   currency: string
   merchant: string

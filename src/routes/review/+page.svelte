@@ -69,7 +69,7 @@
   async function handleSubmit() {
     submitting = true
     submitError = null
-    const reviewAccountId = selectedAccountId || (accounts.length === 1 ? accounts[0].id : '')
+    const reviewAccountId = selectedAccountId
     const txId = crypto.randomUUID()
     const tx = {
       id: txId,
@@ -127,6 +127,7 @@
   {:else}
     {#if parseError}<div class="alert warning">{parseError}</div>{/if}
     {#if lowConfidence}<div class="alert warning">Low confidence — please double-check values.</div>{/if}
+    {#if accounts.length === 0}<div class="alert warning">No accounts loaded — go to Settings and tap Reload Categories before submitting.</div>{/if}
     {#if submitError}<div class="alert error">{submitError}</div>{/if}
 
     <form class="form" onsubmit={(e) => { e.preventDefault(); handleSubmit() }}>
@@ -175,7 +176,7 @@
   .form { display: flex; flex-direction: column; gap: 16px; }
   .field { display: flex; flex-direction: column; gap: 6px; }
   label, .label { font-size: 13px; font-weight: 500; color: var(--color-text-muted); }
-  select { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px; font-size: 15px; color: var(--color-text); }
+  select { appearance: none; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px; font-size: 15px; color: var(--color-text); }
   .btn-primary { background: var(--color-primary); color: white; border-radius: var(--radius-sm); padding: 16px; font-weight: 600; font-size: 16px; margin-top: 8px; }
   .btn-primary:disabled { opacity: 0.5; }
   .alert { padding: 12px; border-radius: var(--radius-sm); font-size: 13px; }
