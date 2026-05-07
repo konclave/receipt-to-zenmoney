@@ -75,7 +75,7 @@
     const savedModel = s.openrouterModel
     fetch('https://openrouter.ai/api/v1/models')
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((json: { data: Array<{ id: string; name: string; architecture?: { modality?: string; input_modalities?: string[] } }> }) => {
+      .then((json: { data: Array<{ id: string; name: string; pricing?: { prompt?: string; completion?: string }; architecture?: { modality?: string; input_modalities?: string[] } }> }) => {
         const vision = json.data
           .filter(
             (m) =>
@@ -83,6 +83,10 @@
               m.architecture?.modality?.includes('image'),
           )
           .sort((a, b) => a.id.localeCompare(b.id))
+          .map((m) => {
+            const free = m.pricing?.prompt === '0' && m.pricing?.completion === '0'
+            return { id: m.id, name: (free ? '🆓 ' : '') + (m.name || m.id) }
+          })
         if (savedModel && !vision.find((m) => m.id === savedModel))
           vision.unshift({ id: savedModel, name: savedModel })
         orModels = vision
