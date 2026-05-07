@@ -28,7 +28,7 @@
   let backupError = $state<string | null>(null)
   let exporting = $state(false)
   let importing = $state(false)
-  let fileInput: HTMLInputElement
+  let fileInput = $state<HTMLInputElement | undefined>(undefined)
 
   let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0)
   let zenmoneyTokenSaved = $derived(savedZenmoneyToken.length > 0)
@@ -203,10 +203,10 @@
     <button class="btn-secondary" onclick={handleExport} disabled={exporting || importing}>
       {exporting ? 'Exporting…' : 'Export backup'}
     </button>
-    <button class="btn-secondary" onclick={() => fileInput.click()} disabled={exporting || importing}>
+    <button class="btn-secondary" onclick={() => fileInput?.click()} disabled={exporting || importing}>
       {importing ? 'Importing…' : 'Import backup'}
     </button>
-    <input bind:this={fileInput} type="file" accept=".gz,.rzm.gz" style="display:none" onchange={handleImport} />
+    <input aria-hidden="true" bind:this={fileInput} type="file" accept=".rzm.gz" style="display:none" onchange={handleImport} />
   </section>
 
   <hr />
