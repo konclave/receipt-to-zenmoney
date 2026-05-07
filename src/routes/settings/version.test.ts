@@ -15,7 +15,6 @@ describe('settings version info', () => {
       'utf8',
     );
 
-    expect(settingsPage).toContain('App Version');
-    expect(settingsPage).toContain('data.appVersion');
+    expect(settingsPage).toContain('Version {data.appVersion}');
   });
 });

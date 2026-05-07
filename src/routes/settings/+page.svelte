@@ -396,8 +396,16 @@
 
   <hr />
 
-  <section>
-    <p class="hint">App Version {data.appVersion}</p>
+  <section class="footer-section">
+    <div class="version-row">
+      <span class="hint">Version {data.appVersion}</span>
+      <a
+        href="https://github.com/konclave/receipt-to-zenmoney/issues"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="issue-link"
+      >Report a bug ↗</a>
+    </div>
   </section>
 
   {#if cleanupModalOpen && storageStats}
@@ -442,4 +450,7 @@
   .storage-size { font-size: 22px; font-weight: 700; }
   .btn-danger { background: color-mix(in srgb, var(--color-error, #d93025) 12%, transparent); color: var(--color-error, #d93025); border: 1px solid color-mix(in srgb, var(--color-error, #d93025) 30%, transparent); border-radius: var(--radius-sm); padding: 12px; font-weight: 500; font-size: 15px; cursor: pointer; }
   .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+  .footer-section { display: flex; flex-direction: column; gap: 8px; }
+  .version-row { display: flex; align-items: center; justify-content: space-between; }
+  .issue-link { font-size: 12px; color: var(--color-text-muted); text-decoration: none; }
 </style>
