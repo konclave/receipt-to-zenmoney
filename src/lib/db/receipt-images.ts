@@ -3,19 +3,14 @@ import type { ReceiptImage } from '$lib/types';
 
 export async function saveReceiptImage(txId: string, image: ReceiptImage): Promise<void> {
   const db = await getDb();
-  await db.put('receipt-images', { blob: image.blob, mimeType: image.mimeType, blobSize: image.blob.size }, txId);
+  await db.put('receipt-images', { blob: image.blob, mimeType: image.mimeType }, txId);
 }
 
 export async function getReceiptImage(txId: string): Promise<ReceiptImage | undefined> {
   const db = await getDb();
   const row = await db.get('receipt-images', txId);
   if (!row) return undefined;
-  // Restore blob size from stored metadata if blob.size is lost (e.g., in fake-indexeddb)
-  const blob = row.blob;
-  if (blob.size === undefined && row.blobSize !== undefined) {
-    Object.defineProperty(blob, 'size', { value: row.blobSize, configurable: true });
-  }
-  return { blob, mimeType: row.mimeType as ReceiptImage['mimeType'] };
+  return { blob: row.blob, mimeType: row.mimeType as ReceiptImage['mimeType'] };
 }
 
 export async function bulkGetReceiptImages(txIds: string[]): Promise<Map<string, ReceiptImage>> {
@@ -25,14 +20,7 @@ export async function bulkGetReceiptImages(txIds: string[]): Promise<Map<string,
   const map = new Map<string, ReceiptImage>();
   txIds.forEach((id, i) => {
     const row = rows[i];
-    if (row) {
-      // Restore blob size from stored metadata if blob.size is lost (e.g., in fake-indexeddb)
-      const blob = row.blob;
-      if (blob.size === undefined && row.blobSize !== undefined) {
-        Object.defineProperty(blob, 'size', { value: row.blobSize, configurable: true });
-      }
-      map.set(id, { blob, mimeType: row.mimeType as ReceiptImage['mimeType'] });
-    }
+    if (row) map.set(id, { blob: row.blob, mimeType: row.mimeType as ReceiptImage['mimeType'] });
   });
   return map;
 }
