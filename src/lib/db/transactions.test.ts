@@ -2,6 +2,7 @@
 import { it, expect, beforeEach } from 'vitest';
 import {
   getTransactions,
+  getTransaction,
   saveTransaction,
   updateTransaction,
   bulkInsertTransactions,
@@ -89,4 +90,16 @@ it('bulkInsertTransactions overwrites existing record with same id', async () =>
   const result = await getTransactions();
   expect(result).toHaveLength(1);
   expect(result[0].amount).toBe(999);
+});
+
+it('getTransaction returns the transaction by id', async () => {
+  const tx = makeTx({ id: 'get-1', amount: 750 });
+  await saveTransaction(tx);
+  const result = await getTransaction('get-1');
+  expect(result).toBeDefined();
+  expect(result!.amount).toBe(750);
+});
+
+it('getTransaction returns undefined for unknown id', async () => {
+  expect(await getTransaction('no-such-id')).toBeUndefined();
 });

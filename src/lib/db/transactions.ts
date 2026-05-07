@@ -28,3 +28,8 @@ export async function bulkInsertTransactions(transactions: Transaction[]): Promi
   await Promise.all(transactions.map((t) => tx.store.put(t)));
   await tx.done;
 }
+
+export async function getTransaction(id: string): Promise<Transaction | undefined> {
+  const db = await getDb();
+  return db.get('transactions', id);
+}
