@@ -18,13 +18,14 @@ interface AppDB {
     indexes: { 'by-date': string };
   };
   'pending-capture': { key: string; value: PendingCapture };
+  'receipt-images': { key: string; value: { blob: Blob; mimeType: string } };
 }
 
 let _db: IDBPDatabase<AppDB> | null = null;
 
 export async function getDb(): Promise<IDBPDatabase<AppDB>> {
   if (!_db) {
-    _db = await openDB<AppDB>('rzm', 4, {
+    _db = await openDB<AppDB>('rzm', 5, {
       upgrade(db, oldVersion) {
         if (oldVersion < 1) {
           db.createObjectStore('settings');
@@ -40,6 +41,9 @@ export async function getDb(): Promise<IDBPDatabase<AppDB>> {
         }
         if (oldVersion < 4) {
           db.createObjectStore('instruments', { keyPath: 'id' });
+        }
+        if (oldVersion < 5) {
+          db.createObjectStore('receipt-images');
         }
       },
     });
