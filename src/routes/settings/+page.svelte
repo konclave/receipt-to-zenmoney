@@ -11,7 +11,10 @@
 
   let { data }: { data: { appVersion: string } } = $props()
 
+  let aiProvider = $state<'anthropic' | 'openrouter'>('anthropic')
   let claudeApiKey = $state('')
+  let openrouterApiKey = $state('')
+  let openrouterModel = $state('anthropic/claude-sonnet-4.6')
   let zenmoneyToken = $state('')
   let categoryCount = $state(0)
   let lastSyncDate = $state<string | null>(null)
@@ -21,7 +24,10 @@
   let syncing = $state(false)
   let error = $state<string | null>(null)
   let success = $state<string | null>(null)
+  let savedAiProvider = $state<'anthropic' | 'openrouter'>('anthropic')
   let savedClaudeApiKey = $state('')
+  let savedOpenrouterApiKey = $state('')
+  let savedOpenrouterModel = $state('anthropic/claude-sonnet-4.6')
   let savedZenmoneyToken = $state('')
   let savedAccountId = $state('')
   let backupStatus = $state<string | null>(null)
@@ -31,16 +37,29 @@
   let fileInput = $state<HTMLInputElement | undefined>(undefined)
 
   let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0)
+  let openrouterApiKeySaved = $derived(savedOpenrouterApiKey.length > 0)
   let zenmoneyTokenSaved = $derived(savedZenmoneyToken.length > 0)
-  let settingsDirty = $derived(claudeApiKey !== savedClaudeApiKey || zenmoneyToken !== savedZenmoneyToken)
+  let settingsDirty = $derived(
+    claudeApiKey !== savedClaudeApiKey ||
+    zenmoneyToken !== savedZenmoneyToken ||
+    aiProvider !== savedAiProvider ||
+    openrouterApiKey !== savedOpenrouterApiKey ||
+    openrouterModel !== savedOpenrouterModel,
+  )
   let accountDirty = $derived(selectedAccountId !== savedAccountId)
 
   onMount(async () => {
     const s = await getSettings()
+    aiProvider = s.aiProvider
     claudeApiKey = s.claudeApiKey
+    openrouterApiKey = s.openrouterApiKey
+    openrouterModel = s.openrouterModel
     zenmoneyToken = s.zenmoneyToken
     selectedAccountId = s.zenmoneyAccountId
+    savedAiProvider = s.aiProvider
     savedClaudeApiKey = s.claudeApiKey
+    savedOpenrouterApiKey = s.openrouterApiKey
+    savedOpenrouterModel = s.openrouterModel
     savedZenmoneyToken = s.zenmoneyToken
     savedAccountId = s.zenmoneyAccountId
     const [cats, savedAccounts] = await Promise.all([getCategories(), getAccounts()])
@@ -53,9 +72,12 @@
     saving = true
     error = null
     try {
-      await saveSettings({ claudeApiKey, zenmoneyToken })
+      await saveSettings({ claudeApiKey, zenmoneyToken, aiProvider, openrouterApiKey, openrouterModel })
       if (selectedAccountId) await saveSettings({ zenmoneyAccountId: selectedAccountId })
+      savedAiProvider = aiProvider
       savedClaudeApiKey = claudeApiKey
+      savedOpenrouterApiKey = openrouterApiKey
+      savedOpenrouterModel = openrouterModel
       savedZenmoneyToken = zenmoneyToken
       savedAccountId = selectedAccountId
       success = 'Saved'
@@ -109,7 +131,6 @@
           shared = true
         } catch (shareErr) {
           if (shareErr instanceof Error && shareErr.name === 'AbortError') return
-          // NotAllowedError (Chrome desktop) and other share failures fall through to download
         }
       }
       if (!shared) {
@@ -153,13 +174,42 @@
   {#if success}<div class="alert success">{success}</div>{/if}
 
   <section>
-    <label for="claude-key">
-      Claude API Key
-      <span class="key-dot" class:set={claudeApiKeySaved} role="img" aria-label={claudeApiKeySaved ? 'saved' : 'not saved'}>●</span>
-    </label>
-    <input id="claude-key" type="password" bind:value={claudeApiKey}
-      placeholder="sk-ant-api03-…" autocomplete="off" />
-    <p class="hint">Get yours at console.anthropic.com</p>
+    <h2>AI Provider</h2>
+    <div class="provider-tabs">
+      <button
+        type="button"
+        class="provider-tab"
+        class:active={aiProvider === 'anthropic'}
+        onclick={() => (aiProvider = 'anthropic')}
+      >Anthropic</button>
+      <button
+        type="button"
+        class="provider-tab"
+        class:active={aiProvider === 'openrouter'}
+        onclick={() => (aiProvider = 'openrouter')}
+      >OpenRouter</button>
+    </div>
+
+    {#if aiProvider === 'anthropic'}
+      <label for="claude-key">
+        API Key
+        <span class="key-dot" class:set={claudeApiKeySaved} role="img" aria-label={claudeApiKeySaved ? 'saved' : 'not saved'}>●</span>
+      </label>
+      <input id="claude-key" type="password" bind:value={claudeApiKey}
+        placeholder="sk-ant-api03-…" autocomplete="off" />
+      <p class="hint">Get yours at console.anthropic.com</p>
+    {:else}
+      <label for="or-key">
+        API Key
+        <span class="key-dot" class:set={openrouterApiKeySaved} role="img" aria-label={openrouterApiKeySaved ? 'saved' : 'not saved'}>●</span>
+      </label>
+      <input id="or-key" type="password" bind:value={openrouterApiKey}
+        placeholder="sk-or-…" autocomplete="off" />
+      <label for="or-model">Model</label>
+      <input id="or-model" type="text" bind:value={openrouterModel}
+        placeholder="anthropic/claude-sonnet-4.6" autocomplete="off" />
+      <p class="hint">Browse vision-capable models at openrouter.ai/models</p>
+    {/if}
   </section>
 
   <section>
@@ -239,4 +289,7 @@
   .alert.success { background: color-mix(in srgb, var(--color-success) 15%, transparent); border: 1px solid var(--color-success); color: var(--color-success); }
   .key-dot { font-size: 10px; margin-left: 6px; vertical-align: middle; color: var(--color-text-muted); }
   .key-dot.set { color: var(--color-success); }
+  .provider-tabs { display: flex; gap: 0; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden; }
+  .provider-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; background: var(--color-surface-2); border: none; cursor: pointer; color: var(--color-text-muted); }
+  .provider-tab.active { background: var(--color-primary); color: white; }
 </style>
