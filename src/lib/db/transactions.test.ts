@@ -1,6 +1,11 @@
 // src/lib/db/transactions.test.ts
 import { it, expect, beforeEach } from 'vitest';
-import { getTransactions, saveTransaction, updateTransaction, bulkInsertTransactions } from './transactions';
+import {
+  getTransactions,
+  saveTransaction,
+  updateTransaction,
+  bulkInsertTransactions,
+} from './transactions';
 import { _resetDb } from './index';
 import type { Transaction } from '$lib/types';
 
@@ -64,10 +69,7 @@ it('updateTransaction throws for unknown id', async () => {
 });
 
 it('bulkInsertTransactions inserts multiple transactions', async () => {
-  const txs = [
-    makeTx({ id: 'b1', date: '2026-01-01' }),
-    makeTx({ id: 'b2', date: '2026-02-01' }),
-  ];
+  const txs = [makeTx({ id: 'b1', date: '2026-01-01' }), makeTx({ id: 'b2', date: '2026-02-01' })];
   await bulkInsertTransactions(txs);
   const result = await getTransactions();
   expect(result).toHaveLength(2);

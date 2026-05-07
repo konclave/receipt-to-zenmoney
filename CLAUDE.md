@@ -1,8 +1,8 @@
 ## Project Configuration
 
 - **Language**: TypeScript
-- **Package Manager**: npm
-- **Add-ons**: vitest
+- **Package Manager**: pnpm
+- **Add-ons**: vitest, oxlint, oxfmt
 
 ---
 
@@ -20,4 +20,6 @@ The app should have the ability to reload the transaction categories manually by
 
 As a reference of the way of communication with the Zenmoney API we can use the [Zerro.app](https://github.com/ardov/zerro)
 
-This repository is currently empty. Update this file as the project takes shape.
+## New feature or bugfix 
+
+Create a separate git branch for each new feature or bugfix. Do not commit to the `main` branch.
