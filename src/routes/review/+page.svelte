@@ -12,6 +12,7 @@
   import { getCategories } from '$lib/db/categories'
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
   import { getPendingCapture, clearPendingCapture } from '$lib/db/pending-capture'
+  import { saveReceiptImage } from '$lib/db/receipt-images'
   import type { Category, PendingCapture, ZenMoneyAccount } from '$lib/types'
 
   let capture = $state<PendingCapture | null>(get(captureStore))
@@ -84,6 +85,16 @@
       createdAt: Date.now()
     }
     await saveTransaction(tx)
+
+    // Persist the receipt image; non-fatal if it fails
+    try {
+      const blob = await (await fetch(`data:${capture!.mimeType};base64,${capture!.imageBase64}`)).blob()
+      await saveReceiptImage(txId, { blob, mimeType: capture!.mimeType })
+      await updateTransaction(txId, { hasReceipt: true })
+    } catch {
+      // image save failed — transaction is still saved without hasReceipt
+    }
+
     try {
       const settings = await getSettings()
       if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')

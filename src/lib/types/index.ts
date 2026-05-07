@@ -21,6 +21,12 @@ export interface Transaction {
   date: string;
   status: 'pending' | 'submitted' | 'failed';
   createdAt: number;
+  hasReceipt?: boolean;
+}
+
+export interface ReceiptImage {
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  blob: Blob;
 }
 
 export interface ParseResult {

@@ -4,16 +4,20 @@
   import { getCategories } from '$lib/db/categories'
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getInstrumentByCurrency } from '$lib/db/instruments'
+  import { bulkGetReceiptImages } from '$lib/db/receipt-images'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import TransactionCard from '$lib/components/TransactionCard.svelte'
-  import type { Transaction, Category } from '$lib/types'
+  import type { Transaction, Category, ReceiptImage } from '$lib/types'
 
   let transactions = $state<Transaction[]>([])
   let categories = $state<Category[]>([])
+  let receiptImages = $state<Map<string, ReceiptImage>>(new Map())
   let loading = $state(true)
 
   onMount(async () => {
     ;[transactions, categories] = await Promise.all([getTransactions(), getCategories()])
+    const receiptTxIds = transactions.filter((t) => t.hasReceipt).map((t) => t.id)
+    receiptImages = await bulkGetReceiptImages(receiptTxIds)
     loading = false
   })
 
@@ -40,7 +44,6 @@
         [payload]
       )
       await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
-      // ZenMoney accepts the client-supplied UUID as the canonical ID, so tx.id is the correct zenmoneyId
       await updateTransaction(tx.id, { status: 'submitted', zenmoneyId: tx.id })
     } catch (e) {
       await updateTransaction(tx.id, { status: 'failed' })
@@ -63,7 +66,12 @@
   {:else}
     <div class="list">
       {#each transactions as tx (tx.id)}
-        <TransactionCard transaction={tx} {categories} onRetry={tx.status === 'failed' ? retryTransaction : undefined} />
+        <TransactionCard
+          transaction={tx}
+          {categories}
+          receiptImage={receiptImages.get(tx.id)}
+          onRetry={tx.status === 'failed' ? retryTransaction : undefined}
+        />
       {/each}
     </div>
   {/if}
