@@ -1,3 +1,20 @@
+# [1.6.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.5.0...v1.6.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* guard against empty OpenRouter model string before parsing ([7220a1a](https://github.com/konclave/receipt-to-zenmoney/commit/7220a1a909e99cd55f8dc2f70231084fb32c8061))
+
+
+### Features
+
+* add aiProvider, openrouterApiKey, openrouterModel to Settings ([7e8d7a2](https://github.com/konclave/receipt-to-zenmoney/commit/7e8d7a2af5e039c56cdddb459ded81fbe1054504))
+* add OpenRouter provider selector to Settings UI ([a6b96bd](https://github.com/konclave/receipt-to-zenmoney/commit/a6b96bdeabecc2065854254db606464b178734f6))
+* add OpenRouter provider support to parseReceipt ([8d85c67](https://github.com/konclave/receipt-to-zenmoney/commit/8d85c67fcfbe530410cc81105ed1812a076690ee))
+* dynamic OpenRouter model list fetched from API with fallback to text input ([b474487](https://github.com/konclave/receipt-to-zenmoney/commit/b474487815c101a187d66a2d139182bf388b1c0a))
+* mark free OpenRouter models with 🆓 emoji in model list ([6fe8138](https://github.com/konclave/receipt-to-zenmoney/commit/6fe813899d76377a6dfeef0b21a4542732de885c))
+* pass AiConfig from settings to parseReceipt in review flow ([2f35850](https://github.com/konclave/receipt-to-zenmoney/commit/2f35850bff32ded07341848d7364ae288c9d29b1))
+
 # [1.5.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.4.0...v1.5.0) (2026-05-07)
 
 
