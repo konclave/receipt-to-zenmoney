@@ -6,6 +6,7 @@ import {
   saveTransaction,
   updateTransaction,
   bulkInsertTransactions,
+  deleteTransactionsByPeriod,
 } from './transactions';
 import { _resetDb } from './index';
 import type { Transaction } from '$lib/types';
@@ -102,4 +103,32 @@ it('getTransaction returns the transaction by id', async () => {
 
 it('getTransaction returns undefined for unknown id', async () => {
   expect(await getTransaction('no-such-id')).toBeUndefined();
+});
+
+it('deleteTransactionsByPeriod deletes only matching year and returns ids', async () => {
+  const tx2023a = makeTx({ id: 'del-2023-a', date: '2023-06-01' });
+  const tx2023b = makeTx({ id: 'del-2023-b', date: '2023-11-15' });
+  const tx2024 = makeTx({ id: 'keep-2024', date: '2024-03-01' });
+  await bulkInsertTransactions([tx2023a, tx2023b, tx2024]);
+  const deleted = await deleteTransactionsByPeriod(2023);
+  expect(deleted.sort()).toEqual(['del-2023-a', 'del-2023-b'].sort());
+  const remaining = await getTransactions();
+  expect(remaining).toHaveLength(1);
+  expect(remaining[0].id).toBe('keep-2024');
+});
+
+it("deleteTransactionsByPeriod('all') removes everything and returns all ids", async () => {
+  const tx1 = makeTx({ id: 'all-1', date: '2023-01-01' });
+  const tx2 = makeTx({ id: 'all-2', date: '2024-01-01' });
+  await bulkInsertTransactions([tx1, tx2]);
+  const deleted = await deleteTransactionsByPeriod('all');
+  expect(deleted.sort()).toEqual(['all-1', 'all-2'].sort());
+  expect(await getTransactions()).toHaveLength(0);
+});
+
+it('deleteTransactionsByPeriod returns empty array when no matching transactions', async () => {
+  await saveTransaction(makeTx({ date: '2024-05-01' }));
+  const deleted = await deleteTransactionsByPeriod(2020);
+  expect(deleted).toHaveLength(0);
+  expect(await getTransactions()).toHaveLength(1);
 });
