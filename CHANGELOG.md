@@ -1,3 +1,24 @@
+# [1.5.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.4.0...v1.5.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* address code review issues (blob URL leak, loading state, base64 perf, mimeType validation) ([2c04831](https://github.com/konclave/receipt-to-zenmoney/commit/2c048313d58e7260d7da1a05c50a2dfe41e515c2))
+* correct type errors in receipt page (params.id assertion, undefined state types) ([4c0e677](https://github.com/konclave/receipt-to-zenmoney/commit/4c0e67712c0197901a7fe6b580fe7553e790ea43))
+* disable prerender for dynamic receipt route ([28c9f64](https://github.com/konclave/receipt-to-zenmoney/commit/28c9f645f689af0b914c130ab722ce692b6dfee7))
+
+
+### Features
+
+* add /receipt/[id] page for full receipt image view ([3b1748f](https://github.com/konclave/receipt-to-zenmoney/commit/3b1748f9f404189d5cd1c89d88ac8775141f83a8))
+* add getTransaction(id) to transactions module ([a701e18](https://github.com/konclave/receipt-to-zenmoney/commit/a701e18dde07696f86a33ef76efd8765fa08d14e))
+* add receipt thumbnail to TransactionCard ([6ec8ab7](https://github.com/konclave/receipt-to-zenmoney/commit/6ec8ab747c3c65ac3bbde3152f97a88db034a5e8))
+* add receipt-images DB module with CRUD operations ([cb69c10](https://github.com/konclave/receipt-to-zenmoney/commit/cb69c102ecde6b6f4bcfa0e63984eca6c7e961de))
+* add ReceiptImage type and receipt-images IndexedDB store (v5) ([cf0fdb2](https://github.com/konclave/receipt-to-zenmoney/commit/cf0fdb2650c50af1be6d1f76c17b213787cc958c))
+* backup v2 includes receipt images in export/import ([cfe29f5](https://github.com/konclave/receipt-to-zenmoney/commit/cfe29f53c580ab2ec5ddbc0d11d0f2124eae82a4))
+* load and display receipt image thumbnails in history ([98a34d7](https://github.com/konclave/receipt-to-zenmoney/commit/98a34d7c76216f75e7cbee41a0d2530d9fa988bd))
+* save receipt image to IndexedDB on transaction submit ([0e9ebe5](https://github.com/konclave/receipt-to-zenmoney/commit/0e9ebe50944d02557578166778296cd7ffc6d672))
+
 # [1.4.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.3.1...v1.4.0) (2026-05-07)
 
 
