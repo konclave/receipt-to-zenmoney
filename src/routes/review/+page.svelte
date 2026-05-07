@@ -51,6 +51,8 @@
           ? { provider: 'openrouter', apiKey: settings.openrouterApiKey, model: settings.openrouterModel }
           : { provider: 'anthropic', apiKey: settings.claudeApiKey }
       if (!aiConfig.apiKey) throw new Error('AI API key not set in Settings')
+      if (aiConfig.provider === 'openrouter' && !aiConfig.model.trim())
+        throw new Error('OpenRouter model not set in Settings')
       const result = await parseReceipt(capture.imageBase64, categories, aiConfig)
       amount = String(result.amount)
       merchant = result.merchant
