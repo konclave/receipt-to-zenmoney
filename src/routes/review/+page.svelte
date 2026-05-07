@@ -3,7 +3,7 @@
   import { get } from 'svelte/store'
   import { goto } from '$app/navigation'
   import { captureStore } from '$lib/stores/capture'
-  import { parseReceipt } from '$lib/services/claude'
+  import { parseReceipt, type AiConfig } from '$lib/services/claude'
   import { resolveReviewAccountId } from '$lib/services/review-account'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import { getAccounts } from '$lib/db/accounts'
@@ -46,8 +46,12 @@
     selectedAccountId = resolveReviewAccountId(accounts, settings.zenmoneyAccountId)
 
     try {
-      if (!settings.claudeApiKey) throw new Error('Claude API key not set in Settings')
-      const result = await parseReceipt(capture.imageBase64, categories, settings.claudeApiKey)
+      const aiConfig: AiConfig =
+        settings.aiProvider === 'openrouter'
+          ? { provider: 'openrouter', apiKey: settings.openrouterApiKey, model: settings.openrouterModel }
+          : { provider: 'anthropic', apiKey: settings.claudeApiKey }
+      if (!aiConfig.apiKey) throw new Error('AI API key not set in Settings')
+      const result = await parseReceipt(capture.imageBase64, categories, aiConfig)
       amount = String(result.amount)
       merchant = result.merchant
       categoryId = result.categoryId
