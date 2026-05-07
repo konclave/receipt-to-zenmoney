@@ -102,9 +102,17 @@
       const date = new Date().toISOString().slice(0, 10)
       const filename = `rzm-backup-${date}.rzm.gz`
       const shareFile = new File([blob], filename, { type: 'application/gzip' })
+      let shared = false
       if (navigator.canShare?.({ files: [shareFile] })) {
-        await navigator.share({ files: [shareFile], title: 'ZenMoney Backup' })
-      } else {
+        try {
+          await navigator.share({ files: [shareFile], title: 'ZenMoney Backup' })
+          shared = true
+        } catch (shareErr) {
+          if (shareErr instanceof Error && shareErr.name === 'AbortError') return
+          // NotAllowedError (Chrome desktop) and other share failures fall through to download
+        }
+      }
+      if (!shared) {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -114,7 +122,6 @@
       }
       backupStatus = `Exported ${count} transaction${count !== 1 ? 's' : ''}`
     } catch (e) {
-      if (e instanceof Error && e.name === 'AbortError') return
       backupError = e instanceof Error ? e.message : String(e)
     } finally {
       exporting = false
