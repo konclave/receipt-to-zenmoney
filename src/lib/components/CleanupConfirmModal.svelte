@@ -25,6 +25,7 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="confirm-title"
+    tabindex="-1"
     onclick={(e) => e.stopPropagation()}
   >
     <div class="modal-header">

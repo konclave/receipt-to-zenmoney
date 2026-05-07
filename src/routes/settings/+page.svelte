@@ -197,6 +197,7 @@
     try {
       const { imported, skipped } = await importBackup(file)
       backupStatus = `Imported ${imported} new, skipped ${skipped} duplicate${skipped !== 1 ? 's' : ''}`
+      storageStats = await getStorageStats()
     } catch (e) {
       backupError = e instanceof Error ? e.message : String(e)
     } finally {
@@ -238,7 +239,10 @@
             await navigator.share({ files: [shareFile], title: 'ZenMoney Backup' })
             shared = true
           } catch (shareErr) {
-            if (shareErr instanceof Error && shareErr.name === 'AbortError') return
+            if (shareErr instanceof Error && shareErr.name === 'AbortError') {
+              cleaning = false
+              return
+            }
           }
         }
         if (!shared) {
