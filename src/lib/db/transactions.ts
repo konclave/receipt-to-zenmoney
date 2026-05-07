@@ -37,7 +37,7 @@ export async function getTransaction(id: string): Promise<Transaction | undefine
 export async function deleteTransactionsByPeriod(year: number | 'all'): Promise<string[]> {
   const db = await getDb();
   const all = await db.getAllFromIndex('transactions', 'by-date');
-  const toDelete = year === 'all' ? all : all.filter((t) => t.date.startsWith(String(year)));
+  const toDelete = year === 'all' ? all : all.filter((t) => t.date.startsWith(`${year}-`));
   const ids = toDelete.map((t) => t.id);
   if (ids.length === 0) return [];
   const tx = db.transaction('transactions', 'readwrite');

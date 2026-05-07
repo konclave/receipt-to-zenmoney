@@ -132,3 +132,9 @@ it('deleteTransactionsByPeriod returns empty array when no matching transactions
   expect(deleted).toHaveLength(0);
   expect(await getTransactions()).toHaveLength(1);
 });
+
+it("deleteTransactionsByPeriod('all') returns empty array on empty DB", async () => {
+  const deleted = await deleteTransactionsByPeriod('all');
+  expect(deleted).toHaveLength(0);
+  expect(await getTransactions()).toHaveLength(0);
+});
