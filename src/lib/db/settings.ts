@@ -56,8 +56,7 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     puts.push(tx.store.put(partial.zenmoneyUserId, 'zenmoneyUserId'));
   if (encrypted.openrouterApiKey !== undefined)
     puts.push(tx.store.put(encrypted.openrouterApiKey, 'openrouterApiKey'));
-  if (partial.aiProvider !== undefined)
-    puts.push(tx.store.put(partial.aiProvider, 'aiProvider'));
+  if (partial.aiProvider !== undefined) puts.push(tx.store.put(partial.aiProvider, 'aiProvider'));
   if (partial.openrouterModel !== undefined)
     puts.push(tx.store.put(partial.openrouterModel, 'openrouterModel'));
   await Promise.all(puts);
