@@ -19,3 +19,11 @@ export async function updateTransaction(id: string, updates: Partial<Transaction
   if (!existing) throw new Error(`Transaction ${id} not found`);
   await db.put('transactions', { ...existing, ...updates });
 }
+
+export async function bulkInsertTransactions(transactions: Transaction[]): Promise<void> {
+  if (transactions.length === 0) return;
+  const db = await getDb();
+  const tx = db.transaction('transactions', 'readwrite');
+  await Promise.all(transactions.map((t) => tx.store.put(t)));
+  await tx.done;
+}
