@@ -18,7 +18,7 @@ Storage used
 [Clean Up…]         ← destructive-styled button
 ```
 
-`getStorageStats()` is called on mount and the result drives this display. If storage stats are still loading the size shows as "—".
+`getStorageStats()` is called on mount and the result drives this display. While loading, the size shows as "—" and the "Clean Up…" button is disabled.
 
 ---
 
@@ -46,7 +46,7 @@ Title: "Delete [year] data?" or "Delete all data?"
 Subtitle: tx count + size.
 
 Two actions:
-1. **Download backup & delete** (primary, blue) — triggers `exportBackupForPeriod()` + download/share, then deletes.
+1. **Download backup & delete** (primary, blue) — triggers `exportBackupForPeriod()` + download/share, then deletes. If the Share sheet is dismissed (AbortError), deletion does NOT proceed — mirrors existing export behaviour.
 2. **Delete without backup** (secondary, red-tinted) — shows an inline "Are you sure? This cannot be undone." confirmation before proceeding.
 
 "Cancel" closes without action.
@@ -56,11 +56,6 @@ Two actions:
 ## Data Layer
 
 ### `src/lib/db/transactions.ts`
-
-```ts
-getTransactionYears(): Promise<number[]>
-```
-Reads all transactions via the `by-date` index, extracts the year part of each `date` string (`date.slice(0, 4)`), deduplicates, returns sorted descending.
 
 ```ts
 deleteTransactionsByPeriod(year: number | 'all'): Promise<string[]>
@@ -146,7 +141,7 @@ Handler `handleCleanupConfirm({ withBackup })`:
 
 | File | What's tested |
 |------|--------------|
-| `src/lib/db/transactions.test.ts` (extend) | `getTransactionYears()` returns correct deduplicated years; `deleteTransactionsByPeriod(year)` deletes only that year and returns correct IDs; `deleteTransactionsByPeriod('all')` clears everything |
+| `src/lib/db/transactions.test.ts` (extend) | `deleteTransactionsByPeriod(year)` deletes only that year and returns correct IDs; `deleteTransactionsByPeriod('all')` clears everything |
 | `src/lib/db/receipt-images.test.ts` (extend) | `bulkDeleteReceiptImages()` removes all specified IDs; no-op on empty array |
 | `src/lib/services/storage-stats.test.ts` (new) | Correct grouping by year; correct byte summation; empty-DB returns `{ totalBytes: 0, byYear: [] }` |
 | `src/lib/services/backup.test.ts` (extend) | `exportBackupForPeriod(year)` contains only that year's transactions and images; `exportBackupForPeriod('all')` matches `exportBackup()` output |
