@@ -6,8 +6,14 @@
   import { getAccounts, saveAccounts } from '$lib/db/accounts'
   import { saveInstruments } from '$lib/db/instruments'
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
-  import { exportBackup, importBackup } from '$lib/services/backup'
+  import { exportBackup, importBackup, exportBackupForPeriod } from '$lib/services/backup'
   import type { ZenMoneyAccount } from '$lib/types'
+  import { getStorageStats, formatBytes } from '$lib/services/storage-stats'
+  import type { StorageStats } from '$lib/services/storage-stats'
+  import { deleteTransactionsByPeriod } from '$lib/db/transactions'
+  import { bulkDeleteReceiptImages } from '$lib/db/receipt-images'
+  import CleanupModal from '$lib/components/CleanupModal.svelte'
+  import CleanupConfirmModal from '$lib/components/CleanupConfirmModal.svelte'
 
   let { data }: { data: { appVersion: string } } = $props()
 
@@ -38,6 +44,10 @@
   let orModels = $state<Array<{ id: string; name: string }>>([])
   let orModelsLoading = $state(false)
   let orModelsFailed = $state(false)
+  let storageStats = $state<StorageStats | null>(null)
+  let cleanupModalOpen = $state(false)
+  let cleanupConfirmPeriod = $state<{ period: number | 'all'; txCount: number; bytes: number } | null>(null)
+  let cleaning = $state(false)
 
   let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0)
   let openrouterApiKeySaved = $derived(savedOpenrouterApiKey.length > 0)
@@ -69,6 +79,8 @@
     categoryCount = cats.length
     accounts = savedAccounts
     if (cats.length > 0) lastSyncDate = new Date(cats[0].syncedAt).toLocaleDateString()
+
+    getStorageStats().then((s) => { storageStats = s })
 
     // Fetch OpenRouter vision-capable models in the background (non-blocking)
     orModelsLoading = true
@@ -185,11 +197,73 @@
     try {
       const { imported, skipped } = await importBackup(file)
       backupStatus = `Imported ${imported} new, skipped ${skipped} duplicate${skipped !== 1 ? 's' : ''}`
+      storageStats = await getStorageStats()
     } catch (e) {
       backupError = e instanceof Error ? e.message : String(e)
     } finally {
       importing = false
       ;(event.target as HTMLInputElement).value = ''
+    }
+  }
+
+  function handleCleanupSelect(period: number | 'all') {
+    cleanupModalOpen = false
+    if (!storageStats) return
+    if (period === 'all') {
+      const totalTxCount = storageStats.byYear.reduce((s, y) => s + y.txCount, 0)
+      cleanupConfirmPeriod = { period: 'all', txCount: totalTxCount, bytes: storageStats.totalBytes }
+    } else {
+      const yearStat = storageStats.byYear.find((y) => y.year === period)
+      if (!yearStat) return
+      cleanupConfirmPeriod = { period, txCount: yearStat.txCount, bytes: yearStat.bytes }
+    }
+  }
+
+  async function handleCleanupConfirm({ withBackup }: { withBackup: boolean }) {
+    const target = cleanupConfirmPeriod
+    if (!target) return
+    cleaning = true
+    backupError = null
+    try {
+      if (withBackup) {
+        const { blob } = await exportBackupForPeriod(target.period)
+        const date = new Date().toISOString().slice(0, 10)
+        const filename =
+          target.period === 'all'
+            ? `rzm-backup-all-${date}.rzm.gz`
+            : `rzm-backup-${target.period}.rzm.gz`
+        const shareFile = new File([blob], filename, { type: 'application/gzip' })
+        let shared = false
+        if (navigator.canShare?.({ files: [shareFile] })) {
+          try {
+            await navigator.share({ files: [shareFile], title: 'ZenMoney Backup' })
+            shared = true
+          } catch (shareErr) {
+            if (shareErr instanceof Error && shareErr.name === 'AbortError') {
+              cleaning = false
+              return
+            }
+          }
+        }
+        if (!shared) {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = filename
+          a.click()
+          URL.revokeObjectURL(url)
+        }
+      }
+      const deletedIds = await deleteTransactionsByPeriod(target.period)
+      await bulkDeleteReceiptImages(deletedIds)
+      storageStats = await getStorageStats()
+      cleanupConfirmPeriod = null
+      backupStatus = `Deleted ${target.txCount} transactions · freed ~${formatBytes(target.bytes)}`
+      setTimeout(() => (backupStatus = null), 4000)
+    } catch (e) {
+      backupError = e instanceof Error ? e.message : String(e)
+    } finally {
+      cleaning = false
     }
   }
 </script>
@@ -302,6 +376,22 @@
       {importing ? 'Importing…' : 'Import backup'}
     </button>
     <input aria-hidden="true" bind:this={fileInput} type="file" accept=".rzm.gz" style="display:none" onchange={handleImport} />
+    <div class="storage-stats">
+      <span class="hint">Storage used</span>
+      <span class="storage-size">{storageStats ? formatBytes(storageStats.totalBytes) : '—'}</span>
+      {#if storageStats}
+        <span class="hint">
+          {storageStats.byYear.length} {storageStats.byYear.length === 1 ? 'year' : 'years'} · {storageStats.byYear.reduce((s, y) => s + y.txCount, 0)} transactions
+        </span>
+      {/if}
+      <button
+        class="btn-danger"
+        onclick={() => { cleanupModalOpen = true }}
+        disabled={!storageStats || storageStats.byYear.length === 0 || cleaning}
+      >
+        {cleaning ? 'Cleaning…' : 'Clean Up…'}
+      </button>
+    </div>
   </section>
 
   <hr />
@@ -309,6 +399,24 @@
   <section>
     <p class="hint">App Version {data.appVersion}</p>
   </section>
+
+  {#if cleanupModalOpen && storageStats}
+    <CleanupModal
+      stats={storageStats}
+      onselect={handleCleanupSelect}
+      onclose={() => { cleanupModalOpen = false }}
+    />
+  {/if}
+
+  {#if cleanupConfirmPeriod}
+    <CleanupConfirmModal
+      period={cleanupConfirmPeriod.period}
+      txCount={cleanupConfirmPeriod.txCount}
+      bytes={cleanupConfirmPeriod.bytes}
+      onconfirm={handleCleanupConfirm}
+      onclose={() => { cleanupConfirmPeriod = null }}
+    />
+  {/if}
 </div>
 
 <style>
@@ -330,4 +438,8 @@
   .provider-tabs { display: flex; gap: 0; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden; }
   .provider-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; background: var(--color-surface-2); border: none; cursor: pointer; color: var(--color-text-muted); }
   .provider-tab.active { background: var(--color-primary); color: white; }
+  .storage-stats { display: flex; flex-direction: column; gap: 4px; padding-top: 4px; }
+  .storage-size { font-size: 22px; font-weight: 700; }
+  .btn-danger { background: color-mix(in srgb, var(--color-error, #d93025) 12%, transparent); color: var(--color-error, #d93025); border: 1px solid color-mix(in srgb, var(--color-error, #d93025) 30%, transparent); border-radius: var(--radius-sm); padding: 12px; font-weight: 500; font-size: 15px; cursor: pointer; }
+  .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>

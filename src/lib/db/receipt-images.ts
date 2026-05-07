@@ -29,3 +29,11 @@ export async function deleteReceiptImage(txId: string): Promise<void> {
   const db = await getDb();
   await db.delete('receipt-images', txId);
 }
+
+export async function bulkDeleteReceiptImages(txIds: string[]): Promise<void> {
+  if (txIds.length === 0) return;
+  const db = await getDb();
+  const tx = db.transaction('receipt-images', 'readwrite');
+  await Promise.all(txIds.map((id) => tx.store.delete(id)));
+  await tx.done;
+}

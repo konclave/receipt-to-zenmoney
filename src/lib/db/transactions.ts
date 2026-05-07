@@ -33,3 +33,15 @@ export async function getTransaction(id: string): Promise<Transaction | undefine
   const db = await getDb();
   return db.get('transactions', id);
 }
+
+export async function deleteTransactionsByPeriod(year: number | 'all'): Promise<string[]> {
+  const db = await getDb();
+  const all = await db.getAllFromIndex('transactions', 'by-date');
+  const toDelete = year === 'all' ? all : all.filter((t) => t.date.startsWith(`${year}-`));
+  const ids = toDelete.map((t) => t.id);
+  if (ids.length === 0) return [];
+  const tx = db.transaction('transactions', 'readwrite');
+  await Promise.all(ids.map((id) => tx.store.delete(id)));
+  await tx.done;
+  return ids;
+}

@@ -1,6 +1,6 @@
 import { it, expect, beforeEach, describe } from 'vitest';
 import JSON5 from 'json5';
-import { exportBackup, importBackup } from './backup';
+import { exportBackup, importBackup, exportBackupForPeriod } from './backup';
 import { saveTransaction, getTransactions } from '$lib/db/transactions';
 import { saveReceiptImage, getReceiptImage } from '$lib/db/receipt-images';
 import { _resetDb } from '$lib/db/index';
@@ -162,5 +162,56 @@ describe('importBackup', () => {
       transactions: [{ notAnId: 'bad' }, null, 42],
     });
     await expect(importBackup(file)).rejects.toThrow('invalid backup file');
+  });
+});
+
+describe('exportBackupForPeriod', () => {
+  it('filters to only the specified year', async () => {
+    const tx2023 = makeTx({ id: 'p2023', date: '2023-06-01' });
+    const tx2024 = makeTx({ id: 'p2024', date: '2024-06-01' });
+    await saveTransaction(tx2023);
+    await saveTransaction(tx2024);
+    const { blob, count } = await exportBackupForPeriod(2023);
+    expect(count).toBe(1);
+    const buffer = await blob.arrayBuffer();
+    const text = await new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(new Uint8Array(buffer));
+          controller.close();
+        },
+      }).pipeThrough(new DecompressionStream('gzip')),
+    ).text();
+    const envelope = JSON5.parse(text);
+    expect(envelope.transactions).toHaveLength(1);
+    expect(envelope.transactions[0].id).toBe('p2023');
+  });
+
+  it("'all' exports every transaction", async () => {
+    await saveTransaction(makeTx({ id: 'a-all', date: '2023-01-01' }));
+    await saveTransaction(makeTx({ id: 'b-all', date: '2024-01-01' }));
+    const { count } = await exportBackupForPeriod('all');
+    expect(count).toBe(2);
+  });
+
+  it('includes receipt images only for filtered transactions', async () => {
+    const tx2023 = makeTx({ id: 'img2023', date: '2023-03-01', hasReceipt: true });
+    const tx2024 = makeTx({ id: 'img2024', date: '2024-03-01', hasReceipt: true });
+    await saveTransaction(tx2023);
+    await saveTransaction(tx2024);
+    await saveReceiptImage('img2023', { mimeType: 'image/jpeg', blob: new Blob(['a']) });
+    await saveReceiptImage('img2024', { mimeType: 'image/png', blob: new Blob(['b']) });
+    const { blob } = await exportBackupForPeriod(2023);
+    const buffer = await blob.arrayBuffer();
+    const text = await new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(new Uint8Array(buffer));
+          controller.close();
+        },
+      }).pipeThrough(new DecompressionStream('gzip')),
+    ).text();
+    const envelope = JSON5.parse(text);
+    expect(Object.keys(envelope.receiptImages)).toEqual(['img2023']);
   });
 });

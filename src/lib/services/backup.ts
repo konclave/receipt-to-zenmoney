@@ -27,9 +27,9 @@ function base64ToBlob(data: string, mimeType: string): Blob {
   return new Blob([bytes], { type: mimeType });
 }
 
-export async function exportBackup(): Promise<{ blob: Blob; count: number }> {
-  const transactions = await getTransactions();
-
+async function buildBackupBlob(
+  transactions: Transaction[],
+): Promise<{ blob: Blob; count: number }> {
   const receiptTxIds = transactions.filter((t) => t.hasReceipt).map((t) => t.id);
   const receiptMap = await bulkGetReceiptImages(receiptTxIds);
   const receiptImages: Record<string, { mimeType: string; data: string }> = {};
@@ -57,6 +57,10 @@ export async function exportBackup(): Promise<{ blob: Blob; count: number }> {
   ).arrayBuffer();
 
   return { blob: new Blob([compressed], { type: 'application/gzip' }), count: transactions.length };
+}
+
+export async function exportBackup(): Promise<{ blob: Blob; count: number }> {
+  return buildBackupBlob(await getTransactions());
 }
 
 export async function importBackup(file: File): Promise<{ imported: number; skipped: number }> {
@@ -128,4 +132,12 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
   );
 
   return { imported: toInsert.length, skipped: envelope.transactions.length - toInsert.length };
+}
+
+export async function exportBackupForPeriod(
+  year: number | 'all',
+): Promise<{ blob: Blob; count: number }> {
+  const all = await getTransactions();
+  const transactions = year === 'all' ? all : all.filter((t) => t.date.startsWith(`${year}-`));
+  return buildBackupBlob(transactions);
 }
