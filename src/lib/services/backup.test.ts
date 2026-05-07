@@ -136,4 +136,25 @@ describe('importBackup', () => {
     const file = await makeBackupFile({ version: 1, exportedAt: new Date().toISOString() });
     await expect(importBackup(file)).rejects.toThrow('invalid backup file');
   });
+
+  it('throws for backup with invalid transaction item', async () => {
+    const file = await makeBackupFile({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      transactions: [{ notAnId: 'bad' }, null, 42],
+    });
+    await expect(importBackup(file)).rejects.toThrow('invalid backup file');
+  });
+
+  it('throws for oversized backup file', async () => {
+    // Create a file larger than 10MB by creating actual binary data
+    const largeBuffer = new Uint8Array(11 * 1024 * 1024);
+    // Fill with gzip magic bytes followed by random data to avoid decompression attempts
+    largeBuffer[0] = 0x1f;
+    largeBuffer[1] = 0x8b;
+    const oversized = new File([largeBuffer], 'big.rzm.gz', {
+      type: 'application/gzip',
+    });
+    await expect(importBackup(oversized)).rejects.toThrow('backup file too large');
+  });
 });

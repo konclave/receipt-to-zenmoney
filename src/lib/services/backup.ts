@@ -31,6 +31,9 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
   let text: string;
   try {
     const buffer = await file.arrayBuffer();
+    if (buffer.byteLength > 10 * 1024 * 1024) {
+      throw new Error('Import failed: backup file too large');
+    }
     text = await new Response(
       new ReadableStream({
         start(controller) {
@@ -39,7 +42,10 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
         },
       }).pipeThrough(new DecompressionStream('gzip')),
     ).text();
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('backup file too large')) {
+      throw e;
+    }
     throw new Error('Import failed: could not read file');
   }
 
@@ -55,6 +61,15 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
   }
   if (envelope.version !== 1) throw new Error('Import failed: unsupported backup version');
   if (!Array.isArray(envelope.transactions)) throw new Error('Import failed: invalid backup file');
+
+  const valid = envelope.transactions.every(
+    (t: unknown) =>
+      t !== null &&
+      typeof t === 'object' &&
+      !Array.isArray(t) &&
+      typeof (t as Record<string, unknown>).id === 'string',
+  );
+  if (!valid) throw new Error('Import failed: invalid backup file');
 
   const existing = await getTransactions();
   const existingIds = new Set(existing.map((t) => t.id));

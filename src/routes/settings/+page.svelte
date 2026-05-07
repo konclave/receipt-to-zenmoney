@@ -115,7 +115,7 @@
       backupStatus = `Exported ${count} transaction${count !== 1 ? 's' : ''}`
     } catch (e) {
       if (e instanceof Error && e.name === 'AbortError') return
-      backupError = String(e)
+      backupError = e instanceof Error ? e.message : String(e)
     } finally {
       exporting = false
     }
