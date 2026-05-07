@@ -5,19 +5,26 @@ import type { Settings } from '$lib/types';
 
 export async function getSettings(): Promise<Settings> {
   const db = await getDb();
-  const [apiKeyRaw, tokenRaw, ts, accountId, userId] = await Promise.all([
-    db.get('settings', 'claudeApiKey'),
-    db.get('settings', 'zenmoneyToken'),
-    db.get('settings', 'zenmoneyServerTimestamp'),
-    db.get('settings', 'zenmoneyAccountId'),
-    db.get('settings', 'zenmoneyUserId'),
-  ]);
+  const [apiKeyRaw, tokenRaw, ts, accountId, userId, orKeyRaw, aiProvider, orModel] =
+    await Promise.all([
+      db.get('settings', 'claudeApiKey'),
+      db.get('settings', 'zenmoneyToken'),
+      db.get('settings', 'zenmoneyServerTimestamp'),
+      db.get('settings', 'zenmoneyAccountId'),
+      db.get('settings', 'zenmoneyUserId'),
+      db.get('settings', 'openrouterApiKey'),
+      db.get('settings', 'aiProvider'),
+      db.get('settings', 'openrouterModel'),
+    ]);
   return {
     claudeApiKey: apiKeyRaw ? await decrypt(apiKeyRaw as string) : '',
     zenmoneyToken: tokenRaw ? await decrypt(tokenRaw as string) : '',
     zenmoneyServerTimestamp: (ts as number) ?? 0,
     zenmoneyAccountId: (accountId as string) ?? '',
     zenmoneyUserId: (userId as number) ?? 0,
+    aiProvider: (aiProvider as 'anthropic' | 'openrouter') ?? 'anthropic',
+    openrouterApiKey: orKeyRaw ? await decrypt(orKeyRaw as string) : '',
+    openrouterModel: (orModel as string) ?? 'anthropic/claude-sonnet-4.6',
   };
 }
 
@@ -32,6 +39,8 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     encrypted.claudeApiKey = await encrypt(partial.claudeApiKey);
   if (partial.zenmoneyToken !== undefined)
     encrypted.zenmoneyToken = await encrypt(partial.zenmoneyToken);
+  if (partial.openrouterApiKey !== undefined)
+    encrypted.openrouterApiKey = await encrypt(partial.openrouterApiKey);
 
   const tx = db.transaction('settings', 'readwrite');
   const puts: Promise<unknown>[] = [];
@@ -45,6 +54,11 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     puts.push(tx.store.put(partial.zenmoneyAccountId, 'zenmoneyAccountId'));
   if (partial.zenmoneyUserId !== undefined)
     puts.push(tx.store.put(partial.zenmoneyUserId, 'zenmoneyUserId'));
+  if (encrypted.openrouterApiKey !== undefined)
+    puts.push(tx.store.put(encrypted.openrouterApiKey, 'openrouterApiKey'));
+  if (partial.aiProvider !== undefined) puts.push(tx.store.put(partial.aiProvider, 'aiProvider'));
+  if (partial.openrouterModel !== undefined)
+    puts.push(tx.store.put(partial.openrouterModel, 'openrouterModel'));
   await Promise.all(puts);
   await tx.done;
 }
