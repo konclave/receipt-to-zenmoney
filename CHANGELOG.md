@@ -1,3 +1,12 @@
+# [1.8.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.7.0...v1.8.0) (2026-05-07)
+
+
+### Features
+
+* add about page and update settings footer ([a2f4611](https://github.com/konclave/receipt-to-zenmoney/commit/a2f46113fa7c7c1b65a4aa5776ff601cc8f0890e))
+* expand about page with privacy & install details ([4d243e4](https://github.com/konclave/receipt-to-zenmoney/commit/4d243e47f1ac74ec6e256ded6920fe31fbf24739))
+* move About to bottom nav bar ([f097420](https://github.com/konclave/receipt-to-zenmoney/commit/f0974209749c5b5ed8f12ea3d57a68ed3db30025))
+
 # [1.7.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.6.0...v1.7.0) (2026-05-07)
 
 
