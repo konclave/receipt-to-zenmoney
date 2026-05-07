@@ -1,6 +1,5 @@
 // src/lib/services/backup.test.ts
 import { it, expect, beforeEach, describe } from 'vitest';
-import JSON5 from 'json5';
 import { exportBackup } from './backup';
 import { saveTransaction } from '$lib/db/transactions';
 import { _resetDb } from '$lib/db/index';
