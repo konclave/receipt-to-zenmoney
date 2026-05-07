@@ -28,12 +28,10 @@
 
   let thumbnailUrl = $state<string | null>(null)
   $effect(() => {
-    if (receiptImage) {
-      thumbnailUrl = URL.createObjectURL(receiptImage.blob)
-    }
-    return () => {
-      if (thumbnailUrl) URL.revokeObjectURL(thumbnailUrl)
-    }
+    if (!receiptImage) return
+    const url = URL.createObjectURL(receiptImage.blob)
+    thumbnailUrl = url
+    return () => URL.revokeObjectURL(url)
   })
 
   async function handleRetry() {

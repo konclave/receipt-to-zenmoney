@@ -17,9 +17,10 @@ async function blobToBase64(blob: Blob): Promise<string> {
   // Use Response to read the blob bytes — works across jsdom and browser environments.
   const buffer = await new Response(blob).arrayBuffer();
   const bytes = new Uint8Array(buffer);
+  const CHUNK = 8192;
   let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
   }
   return btoa(binary);
 }
@@ -114,11 +115,14 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
   const toInsert = txsToInsert.filter((t) => !existingIds.has(t.id));
   await bulkInsertTransactions(toInsert);
 
+  const validMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
   await Promise.all(
     toInsert
       .filter((t) => t.hasReceipt && receiptImages[t.id])
       .map(async (t) => {
         const { mimeType, data } = receiptImages[t.id];
+        if (!validMimeTypes.has(mimeType)) return;
         await saveReceiptImage(t.id, {
           blob: base64ToBlob(data, mimeType),
           mimeType: mimeType as 'image/jpeg' | 'image/png' | 'image/webp',

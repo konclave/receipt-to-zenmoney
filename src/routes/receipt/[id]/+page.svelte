@@ -22,7 +22,7 @@
       getReceiptImage(txId),
       getCategories(),
     ])
-    if (!transaction) { goto('/history'); return }
+    if (!transaction) { loading = false; goto('/history'); return }
     if (receiptImage) imageUrl = URL.createObjectURL(receiptImage.blob)
     loading = false
   })
