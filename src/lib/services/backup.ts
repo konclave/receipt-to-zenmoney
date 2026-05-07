@@ -1,9 +1,6 @@
 import JSON5 from 'json5';
 import { getTransactions, bulkInsertTransactions } from '$lib/db/transactions';
-import {
-  saveReceiptImage,
-  bulkGetReceiptImages,
-} from '$lib/db/receipt-images';
+import { saveReceiptImage, bulkGetReceiptImages } from '$lib/db/receipt-images';
 import type { Transaction } from '$lib/types';
 
 interface BackupEnvelope {
