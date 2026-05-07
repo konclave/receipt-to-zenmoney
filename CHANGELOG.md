@@ -1,3 +1,28 @@
+# [1.7.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.6.0...v1.7.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* reset cleaning on abort, refresh stats after import, add tabindex to modals ([cad943a](https://github.com/konclave/receipt-to-zenmoney/commit/cad943a4d4b6267cda83f2ded9a48deb2cf010e4))
+* use vi.spyOn in storage-stats test to avoid fake-indexeddb blob.size issue ([77439b9](https://github.com/konclave/receipt-to-zenmoney/commit/77439b97e623d3ccb27576795dd632dd9498865d))
+* use year-dash prefix match and add empty-DB test ([a3a0b49](https://github.com/konclave/receipt-to-zenmoney/commit/a3a0b49ff1857e6973b27b0a7b983cedfb0eab47))
+
+
+### Features
+
+* add bulkDeleteReceiptImages to receipt-images db ([2ffd6f8](https://github.com/konclave/receipt-to-zenmoney/commit/2ffd6f86d4ffbca94d72db5abe4eea55bd5ed429))
+* add CleanupConfirmModal component ([43626bd](https://github.com/konclave/receipt-to-zenmoney/commit/43626bde8c9e7c9ad9a952aced54d0b27a473801))
+* add CleanupModal component ([24f7c14](https://github.com/konclave/receipt-to-zenmoney/commit/24f7c14980956708243cc7fdc5578acaeeb93eec))
+* add deleteTransactionsByPeriod to transactions db ([b42da66](https://github.com/konclave/receipt-to-zenmoney/commit/b42da66a544fd1c4ff5b1b9c9fcb7034a263657d))
+* add exportBackupForPeriod to backup service ([994837d](https://github.com/konclave/receipt-to-zenmoney/commit/994837d5e036851908f43eea14a543553d16445d))
+* add storage stats and cleanup flow to settings page ([5130b7c](https://github.com/konclave/receipt-to-zenmoney/commit/5130b7ceb902fe32de82fce45cf0636ba975b6fd))
+* add storage-stats service with getStorageStats and formatBytes ([7b1e61e](https://github.com/konclave/receipt-to-zenmoney/commit/7b1e61e2564ca149bfef67bee74180caf9927bcf))
+
+
+### Reverts
+
+* restore receipt-images.ts to pre-Task-3 state (remove out-of-scope blobSize) ([5a68258](https://github.com/konclave/receipt-to-zenmoney/commit/5a68258e4dcde81bf5dcb246c10085680fc461ec))
+
 # [1.6.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.5.0...v1.6.0) (2026-05-07)
 
 
