@@ -23,6 +23,23 @@ describe('getSettings', () => {
   });
 });
 
+describe('getSettings defaults', () => {
+  it('returns aiProvider anthropic by default', async () => {
+    const s = await getSettings();
+    expect(s.aiProvider).toBe('anthropic');
+  });
+
+  it('returns empty openrouterApiKey by default', async () => {
+    const s = await getSettings();
+    expect(s.openrouterApiKey).toBe('');
+  });
+
+  it('returns default openrouterModel by default', async () => {
+    const s = await getSettings();
+    expect(s.openrouterModel).toBe('anthropic/claude-sonnet-4.6');
+  });
+});
+
 describe('saveSettings', () => {
   it('saves and decrypts claudeApiKey', async () => {
     await saveSettings({ claudeApiKey: 'sk-test-123' });
@@ -45,5 +62,30 @@ describe('saveSettings', () => {
     const s = await getSettings();
     expect(s.claudeApiKey).toBe('key-updated');
     expect(s.zenmoneyToken).toBe('token-b');
+  });
+});
+
+describe('saveSettings new fields', () => {
+  it('saves and decrypts openrouterApiKey', async () => {
+    await saveSettings({ openrouterApiKey: 'sk-or-abc' });
+    expect((await getSettings()).openrouterApiKey).toBe('sk-or-abc');
+  });
+
+  it('saves aiProvider', async () => {
+    await saveSettings({ aiProvider: 'openrouter' });
+    expect((await getSettings()).aiProvider).toBe('openrouter');
+  });
+
+  it('saves openrouterModel', async () => {
+    await saveSettings({ openrouterModel: 'openai/gpt-4o' });
+    expect((await getSettings()).openrouterModel).toBe('openai/gpt-4o');
+  });
+
+  it('partial save does not overwrite openrouterApiKey', async () => {
+    await saveSettings({ openrouterApiKey: 'sk-or-abc', aiProvider: 'openrouter' });
+    await saveSettings({ claudeApiKey: 'sk-ant-updated' });
+    const s = await getSettings();
+    expect(s.openrouterApiKey).toBe('sk-or-abc');
+    expect(s.aiProvider).toBe('openrouter');
   });
 });

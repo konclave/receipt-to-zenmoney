@@ -44,6 +44,9 @@ export interface Settings {
   zenmoneyServerTimestamp: number;
   zenmoneyAccountId: string;
   zenmoneyUserId: number;
+  aiProvider: 'anthropic' | 'openrouter';
+  openrouterApiKey: string;
+  openrouterModel: string;
 }
 
 export interface ZenMoneyTag {
