@@ -4,6 +4,7 @@ import {
   getReceiptImage,
   bulkGetReceiptImages,
   deleteReceiptImage,
+  bulkDeleteReceiptImages,
 } from './receipt-images';
 import { _resetDb } from './index';
 import type { ReceiptImage } from '$lib/types';
@@ -67,4 +68,20 @@ it('bulkGetReceiptImages returns only found entries', async () => {
   expect(result.get('tx-a')!.mimeType).toBe('image/jpeg');
   expect(result.get('tx-b')!.mimeType).toBe('image/png');
   expect(result.has('tx-missing')).toBe(false);
+});
+
+it('bulkDeleteReceiptImages removes all specified ids', async () => {
+  await saveReceiptImage('tx-1', makeImage());
+  await saveReceiptImage('tx-2', makeImage());
+  await saveReceiptImage('tx-3', makeImage());
+  await bulkDeleteReceiptImages(['tx-1', 'tx-3']);
+  expect(await getReceiptImage('tx-1')).toBeUndefined();
+  expect(await getReceiptImage('tx-2')).toBeDefined();
+  expect(await getReceiptImage('tx-3')).toBeUndefined();
+});
+
+it('bulkDeleteReceiptImages is a no-op for empty array', async () => {
+  await saveReceiptImage('keep', makeImage());
+  await bulkDeleteReceiptImages([]);
+  expect(await getReceiptImage('keep')).toBeDefined();
 });
