@@ -1,3 +1,22 @@
+# [1.4.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.3.1...v1.4.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* fall back to download when Web Share API throws NotAllowedError ([a4ff2b0](https://github.com/konclave/receipt-to-zenmoney/commit/a4ff2b0b46594febf5a2894755182a863061a6f6))
+* harden importBackup validation and strengthen tests ([8109c4f](https://github.com/konclave/receipt-to-zenmoney/commit/8109c4fe71dc094f0014808ca9b8ef4e53add027))
+* resolve lint and format issues in backup service ([927ef89](https://github.com/konclave/receipt-to-zenmoney/commit/927ef89cb6c878b8d1336e6f9c2474ec93007ca8))
+* type-safe fileInput binding and narrow accept filter ([5e482aa](https://github.com/konclave/receipt-to-zenmoney/commit/5e482aa1290c084e79d10a3f780ea76429be7a5f))
+* validate transaction items and guard against oversized imports ([62a3fd9](https://github.com/konclave/receipt-to-zenmoney/commit/62a3fd901d480d46f91084d72c7b70d0cf3c4018))
+
+
+### Features
+
+* add Backup & Restore section to settings page ([acbf104](https://github.com/konclave/receipt-to-zenmoney/commit/acbf104fe297585b3ed1da8462751d31723f09e3))
+* add bulkInsertTransactions for batch import ([daf4e9c](https://github.com/konclave/receipt-to-zenmoney/commit/daf4e9cc7ee918075fb03b56399a9f08d03e7c33))
+* implement exportBackup — gzip JSON5 transaction dump ([d8d274d](https://github.com/konclave/receipt-to-zenmoney/commit/d8d274dafccc71a03fec2a3450ac3a6d12113993))
+* implement importBackup — merge from gzip JSON5 backup ([fe958c8](https://github.com/konclave/receipt-to-zenmoney/commit/fe958c89ea990719115c5d566cec5a89fcfd854f))
+
 ## [1.3.1](https://github.com/konclave/receipt-to-zenmoney/compare/v1.3.0...v1.3.1) (2026-05-06)
 
 
