@@ -8,10 +8,10 @@
   import { getCategories } from '$lib/db/categories'
   import type { Transaction, Category, ReceiptImage } from '$lib/types'
 
-  const txId = get(page).params.id
+  const txId = get(page).params.id!
 
-  let transaction = $state<Transaction | null>(null)
-  let receiptImage = $state<ReceiptImage | null>(null)
+  let transaction = $state<Transaction | undefined>()
+  let receiptImage = $state<ReceiptImage | undefined>()
   let categories = $state<Category[]>([])
   let imageUrl = $state<string | null>(null)
   let loading = $state(true)
