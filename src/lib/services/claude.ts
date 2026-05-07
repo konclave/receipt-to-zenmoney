@@ -1,6 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Category, ParseResult } from '$lib/types';
 
+export type AiConfig =
+  | { provider: 'anthropic'; apiKey: string }
+  | { provider: 'openrouter'; apiKey: string; model: string };
+
 function validateParseResult(raw: unknown): ParseResult {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw))
     throw new Error('Invalid parse result: expected a JSON object');
@@ -32,15 +36,27 @@ function validateParseResult(raw: unknown): ParseResult {
   return raw as ParseResult;
 }
 
-export async function parseReceipt(
+function buildPrompt(categories: Category[]): string {
+  const categoryList = categories.map((c) => `${c.id}: ${c.title}`).join('\n');
+  const today = new Date().toISOString().slice(0, 10);
+  return `Extract from this receipt:
+- total amount paid (number only, no currency symbol)
+- currency code (ISO 4217, e.g. RUB)
+- merchant/store name
+- best matching category ID from this list:
+${categoryList}
+- transaction date (ISO 8601, use today ${today} if not visible)
+
+Respond ONLY with valid JSON, no markdown:
+{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low"}`;
+}
+
+async function parseReceiptAnthropic(
   imageBase64: string,
   categories: Category[],
   apiKey: string,
 ): Promise<ParseResult> {
   const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
-  const categoryList = categories.map((c) => `${c.id}: ${c.title}`).join('\n');
-  const today = new Date().toISOString().slice(0, 10);
-
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 512,
@@ -52,24 +68,61 @@ export async function parseReceipt(
             type: 'image',
             source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 },
           },
-          {
-            type: 'text',
-            text: `Extract from this receipt:
-- total amount paid (number only, no currency symbol)
-- currency code (ISO 4217, e.g. RUB)
-- merchant/store name
-- best matching category ID from this list:
-${categoryList}
-- transaction date (ISO 8601, use today ${today} if not visible)
-
-Respond ONLY with valid JSON, no markdown:
-{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low"}`,
-          },
+          { type: 'text', text: buildPrompt(categories) },
         ],
       },
     ],
   });
-
   const text = response.content[0].type === 'text' ? response.content[0].text : '';
   return validateParseResult(JSON.parse(text));
+}
+
+async function parseReceiptOpenRouter(
+  imageBase64: string,
+  categories: Category[],
+  apiKey: string,
+  model: string,
+): Promise<ParseResult> {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 512,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+            { type: 'text', text: buildPrompt(categories) },
+          ],
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text().catch(() => response.statusText);
+    throw new Error(`OpenRouter API error ${response.status}: ${err}`);
+  }
+
+  const data = (await response.json()) as {
+    choices: Array<{ message: { content: string } }>;
+  };
+  const text = data.choices?.[0]?.message?.content ?? '';
+  return validateParseResult(JSON.parse(text));
+}
+
+export async function parseReceipt(
+  imageBase64: string,
+  categories: Category[],
+  config: AiConfig,
+): Promise<ParseResult> {
+  if (config.provider === 'openrouter') {
+    return parseReceiptOpenRouter(imageBase64, categories, config.apiKey, config.model);
+  }
+  return parseReceiptAnthropic(imageBase64, categories, config.apiKey);
 }
