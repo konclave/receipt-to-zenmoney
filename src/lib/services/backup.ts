@@ -50,6 +50,9 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
     throw new Error('Import failed: invalid backup file');
   }
 
+  if (envelope === null || typeof envelope !== 'object' || Array.isArray(envelope)) {
+    throw new Error('Import failed: invalid backup file');
+  }
   if (envelope.version !== 1) throw new Error('Import failed: unsupported backup version');
   if (!Array.isArray(envelope.transactions)) throw new Error('Import failed: invalid backup file');
 

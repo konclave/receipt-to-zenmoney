@@ -97,7 +97,9 @@ describe('importBackup', () => {
     const result = await importBackup(file);
     expect(result.imported).toBe(1);
     expect(result.skipped).toBe(1);
-    expect(await getTransactions()).toHaveLength(2);
+    const allAfter = await getTransactions();
+    expect(allAfter).toHaveLength(2);
+    expect(allAfter.find((t) => t.id === 'new-1')).toBeDefined();
   });
 
   it('throws a readable error for invalid gzip data', async () => {
@@ -105,6 +107,20 @@ describe('importBackup', () => {
       type: 'application/gzip',
     });
     await expect(importBackup(bad)).rejects.toThrow('could not read file');
+  });
+
+  it('throws for valid gzip that contains non-JSON5 content', async () => {
+    const rawText = '{ this is: not valid json5 [[[';
+    const compressed = await new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(rawText));
+          controller.close();
+        },
+      }).pipeThrough(new CompressionStream('gzip')),
+    ).arrayBuffer();
+    const file = new File([compressed], 'bad.rzm.gz', { type: 'application/gzip' });
+    await expect(importBackup(file)).rejects.toThrow('invalid backup file');
   });
 
   it('throws for unsupported backup version', async () => {
