@@ -1,6 +1,11 @@
 // src/lib/db/transactions.test.ts
 import { it, expect, beforeEach } from 'vitest';
-import { getTransactions, saveTransaction, updateTransaction } from './transactions';
+import {
+  getTransactions,
+  saveTransaction,
+  updateTransaction,
+  bulkInsertTransactions,
+} from './transactions';
 import { _resetDb } from './index';
 import type { Transaction } from '$lib/types';
 
@@ -61,4 +66,27 @@ it('updateTransaction changes status and zenmoneyId', async () => {
 
 it('updateTransaction throws for unknown id', async () => {
   await expect(updateTransaction('missing', { status: 'failed' })).rejects.toThrow();
+});
+
+it('bulkInsertTransactions inserts multiple transactions', async () => {
+  const txs = [makeTx({ id: 'b1', date: '2026-01-01' }), makeTx({ id: 'b2', date: '2026-02-01' })];
+  await bulkInsertTransactions(txs);
+  const result = await getTransactions();
+  expect(result).toHaveLength(2);
+  expect(result.map((t) => t.id)).toContain('b1');
+  expect(result.map((t) => t.id)).toContain('b2');
+});
+
+it('bulkInsertTransactions is a no-op for empty array', async () => {
+  await bulkInsertTransactions([]);
+  expect(await getTransactions()).toHaveLength(0);
+});
+
+it('bulkInsertTransactions overwrites existing record with same id', async () => {
+  const tx = makeTx({ id: 'upsert-1', amount: 100 });
+  await saveTransaction(tx);
+  await bulkInsertTransactions([{ ...tx, amount: 999 }]);
+  const result = await getTransactions();
+  expect(result).toHaveLength(1);
+  expect(result[0].amount).toBe(999);
 });

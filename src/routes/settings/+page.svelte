@@ -6,6 +6,7 @@
   import { getAccounts, saveAccounts } from '$lib/db/accounts'
   import { saveInstruments } from '$lib/db/instruments'
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
+  import { exportBackup, importBackup } from '$lib/services/backup'
   import type { ZenMoneyAccount } from '$lib/types'
 
   let { data }: { data: { appVersion: string } } = $props()
@@ -23,6 +24,11 @@
   let savedClaudeApiKey = $state('')
   let savedZenmoneyToken = $state('')
   let savedAccountId = $state('')
+  let backupStatus = $state<string | null>(null)
+  let backupError = $state<string | null>(null)
+  let exporting = $state(false)
+  let importing = $state(false)
+  let fileInput = $state<HTMLInputElement | undefined>(undefined)
 
   let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0)
   let zenmoneyTokenSaved = $derived(savedZenmoneyToken.length > 0)
@@ -86,6 +92,58 @@
       syncing = false
     }
   }
+
+  async function handleExport() {
+    exporting = true
+    backupStatus = null
+    backupError = null
+    try {
+      const { blob, count } = await exportBackup()
+      const date = new Date().toISOString().slice(0, 10)
+      const filename = `rzm-backup-${date}.rzm.gz`
+      const shareFile = new File([blob], filename, { type: 'application/gzip' })
+      let shared = false
+      if (navigator.canShare?.({ files: [shareFile] })) {
+        try {
+          await navigator.share({ files: [shareFile], title: 'ZenMoney Backup' })
+          shared = true
+        } catch (shareErr) {
+          if (shareErr instanceof Error && shareErr.name === 'AbortError') return
+          // NotAllowedError (Chrome desktop) and other share failures fall through to download
+        }
+      }
+      if (!shared) {
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+      backupStatus = `Exported ${count} transaction${count !== 1 ? 's' : ''}`
+    } catch (e) {
+      backupError = e instanceof Error ? e.message : String(e)
+    } finally {
+      exporting = false
+    }
+  }
+
+  async function handleImport(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0]
+    if (!file) return
+    importing = true
+    backupStatus = null
+    backupError = null
+    try {
+      const { imported, skipped } = await importBackup(file)
+      backupStatus = `Imported ${imported} new, skipped ${skipped} duplicate${skipped !== 1 ? 's' : ''}`
+    } catch (e) {
+      backupError = e instanceof Error ? e.message : String(e)
+    } finally {
+      importing = false
+      ;(event.target as HTMLInputElement).value = ''
+    }
+  }
 </script>
 
 <div class="page">
@@ -142,6 +200,21 @@
       <button class="btn-primary" onclick={handleSave} disabled={saving || !accountDirty}>Save Account</button>
     </section>
   {/if}
+
+  <hr />
+
+  <section>
+    <h2>Backup & Restore</h2>
+    {#if backupError}<div class="alert error">{backupError}</div>{/if}
+    {#if backupStatus}<div class="alert success">{backupStatus}</div>{/if}
+    <button class="btn-secondary" onclick={handleExport} disabled={exporting || importing}>
+      {exporting ? 'Exporting…' : 'Export backup'}
+    </button>
+    <button class="btn-secondary" onclick={() => fileInput?.click()} disabled={exporting || importing}>
+      {importing ? 'Importing…' : 'Import backup'}
+    </button>
+    <input aria-hidden="true" bind:this={fileInput} type="file" accept=".rzm.gz" style="display:none" onchange={handleImport} />
+  </section>
 
   <hr />
 
