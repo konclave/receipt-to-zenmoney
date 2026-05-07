@@ -27,7 +27,9 @@ function base64ToBlob(data: string, mimeType: string): Blob {
   return new Blob([bytes], { type: mimeType });
 }
 
-async function buildBackupBlob(transactions: Transaction[]): Promise<{ blob: Blob; count: number }> {
+async function buildBackupBlob(
+  transactions: Transaction[],
+): Promise<{ blob: Blob; count: number }> {
   const receiptTxIds = transactions.filter((t) => t.hasReceipt).map((t) => t.id);
   const receiptMap = await bulkGetReceiptImages(receiptTxIds);
   const receiptImages: Record<string, { mimeType: string; data: string }> = {};
@@ -132,7 +134,9 @@ export async function importBackup(file: File): Promise<{ imported: number; skip
   return { imported: toInsert.length, skipped: envelope.transactions.length - toInsert.length };
 }
 
-export async function exportBackupForPeriod(year: number | 'all'): Promise<{ blob: Blob; count: number }> {
+export async function exportBackupForPeriod(
+  year: number | 'all',
+): Promise<{ blob: Blob; count: number }> {
   const all = await getTransactions();
   const transactions = year === 'all' ? all : all.filter((t) => t.date.startsWith(`${year}-`));
   return buildBackupBlob(transactions);

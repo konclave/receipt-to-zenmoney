@@ -55,9 +55,17 @@ it('includes receipt image blob sizes in byte count', async () => {
   await saveTransaction(tx);
 
   // Mock bulkGetReceiptImages to return a blob with known size
-  const spy = vi.spyOn(await import('$lib/db/receipt-images'), 'bulkGetReceiptImages')
+  const spy = vi.spyOn(await import('$lib/db/receipt-images'), 'bulkGetReceiptImages');
   spy.mockResolvedValueOnce(
-    new Map([['img-tx', { blob: new Blob([new Uint8Array(1000)], { type: 'image/jpeg' }), mimeType: 'image/jpeg' as const }]])
+    new Map([
+      [
+        'img-tx',
+        {
+          blob: new Blob([new Uint8Array(1000)], { type: 'image/jpeg' }),
+          mimeType: 'image/jpeg' as const,
+        },
+      ],
+    ]),
   );
 
   const result = await getStorageStats();
