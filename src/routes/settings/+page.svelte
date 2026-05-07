@@ -35,6 +35,9 @@
   let exporting = $state(false)
   let importing = $state(false)
   let fileInput = $state<HTMLInputElement | undefined>(undefined)
+  let orModels = $state<Array<{ id: string; name: string }>>([])
+  let orModelsLoading = $state(false)
+  let orModelsFailed = $state(false)
 
   let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0)
   let openrouterApiKeySaved = $derived(savedOpenrouterApiKey.length > 0)
@@ -66,6 +69,26 @@
     categoryCount = cats.length
     accounts = savedAccounts
     if (cats.length > 0) lastSyncDate = new Date(cats[0].syncedAt).toLocaleDateString()
+
+    // Fetch OpenRouter vision-capable models in the background (non-blocking)
+    orModelsLoading = true
+    const savedModel = s.openrouterModel
+    fetch('https://openrouter.ai/api/v1/models')
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((json: { data: Array<{ id: string; name: string; architecture?: { modality?: string; input_modalities?: string[] } }> }) => {
+        const vision = json.data
+          .filter(
+            (m) =>
+              m.architecture?.input_modalities?.includes('image') ||
+              m.architecture?.modality?.includes('image'),
+          )
+          .sort((a, b) => a.id.localeCompare(b.id))
+        if (savedModel && !vision.find((m) => m.id === savedModel))
+          vision.unshift({ id: savedModel, name: savedModel })
+        orModels = vision
+      })
+      .catch(() => { orModelsFailed = true })
+      .finally(() => { orModelsLoading = false })
   })
 
   async function handleSave() {
@@ -206,9 +229,20 @@
       <input id="or-key" type="password" bind:value={openrouterApiKey}
         placeholder="sk-or-…" autocomplete="off" />
       <label for="or-model">Model</label>
-      <input id="or-model" type="text" bind:value={openrouterModel}
-        placeholder="anthropic/claude-sonnet-4.6" autocomplete="off" />
-      <p class="hint">Browse vision-capable models at openrouter.ai/models</p>
+      {#if orModelsLoading}
+        <p class="hint">Loading models…</p>
+      {:else if orModelsFailed || orModels.length === 0}
+        <input id="or-model" type="text" bind:value={openrouterModel}
+          placeholder="anthropic/claude-sonnet-4.6" autocomplete="off" />
+        <p class="hint">Browse vision-capable models at openrouter.ai/models</p>
+      {:else}
+        <select id="or-model" bind:value={openrouterModel}>
+          {#each orModels as m}
+            <option value={m.id}>{m.name || m.id}</option>
+          {/each}
+        </select>
+        <p class="hint">{orModels.length} vision-capable models available</p>
+      {/if}
     {/if}
   </section>
 
