@@ -14,6 +14,7 @@
   import { bulkDeleteReceiptImages } from '$lib/db/receipt-images'
   import CleanupModal from '$lib/components/CleanupModal.svelte'
   import CleanupConfirmModal from '$lib/components/CleanupConfirmModal.svelte'
+  import { buildAuthUrl } from '$lib/services/zenmoney-auth'
 
   let { data }: { data: { appVersion: string } } = $props()
 
@@ -126,6 +127,19 @@
     } finally {
       saving = false
     }
+  }
+
+  function startOAuthFlow() {
+    const state = crypto.randomUUID()
+    sessionStorage.setItem('zm_oauth_state', state)
+    window.location.href = buildAuthUrl(state)
+  }
+
+  async function disconnectZenMoney() {
+    const s = await getSettings()
+    await saveSettings({ ...s, zenmoneyToken: '' })
+    zenmoneyToken = ''
+    savedZenmoneyToken = ''
   }
 
   async function handleReloadCategories() {
@@ -326,12 +340,21 @@
 
   <section>
     <label for="zm-token">
-      ZenMoney Token
-      <span class="key-dot" class:set={zenmoneyTokenSaved} role="img" aria-label={zenmoneyTokenSaved ? 'saved' : 'not saved'}>●</span>
+      ZenMoney Account
+      <span class="key-dot" class:set={zenmoneyTokenSaved} role="img" aria-label={zenmoneyTokenSaved ? 'connected' : 'not connected'}>●</span>
     </label>
-    <input id="zm-token" type="password" bind:value={zenmoneyToken}
-      placeholder="Paste your ZenMoney token" autocomplete="off" />
-    <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
+    {#if zenmoneyTokenSaved}
+      <div class="connected-row">
+        <span class="connected-badge">✓ Connected</span>
+        <button type="button" class="btn-disconnect" onclick={disconnectZenMoney}>Disconnect</button>
+      </div>
+    {:else}
+      <button type="button" class="btn-oauth" onclick={startOAuthFlow}>Connect with ZenMoney</button>
+      <p class="hint divider">— or paste a token manually —</p>
+      <input id="zm-token" type="password" bind:value={zenmoneyToken}
+        placeholder="Paste your ZenMoney token" autocomplete="off" />
+      <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
+    {/if}
   </section>
 
   <button class="btn-primary" onclick={handleSave} disabled={saving || !settingsDirty}>
@@ -443,6 +466,12 @@
   .alert.success { background: color-mix(in srgb, var(--color-success) 15%, transparent); border: 1px solid var(--color-success); color: var(--color-success); }
   .key-dot { font-size: 10px; margin-left: 6px; vertical-align: middle; color: var(--color-text-muted); }
   .key-dot.set { color: var(--color-success); }
+  .btn-oauth { width: 100%; background: var(--color-primary); color: white; border-radius: var(--radius-sm); padding: 13px; font-weight: 600; font-size: 15px; cursor: pointer; border: none; }
+  .btn-oauth:hover { opacity: 0.9; }
+  .hint.divider { text-align: center; }
+  .connected-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+  .connected-badge { font-size: 14px; font-weight: 600; color: var(--color-success); }
+  .btn-disconnect { font-size: 13px; font-weight: 500; color: var(--color-error, #d93025); background: none; border: none; cursor: pointer; padding: 0; }
   .provider-tabs { display: flex; gap: 0; border: 1px solid var(--color-border); border-radius: var(--radius-sm); overflow: hidden; }
   .provider-tab { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; background: var(--color-surface-2); border: none; cursor: pointer; color: var(--color-text-muted); }
   .provider-tab.active { background: var(--color-primary); color: white; }
