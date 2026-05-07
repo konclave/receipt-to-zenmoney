@@ -1,7 +1,8 @@
 // src/lib/services/backup.test.ts
 import { it, expect, beforeEach, describe } from 'vitest';
-import { exportBackup } from './backup';
-import { saveTransaction } from '$lib/db/transactions';
+import JSON5 from 'json5';
+import { exportBackup, importBackup } from './backup';
+import { saveTransaction, getTransactions } from '$lib/db/transactions';
 import { _resetDb } from '$lib/db/index';
 import type { Transaction } from '$lib/types';
 
@@ -50,5 +51,73 @@ describe('exportBackup', () => {
   it('count is 0 when no transactions exist', async () => {
     const { count } = await exportBackup();
     expect(count).toBe(0);
+  });
+});
+
+async function makeBackupFile(data: unknown): Promise<File> {
+  const compressed = await new Response(
+    new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(JSON5.stringify(data)));
+        controller.close();
+      },
+    }).pipeThrough(new CompressionStream('gzip')),
+  ).arrayBuffer();
+  const blob = new Blob([compressed], { type: 'application/gzip' });
+  return new File([blob], 'test.rzm.gz', { type: 'application/gzip' });
+}
+
+describe('importBackup', () => {
+  it('round-trip: export then import restores all transactions', async () => {
+    const tx1 = makeTx({ id: 'rt-1', amount: 500 });
+    const tx2 = makeTx({ id: 'rt-2', amount: 1000 });
+    await saveTransaction(tx1);
+    await saveTransaction(tx2);
+    const { blob } = await exportBackup();
+    await resetDb();
+    const file = new File([blob], 'backup.rzm.gz', { type: 'application/gzip' });
+    const result = await importBackup(file);
+    expect(result.imported).toBe(2);
+    expect(result.skipped).toBe(0);
+    const restored = await getTransactions();
+    expect(restored).toHaveLength(2);
+    expect(restored.map((t) => t.id)).toContain('rt-1');
+    expect(restored.map((t) => t.id)).toContain('rt-2');
+  });
+
+  it('skips duplicate ids, imports only new transactions', async () => {
+    const existing = makeTx({ id: 'ex-1' });
+    const newTx = makeTx({ id: 'new-1' });
+    await saveTransaction(existing);
+    await saveTransaction(newTx);
+    const { blob } = await exportBackup();
+    await resetDb();
+    await saveTransaction(existing);
+    const file = new File([blob], 'backup.rzm.gz', { type: 'application/gzip' });
+    const result = await importBackup(file);
+    expect(result.imported).toBe(1);
+    expect(result.skipped).toBe(1);
+    expect(await getTransactions()).toHaveLength(2);
+  });
+
+  it('throws a readable error for invalid gzip data', async () => {
+    const bad = new File([new Uint8Array([0x00, 0x01, 0x02, 0x03])], 'bad.rzm.gz', {
+      type: 'application/gzip',
+    });
+    await expect(importBackup(bad)).rejects.toThrow('could not read file');
+  });
+
+  it('throws for unsupported backup version', async () => {
+    const file = await makeBackupFile({
+      version: 99,
+      exportedAt: new Date().toISOString(),
+      transactions: [],
+    });
+    await expect(importBackup(file)).rejects.toThrow('unsupported backup version');
+  });
+
+  it('throws when transactions field is missing', async () => {
+    const file = await makeBackupFile({ version: 1, exportedAt: new Date().toISOString() });
+    await expect(importBackup(file)).rejects.toThrow('invalid backup file');
   });
 });
