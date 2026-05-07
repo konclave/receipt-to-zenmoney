@@ -10,7 +10,8 @@
   const navItems = [
     { href: '/', label: 'Capture', icon: '📷' },
     { href: '/history', label: 'History', icon: '📋' },
-    { href: '/settings', label: 'Settings', icon: '⚙️' }
+    { href: '/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/about', label: 'About', icon: 'ℹ️' }
   ]
 
   onMount(async () => {

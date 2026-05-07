@@ -397,7 +397,6 @@
   <hr />
 
   <section class="footer-section">
-    <a href="/about" class="about-link">About this app</a>
     <div class="version-row">
       <span class="hint">Version {data.appVersion}</span>
       <a
@@ -452,7 +451,6 @@
   .btn-danger { background: color-mix(in srgb, var(--color-error, #d93025) 12%, transparent); color: var(--color-error, #d93025); border: 1px solid color-mix(in srgb, var(--color-error, #d93025) 30%, transparent); border-radius: var(--radius-sm); padding: 12px; font-weight: 500; font-size: 15px; cursor: pointer; }
   .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
   .footer-section { display: flex; flex-direction: column; gap: 8px; }
-  .about-link { font-size: 15px; font-weight: 500; color: var(--color-primary); text-decoration: none; }
   .version-row { display: flex; align-items: center; justify-content: space-between; }
   .issue-link { font-size: 12px; color: var(--color-text-muted); text-decoration: none; }
 </style>

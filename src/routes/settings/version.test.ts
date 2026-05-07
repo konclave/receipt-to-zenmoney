@@ -16,6 +16,5 @@ describe('settings version info', () => {
     );
 
     expect(settingsPage).toContain('Version {data.appVersion}');
-    expect(settingsPage).toContain('/about');
   });
 });
