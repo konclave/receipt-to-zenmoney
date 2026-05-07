@@ -1,4 +1,4 @@
-import { it, expect, beforeEach } from 'vitest';
+import { it, expect, beforeEach, vi } from 'vitest';
 import { getStorageStats } from './storage-stats';
 import { saveTransaction, bulkInsertTransactions } from '$lib/db/transactions';
 import { saveReceiptImage } from '$lib/db/receipt-images';
@@ -50,16 +50,21 @@ it('groups transactions by year in descending order', async () => {
 });
 
 it('includes receipt image blob sizes in byte count', async () => {
+  const { bulkGetReceiptImages } = await import('$lib/db/receipt-images');
   const tx = makeTx({ id: 'img-tx', date: '2025-01-01', hasReceipt: true });
   await saveTransaction(tx);
-  const imageData = new Uint8Array(1000);
-  await saveReceiptImage('img-tx', {
-    mimeType: 'image/jpeg',
-    blob: new Blob([imageData], { type: 'image/jpeg' }),
-  });
+
+  // Mock bulkGetReceiptImages to return a blob with known size
+  const spy = vi.spyOn(await import('$lib/db/receipt-images'), 'bulkGetReceiptImages')
+  spy.mockResolvedValueOnce(
+    new Map([['img-tx', { blob: new Blob([new Uint8Array(1000)], { type: 'image/jpeg' }), mimeType: 'image/jpeg' as const }]])
+  );
+
   const result = await getStorageStats();
   const year2025 = result.byYear.find((y) => y.year === 2025)!;
-  expect(year2025.bytes).toBe(1000 + 500); // blob size + 500-byte overhead per tx
+  expect(year2025.bytes).toBe(1000 + 500);
+
+  spy.mockRestore();
 });
 
 it('totalBytes equals sum of all byYear entries', async () => {
