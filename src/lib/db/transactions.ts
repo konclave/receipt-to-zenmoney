@@ -24,6 +24,7 @@ export async function bulkInsertTransactions(transactions: Transaction[]): Promi
   if (transactions.length === 0) return;
   const db = await getDb();
   const tx = db.transaction('transactions', 'readwrite');
+  // uses put() — callers must pre-filter duplicates if insert-only semantics are needed
   await Promise.all(transactions.map((t) => tx.store.put(t)));
   await tx.done;
 }

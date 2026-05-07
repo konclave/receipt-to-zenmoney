@@ -79,3 +79,12 @@ it('bulkInsertTransactions is a no-op for empty array', async () => {
   await bulkInsertTransactions([]);
   expect(await getTransactions()).toHaveLength(0);
 });
+
+it('bulkInsertTransactions overwrites existing record with same id', async () => {
+  const tx = makeTx({ id: 'upsert-1', amount: 100 });
+  await saveTransaction(tx);
+  await bulkInsertTransactions([{ ...tx, amount: 999 }]);
+  const result = await getTransactions();
+  expect(result).toHaveLength(1);
+  expect(result[0].amount).toBe(999);
+});
