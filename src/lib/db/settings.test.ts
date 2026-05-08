@@ -17,7 +17,6 @@ describe('getSettings', () => {
   it('returns empty defaults when nothing is saved', async () => {
     const s = await getSettings();
     expect(s.claudeApiKey).toBe('');
-    expect(s.zenmoneyAuthMode).toBe('manual');
     expect(s.zenmoneyToken).toBe('');
     expect(s.zenmoneyAccessToken).toBe('');
     expect(s.zenmoneyAccessTokenExpiresAt).toBe(0);
@@ -65,11 +64,6 @@ describe('saveSettings', () => {
     const s = await getSettings();
     expect(s.claudeApiKey).toBe('key-updated');
     expect(s.zenmoneyToken).toBe('token-b');
-  });
-
-  it('saves zenmoneyAuthMode', async () => {
-    await saveSettings({ zenmoneyAuthMode: 'oauth' });
-    expect((await getSettings()).zenmoneyAuthMode).toBe('oauth');
   });
 
   it('saves and decrypts zenmoneyAccessToken', async () => {

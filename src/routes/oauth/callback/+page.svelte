@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { saveSettings } from '$lib/db/settings'
   import { getZenMoneyAccessToken } from '$lib/services/zenmoney-access'
 
   let status = $state<'loading' | 'error'>('loading')
@@ -9,7 +8,6 @@
 
   onMount(async () => {
     try {
-      await saveSettings({ zenmoneyAuthMode: 'oauth' })
       await getZenMoneyAccessToken(true)
       goto('/settings?zenmoneyConnected=1')
     } catch (e) {

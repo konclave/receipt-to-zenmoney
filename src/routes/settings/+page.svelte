@@ -190,8 +190,11 @@
         await fetch("/api/zenmoney/logout", {
             method: "POST",
             credentials: "include",
-        });
+        }).catch(() => {});
         await clearZenMoneyAccessToken();
+        await saveSettings({ zenmoneyToken: "" });
+        zenmoneyToken = "";
+        savedZenmoneyToken = "";
         savedZenmoneyAccessToken = "";
     }
 

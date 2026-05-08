@@ -8,7 +8,6 @@ export async function getSettings(): Promise<Settings> {
   const [
     apiKeyRaw,
     tokenRaw,
-    authMode,
     accessTokenRaw,
     accessTokenExpiresAt,
     ts,
@@ -20,7 +19,6 @@ export async function getSettings(): Promise<Settings> {
   ] = await Promise.all([
     db.get("settings", "claudeApiKey"),
     db.get("settings", "zenmoneyToken"),
-    db.get("settings", "zenmoneyAuthMode"),
     db.get("settings", "zenmoneyAccessToken"),
     db.get("settings", "zenmoneyAccessTokenExpiresAt"),
     db.get("settings", "zenmoneyServerTimestamp"),
@@ -32,7 +30,6 @@ export async function getSettings(): Promise<Settings> {
   ]);
   return {
     claudeApiKey: apiKeyRaw ? await decrypt(apiKeyRaw as string) : "",
-    zenmoneyAuthMode: (authMode as "manual" | "oauth") ?? "manual",
     zenmoneyToken: tokenRaw ? await decrypt(tokenRaw as string) : "",
     zenmoneyAccessToken: accessTokenRaw
       ? await decrypt(accessTokenRaw as string)
@@ -58,8 +55,6 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     encrypted.claudeApiKey = await encrypt(partial.claudeApiKey);
   if (partial.zenmoneyToken !== undefined)
     encrypted.zenmoneyToken = await encrypt(partial.zenmoneyToken);
-  if (partial.zenmoneyAuthMode !== undefined)
-    encrypted.zenmoneyAuthMode = partial.zenmoneyAuthMode;
   if (partial.zenmoneyAccessToken !== undefined)
     encrypted.zenmoneyAccessToken = await encrypt(partial.zenmoneyAccessToken);
   if (partial.openrouterApiKey !== undefined)
@@ -71,8 +66,6 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     puts.push(tx.store.put(encrypted.claudeApiKey, "claudeApiKey"));
   if (encrypted.zenmoneyToken !== undefined)
     puts.push(tx.store.put(encrypted.zenmoneyToken, "zenmoneyToken"));
-  if (encrypted.zenmoneyAuthMode !== undefined)
-    puts.push(tx.store.put(encrypted.zenmoneyAuthMode, "zenmoneyAuthMode"));
   if (encrypted.zenmoneyAccessToken !== undefined)
     puts.push(
       tx.store.put(encrypted.zenmoneyAccessToken, "zenmoneyAccessToken"),

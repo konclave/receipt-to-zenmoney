@@ -51,6 +51,14 @@ ZENMONEY_TOKEN_ENCRYPTION_KEY=
 PUBLIC_ZENMONEY_OAUTH_ENABLED=true
 ```
 
+`ZENMONEY_TOKEN_ENCRYPTION_KEY` is a private server-side secret used to encrypt the ZenMoney `refresh_token` before it is stored in the broker session store. Generate it with:
+
+```sh
+openssl rand -hex 32
+```
+
+Use one stable value per environment. Do not rotate it casually, because existing stored refresh tokens will become undecryptable.
+
 Do not use the old `PUBLIC_ZENMONEY_CLIENT_ID`, `PUBLIC_ZENMONEY_CLIENT_SECRET`, or `PUBLIC_ZENMONEY_REDIRECT_URI` names. The server routes read the private `ZENMONEY_*` variables above.
 
 If you change `.env`, restart `pnpm dev` so SvelteKit reloads the environment.
