@@ -1,3 +1,19 @@
+# [1.9.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.8.0...v1.9.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* copy .env.example before type check in CI ([08fcce7](https://github.com/konclave/receipt-to-zenmoney/commit/08fcce76bea21513688d540389fe968794425cb9))
+* update version test for AppFeedback component extraction ([041598d](https://github.com/konclave/receipt-to-zenmoney/commit/041598d0db4fb9a8785471e06e8e15a346f87e3a))
+* use \$env/static/public for OAuth feature flag in server config ([b21d6da](https://github.com/konclave/receipt-to-zenmoney/commit/b21d6da14121e962b7e1c346eeb43ad55fede1d8))
+
+
+### Features
+
+* add ZenMoney OAuth authentication ([9953d62](https://github.com/konclave/receipt-to-zenmoney/commit/9953d6229f1040ee0053b187217fc091060e864d))
+* add ZenMoney OAuth broker flow ([fe1092d](https://github.com/konclave/receipt-to-zenmoney/commit/fe1092d639ddfc909946c5136ff341e02f387450))
+* hide ZenMoney OAuth button when credentials not configured ([dc0e21c](https://github.com/konclave/receipt-to-zenmoney/commit/dc0e21c1b652e16e223ac3ef2414e1d6a1bca8da))
+
 # [1.8.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.7.0...v1.8.0) (2026-05-07)
 
 
