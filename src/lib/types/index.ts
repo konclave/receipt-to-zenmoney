@@ -1,6 +1,6 @@
 export interface PendingCapture {
   imageBase64: string;
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
 }
 
 export interface Category {
@@ -19,13 +19,13 @@ export interface Transaction {
   merchant: string;
   categoryId: string;
   date: string;
-  status: 'pending' | 'submitted' | 'failed';
+  status: "pending" | "submitted" | "failed";
   createdAt: number;
   hasReceipt?: boolean;
 }
 
 export interface ReceiptImage {
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
   blob: Blob;
 }
 
@@ -35,19 +35,18 @@ export interface ParseResult {
   merchant: string;
   categoryId: string;
   date: string;
-  confidence: 'high' | 'medium' | 'low';
+  confidence: "high" | "medium" | "low";
 }
 
 export interface Settings {
   claudeApiKey: string;
-  zenmoneyAuthMode: 'manual' | 'oauth';
   zenmoneyToken: string;
   zenmoneyAccessToken: string;
   zenmoneyAccessTokenExpiresAt: number;
   zenmoneyServerTimestamp: number;
   zenmoneyAccountId: string;
   zenmoneyUserId: number;
-  aiProvider: 'anthropic' | 'openrouter';
+  aiProvider: "anthropic" | "openrouter";
   openrouterApiKey: string;
   openrouterModel: string;
 }

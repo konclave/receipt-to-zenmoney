@@ -20,10 +20,7 @@
     import CleanupModal from "$lib/components/CleanupModal.svelte";
     import CleanupConfirmModal from "$lib/components/CleanupConfirmModal.svelte";
     import AppFeedback from "$lib/components/AppFeedback.svelte";
-    import {
-        clearZenMoneyAccessToken,
-    } from "$lib/services/zenmoney-access";
-    import { resolveZenMoneyAuthMode } from "$lib/services/zenmoney-auth-mode";
+    import { clearZenMoneyAccessToken } from "$lib/services/zenmoney-access";
     import { runZenMoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
 
     const oauthEnabled = env.PUBLIC_ZENMONEY_OAUTH_ENABLED === "true";
@@ -34,7 +31,6 @@
     let claudeApiKey = $state("");
     let openrouterApiKey = $state("");
     let openrouterModel = $state("anthropic/claude-sonnet-4.6");
-    let zenmoneyAuthMode = $state<"manual" | "oauth">("manual");
     let zenmoneyToken = $state("");
     let categoryCount = $state(0);
     let lastSyncDate = $state<string | null>(null);
@@ -48,7 +44,6 @@
     let savedClaudeApiKey = $state("");
     let savedOpenrouterApiKey = $state("");
     let savedOpenrouterModel = $state("anthropic/claude-sonnet-4.6");
-    let savedZenmoneyAuthMode = $state<"manual" | "oauth">("manual");
     let savedZenmoneyToken = $state("");
     let savedZenmoneyAccessToken = $state("");
     let savedAccountId = $state("");
@@ -72,13 +67,10 @@
     let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0);
     let openrouterApiKeySaved = $derived(savedOpenrouterApiKey.length > 0);
     let zenmoneyConnected = $derived(
-        zenmoneyAuthMode === "manual"
-            ? savedZenmoneyToken.length > 0
-            : savedZenmoneyAccessToken.length > 0,
+        savedZenmoneyToken.length > 0 || savedZenmoneyAccessToken.length > 0,
     );
     let settingsDirty = $derived(
         claudeApiKey !== savedClaudeApiKey ||
-            zenmoneyAuthMode !== savedZenmoneyAuthMode ||
             zenmoneyToken !== savedZenmoneyToken ||
             aiProvider !== savedAiProvider ||
             openrouterApiKey !== savedOpenrouterApiKey ||
@@ -88,25 +80,16 @@
 
     onMount(async () => {
         const s = await getSettings();
-        const effectiveAuthMode = resolveZenMoneyAuthMode(
-            s.zenmoneyAuthMode,
-            oauthEnabled,
-        );
-        if (effectiveAuthMode !== s.zenmoneyAuthMode) {
-            await saveSettings({ zenmoneyAuthMode: effectiveAuthMode });
-        }
         aiProvider = s.aiProvider;
         claudeApiKey = s.claudeApiKey;
         openrouterApiKey = s.openrouterApiKey;
         openrouterModel = s.openrouterModel;
-        zenmoneyAuthMode = effectiveAuthMode;
         zenmoneyToken = s.zenmoneyToken;
         selectedAccountId = s.zenmoneyAccountId;
         savedAiProvider = s.aiProvider;
         savedClaudeApiKey = s.claudeApiKey;
         savedOpenrouterApiKey = s.openrouterApiKey;
         savedOpenrouterModel = s.openrouterModel;
-        savedZenmoneyAuthMode = effectiveAuthMode;
         savedZenmoneyToken = s.zenmoneyToken;
         savedZenmoneyAccessToken = s.zenmoneyAccessToken;
         savedAccountId = s.zenmoneyAccountId;
@@ -177,7 +160,6 @@
         try {
             await saveSettings({
                 claudeApiKey,
-                zenmoneyAuthMode,
                 zenmoneyToken,
                 aiProvider,
                 openrouterApiKey,
@@ -189,7 +171,6 @@
             savedClaudeApiKey = claudeApiKey;
             savedOpenrouterApiKey = openrouterApiKey;
             savedOpenrouterModel = openrouterModel;
-            savedZenmoneyAuthMode = zenmoneyAuthMode;
             savedZenmoneyToken = zenmoneyToken;
             savedAccountId = selectedAccountId;
             success = "Saved";
@@ -486,33 +467,8 @@
 
     <section>
         <h2>ZenMoney Connection</h2>
-        <label for="zm-token">
-            ZenMoney Account
-            <span
-                class="key-dot"
-                class:set={zenmoneyConnected}
-                role="img"
-                aria-label={zenmoneyConnected ? "connected" : "not connected"}
-                >●</span
-            >
-        </label>
-
-        <input
-            id="zm-token"
-            type="password"
-            bind:value={zenmoneyToken}
-            placeholder="Paste your ZenMoney token"
-            autocomplete="off"
-        />
-
         {#if oauthEnabled}
-            <label for="zm-auth-mode">Auth Method</label>
-            <select id="zm-auth-mode" bind:value={zenmoneyAuthMode}>
-                <option value="manual">Manual token</option>
-                <option value="oauth">OAuth</option>
-            </select>
-
-            {#if zenmoneyAuthMode === "oauth" && zenmoneyConnected}
+            {#if zenmoneyConnected}
                 <div class="connected-row">
                     <span class="connected-badge">✓ Connected</span>
                     <button
@@ -521,12 +477,21 @@
                         onclick={disconnectZenMoney}>Disconnect</button
                     >
                 </div>
-            {:else if zenmoneyAuthMode === "oauth"}
+            {:else}
                 <button type="button" class="btn-oauth" onclick={startOAuthFlow}
                     >Connect with ZenMoney</button
                 >
+                <p class="hint divider">— or paste a token manually —</p>
             {/if}
         {/if}
+
+        <input
+            id="zm-token"
+            type="password"
+            bind:value={zenmoneyToken}
+            placeholder="Paste your ZenMoney token"
+            autocomplete="off"
+        />
 
         <button
             class="btn-primary"
@@ -830,5 +795,8 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+    }
+    .hint.divider {
+        text-align: center;
     }
 </style>
