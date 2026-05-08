@@ -2,7 +2,9 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import { page } from '$app/stores'
+  import { env } from '$env/dynamic/public'
   import { getSettings } from '$lib/db/settings'
+  import { resolveZenMoneyAuthMode } from '$lib/services/zenmoney-auth-mode'
   import '../app.css'
 
   let { children } = $props()
@@ -16,7 +18,20 @@
 
   onMount(async () => {
     const settings = await getSettings()
-    if ((!settings.claudeApiKey || !settings.zenmoneyToken) && !$page.url.pathname.startsWith('/settings')) {
+    const authMode = resolveZenMoneyAuthMode(
+      settings.zenmoneyAuthMode,
+      env.PUBLIC_ZENMONEY_OAUTH_ENABLED === 'true',
+    )
+    const hasZenMoneyConnection =
+      authMode === 'manual'
+        ? Boolean(settings.zenmoneyToken)
+        : Boolean(settings.zenmoneyAccessToken)
+
+    if (
+      (!settings.claudeApiKey || !hasZenMoneyConnection) &&
+      !$page.url.pathname.startsWith('/settings') &&
+      !$page.url.pathname.startsWith('/oauth/callback')
+    ) {
       goto('/settings')
     }
   })

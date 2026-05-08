@@ -1,6 +1,7 @@
 <!-- src/routes/settings/+page.svelte -->
 <script lang="ts">
     import { onMount } from "svelte";
+    import { env } from "$env/dynamic/public";
     import { getSettings, saveSettings } from "$lib/db/settings";
     import { getCategories, saveCategories } from "$lib/db/categories";
     import { getAccounts, saveAccounts } from "$lib/db/accounts";
@@ -19,7 +20,13 @@
     import CleanupModal from "$lib/components/CleanupModal.svelte";
     import CleanupConfirmModal from "$lib/components/CleanupConfirmModal.svelte";
     import AppFeedback from "$lib/components/AppFeedback.svelte";
-    import { buildAuthUrl, oauthConfigured } from "$lib/services/zenmoney-auth";
+    import {
+        clearZenMoneyAccessToken,
+    } from "$lib/services/zenmoney-access";
+    import { resolveZenMoneyAuthMode } from "$lib/services/zenmoney-auth-mode";
+    import { runZenMoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
+
+    const oauthEnabled = env.PUBLIC_ZENMONEY_OAUTH_ENABLED === "true";
 
     let { data }: { data: { appVersion: string } } = $props();
 
@@ -27,6 +34,7 @@
     let claudeApiKey = $state("");
     let openrouterApiKey = $state("");
     let openrouterModel = $state("anthropic/claude-sonnet-4.6");
+    let zenmoneyAuthMode = $state<"manual" | "oauth">("manual");
     let zenmoneyToken = $state("");
     let categoryCount = $state(0);
     let lastSyncDate = $state<string | null>(null);
@@ -40,7 +48,9 @@
     let savedClaudeApiKey = $state("");
     let savedOpenrouterApiKey = $state("");
     let savedOpenrouterModel = $state("anthropic/claude-sonnet-4.6");
+    let savedZenmoneyAuthMode = $state<"manual" | "oauth">("manual");
     let savedZenmoneyToken = $state("");
+    let savedZenmoneyAccessToken = $state("");
     let savedAccountId = $state("");
     let backupStatus = $state<string | null>(null);
     let backupError = $state<string | null>(null);
@@ -61,9 +71,14 @@
 
     let claudeApiKeySaved = $derived(savedClaudeApiKey.length > 0);
     let openrouterApiKeySaved = $derived(savedOpenrouterApiKey.length > 0);
-    let zenmoneyTokenSaved = $derived(savedZenmoneyToken.length > 0);
+    let zenmoneyConnected = $derived(
+        zenmoneyAuthMode === "manual"
+            ? savedZenmoneyToken.length > 0
+            : savedZenmoneyAccessToken.length > 0,
+    );
     let settingsDirty = $derived(
         claudeApiKey !== savedClaudeApiKey ||
+            zenmoneyAuthMode !== savedZenmoneyAuthMode ||
             zenmoneyToken !== savedZenmoneyToken ||
             aiProvider !== savedAiProvider ||
             openrouterApiKey !== savedOpenrouterApiKey ||
@@ -73,17 +88,27 @@
 
     onMount(async () => {
         const s = await getSettings();
+        const effectiveAuthMode = resolveZenMoneyAuthMode(
+            s.zenmoneyAuthMode,
+            oauthEnabled,
+        );
+        if (effectiveAuthMode !== s.zenmoneyAuthMode) {
+            await saveSettings({ zenmoneyAuthMode: effectiveAuthMode });
+        }
         aiProvider = s.aiProvider;
         claudeApiKey = s.claudeApiKey;
         openrouterApiKey = s.openrouterApiKey;
         openrouterModel = s.openrouterModel;
+        zenmoneyAuthMode = effectiveAuthMode;
         zenmoneyToken = s.zenmoneyToken;
         selectedAccountId = s.zenmoneyAccountId;
         savedAiProvider = s.aiProvider;
         savedClaudeApiKey = s.claudeApiKey;
         savedOpenrouterApiKey = s.openrouterApiKey;
         savedOpenrouterModel = s.openrouterModel;
+        savedZenmoneyAuthMode = effectiveAuthMode;
         savedZenmoneyToken = s.zenmoneyToken;
+        savedZenmoneyAccessToken = s.zenmoneyAccessToken;
         savedAccountId = s.zenmoneyAccountId;
         const [cats, savedAccounts] = await Promise.all([
             getCategories(),
@@ -152,6 +177,7 @@
         try {
             await saveSettings({
                 claudeApiKey,
+                zenmoneyAuthMode,
                 zenmoneyToken,
                 aiProvider,
                 openrouterApiKey,
@@ -163,6 +189,7 @@
             savedClaudeApiKey = claudeApiKey;
             savedOpenrouterApiKey = openrouterApiKey;
             savedOpenrouterModel = openrouterModel;
+            savedZenmoneyAuthMode = zenmoneyAuthMode;
             savedZenmoneyToken = zenmoneyToken;
             savedAccountId = selectedAccountId;
             success = "Saved";
@@ -175,25 +202,25 @@
     }
 
     function startOAuthFlow() {
-        const state = crypto.randomUUID();
-        sessionStorage.setItem("zm_oauth_state", state);
-        window.location.href = buildAuthUrl(state);
+        window.location.href = "/api/zenmoney/oauth/start";
     }
 
     async function disconnectZenMoney() {
-        const s = await getSettings();
-        await saveSettings({ ...s, zenmoneyToken: "" });
-        zenmoneyToken = "";
-        savedZenmoneyToken = "";
+        await fetch("/api/zenmoney/logout", {
+            method: "POST",
+            credentials: "include",
+        });
+        await clearZenMoneyAccessToken();
+        savedZenmoneyAccessToken = "";
     }
 
     async function handleReloadCategories() {
         syncing = true;
         error = null;
         try {
-            const s = await getSettings();
-            if (!s.zenmoneyToken) throw new Error("ZenMoney token is required");
-            const response = await syncDiff(s.zenmoneyToken, 0);
+            const response = await runZenMoneyRequestWithStoredToken((token) =>
+                syncDiff(token, 0),
+            );
             const cats = mapResponseToCategories(response);
             await Promise.all([
                 saveCategories(cats),
@@ -463,35 +490,42 @@
             ZenMoney Account
             <span
                 class="key-dot"
-                class:set={zenmoneyTokenSaved}
+                class:set={zenmoneyConnected}
                 role="img"
-                aria-label={zenmoneyTokenSaved ? "connected" : "not connected"}
+                aria-label={zenmoneyConnected ? "connected" : "not connected"}
                 >●</span
             >
         </label>
-        {#if zenmoneyTokenSaved}
-            <div class="connected-row">
-                <span class="connected-badge">✓ Connected</span>
-                <button
-                    type="button"
-                    class="btn-disconnect"
-                    onclick={disconnectZenMoney}>Disconnect</button
-                >
-            </div>
-        {:else}
-            {#if oauthConfigured}
+
+        <input
+            id="zm-token"
+            type="password"
+            bind:value={zenmoneyToken}
+            placeholder="Paste your ZenMoney token"
+            autocomplete="off"
+        />
+
+        {#if oauthEnabled}
+            <label for="zm-auth-mode">Auth Method</label>
+            <select id="zm-auth-mode" bind:value={zenmoneyAuthMode}>
+                <option value="manual">Manual token</option>
+                <option value="oauth">OAuth</option>
+            </select>
+
+            {#if zenmoneyAuthMode === "oauth" && zenmoneyConnected}
+                <div class="connected-row">
+                    <span class="connected-badge">✓ Connected</span>
+                    <button
+                        type="button"
+                        class="btn-disconnect"
+                        onclick={disconnectZenMoney}>Disconnect</button
+                    >
+                </div>
+            {:else if zenmoneyAuthMode === "oauth"}
                 <button type="button" class="btn-oauth" onclick={startOAuthFlow}
                     >Connect with ZenMoney</button
                 >
-                <p class="hint divider">— or paste a token manually —</p>
             {/if}
-            <input
-                id="zm-token"
-                type="password"
-                bind:value={zenmoneyToken}
-                placeholder="Paste your ZenMoney token"
-                autocomplete="off"
-            />
         {/if}
 
         <button
@@ -718,9 +752,6 @@
     }
     .btn-oauth:hover {
         opacity: 0.9;
-    }
-    .hint.divider {
-        text-align: center;
     }
     .connected-row {
         display: flex;

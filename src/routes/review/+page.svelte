@@ -5,6 +5,7 @@
   import { captureStore } from '$lib/stores/capture'
   import { parseReceipt, type AiConfig } from '$lib/services/claude'
   import { resolveReviewAccountId } from '$lib/services/review-account'
+  import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import { getAccounts } from '$lib/db/accounts'
   import { getInstrumentByCurrency } from '$lib/db/instruments'
@@ -103,7 +104,6 @@
 
     try {
       const settings = await getSettings()
-      if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
       if (!reviewAccountId)
         throw new Error('No ZenMoney account available — go to Settings and reload categories')
       if (!settings.zenmoneyUserId)
@@ -112,7 +112,9 @@
       if (!instrument)
         throw new Error(`No ZenMoney instrument for currency ${tx.currency} — go to Settings and reload categories`)
       const payload = buildTransactionPayload(tx, reviewAccountId, settings.zenmoneyUserId, instrument.id)
-      const diffResponse = await syncDiff(settings.zenmoneyToken, settings.zenmoneyServerTimestamp, [payload])
+      const diffResponse = await runZenMoneyRequestWithStoredToken((token) =>
+        syncDiff(token, settings.zenmoneyServerTimestamp, [payload]),
+      )
       await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
       await updateTransaction(txId, { status: 'submitted', zenmoneyId: txId })
     } catch (e) {
@@ -202,7 +204,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .form { display: flex; flex-direction: column; gap: 16px; }
   .field { display: flex; flex-direction: column; gap: 6px; }
-  label, .label { font-size: 13px; font-weight: 500; color: var(--color-text-muted); }
+  label { font-size: 13px; font-weight: 500; color: var(--color-text-muted); }
   select { appearance: none; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px; font-size: 15px; color: var(--color-text); }
   .btn-primary { background: var(--color-primary); color: white; border-radius: var(--radius-sm); padding: 16px; font-weight: 600; font-size: 16px; margin-top: 8px; }
   .btn-primary:disabled { opacity: 0.5; }

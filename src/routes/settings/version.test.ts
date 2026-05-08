@@ -19,4 +19,25 @@ describe('settings version info', () => {
     expect(settingsPage).toContain('AppFeedback');
     expect(settingsPage).toContain('data.appVersion');
   });
+
+  it('links ZenMoney connect flow to the broker start endpoint', () => {
+    const settingsPage = readFileSync(
+      resolve(process.cwd(), 'src/routes/settings/+page.svelte'),
+      'utf8',
+    );
+
+    expect(settingsPage).toContain('/api/zenmoney/oauth/start');
+    expect(settingsPage).toContain('/api/zenmoney/logout');
+  });
+
+  it('keeps the manual ZenMoney token input available', () => {
+    const settingsPage = readFileSync(
+      resolve(process.cwd(), 'src/routes/settings/+page.svelte'),
+      'utf8',
+    );
+
+    expect(settingsPage).toContain('placeholder="Paste your ZenMoney token"');
+    expect(settingsPage).toContain('zenmoneyAuthMode');
+    expect(settingsPage).toContain('PUBLIC_ZENMONEY_OAUTH_ENABLED');
+  });
 });

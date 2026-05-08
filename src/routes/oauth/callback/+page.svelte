@@ -1,30 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { page } from '$app/stores'
-  import { getSettings, saveSettings } from '$lib/db/settings'
-  import { exchangeCodeForToken } from '$lib/services/zenmoney-auth'
+  import { saveSettings } from '$lib/db/settings'
+  import { getZenMoneyAccessToken } from '$lib/services/zenmoney-access'
 
   let status = $state<'loading' | 'error'>('loading')
   let errorMessage = $state('')
 
   onMount(async () => {
-    const code = $page.url.searchParams.get('code')
-    const returnedState = $page.url.searchParams.get('state')
-    const savedState = sessionStorage.getItem('zm_oauth_state')
-    sessionStorage.removeItem('zm_oauth_state')
-
-    if (!code || !returnedState || returnedState !== savedState) {
-      status = 'error'
-      errorMessage = 'Invalid or missing OAuth state. Please try connecting again.'
-      return
-    }
-
     try {
-      const token = await exchangeCodeForToken(code)
-      const existing = await getSettings()
-      await saveSettings({ ...existing, zenmoneyToken: token })
-      goto('/settings')
+      await saveSettings({ zenmoneyAuthMode: 'oauth' })
+      await getZenMoneyAccessToken(true)
+      goto('/settings?zenmoneyConnected=1')
     } catch (e) {
       status = 'error'
       errorMessage = e instanceof Error ? e.message : 'Authentication failed.'

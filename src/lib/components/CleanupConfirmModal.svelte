@@ -19,7 +19,15 @@
   )
 </script>
 
-<div class="overlay" role="presentation" onclick={onclose}>
+<div
+  class="overlay"
+  role="presentation"
+  tabindex="-1"
+  onclick={onclose}
+  onkeydown={(event) => {
+    if (event.key === 'Escape') onclose()
+  }}
+>
   <div
     class="modal"
     role="dialog"
@@ -27,6 +35,7 @@
     aria-labelledby="confirm-title"
     tabindex="-1"
     onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.stopPropagation()}
   >
     <div class="modal-header">
       <h2 id="confirm-title">{title}</h2>

@@ -11,7 +11,15 @@
   const totalTxCount = $derived(stats.byYear.reduce((s, y) => s + y.txCount, 0))
 </script>
 
-<div class="overlay" role="presentation" onclick={onclose}>
+<div
+  class="overlay"
+  role="presentation"
+  tabindex="-1"
+  onclick={onclose}
+  onkeydown={(event) => {
+    if (event.key === 'Escape') onclose()
+  }}
+>
   <div
     class="modal"
     role="dialog"
@@ -19,6 +27,7 @@
     aria-labelledby="cleanup-title"
     tabindex="-1"
     onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.stopPropagation()}
   >
     <div class="modal-header">
       <h2 id="cleanup-title">Clean Up Data</h2>
