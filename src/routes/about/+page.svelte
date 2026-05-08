@@ -227,21 +227,30 @@
       transition: transform 0.15s;
     }
     h1 {
-      font-size: 20px;
+      font-size: 22px;
     }
     .tagline {
-      font-size: 13px;
+      font-size: 14px;
     }
 
     h2 {
-      font-size: 22px;
+      font-size: 26px;
       text-transform: none;
       letter-spacing: 0;
       color: var(--color-text);
       font-weight: 700;
     }
     p {
+      font-size: 18px;
+    }
+
+    .steps strong,
+    .facts strong {
       font-size: 16px;
+    }
+    .steps span,
+    .facts span {
+      font-size: 14px;
     }
 
     footer {
