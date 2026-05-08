@@ -10,7 +10,7 @@ describe('ZenMoney OAuth deployment config', () => {
 
   it('uses adapter-vercel instead of adapter-static', () => {
     expect(packageJson).toContain('@sveltejs/adapter-vercel');
-    expect(svelteConfig).toContain("@sveltejs/adapter-vercel");
+    expect(svelteConfig).toContain('@sveltejs/adapter-vercel');
   });
 
   it('does not expose ZenMoney OAuth secret material in PUBLIC env vars', () => {

@@ -1,7 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import type { Cookies } from '@sveltejs/kit';
 import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
-import { SESSION_COOKIE, SESSION_IDLE_TTL_SECONDS, STATE_COOKIE } from '$lib/server/zenmoney/cookies';
+import {
+  SESSION_COOKIE,
+  SESSION_IDLE_TTL_SECONDS,
+  STATE_COOKIE,
+} from '$lib/server/zenmoney/cookies';
 import { encryptRefreshToken } from '$lib/server/zenmoney/crypto';
 import { buildTokenExchangeBody, TOKEN_URL } from '$lib/server/zenmoney/oauth';
 import { buildNewSession, saveSession } from '$lib/server/zenmoney/session-store';

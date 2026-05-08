@@ -13,9 +13,9 @@ describe('runZenMoneyRequest', () => {
       .mockRejectedValueOnce(new Error('ZenMoney API error: 401 Unauthorized'))
       .mockResolvedValueOnce({ ok: true });
 
-    await expect(
-      runZenMoneyRequest(tokenProvider, authModeProvider, request),
-    ).resolves.toEqual({ ok: true });
+    await expect(runZenMoneyRequest(tokenProvider, authModeProvider, request)).resolves.toEqual({
+      ok: true,
+    });
     expect(tokenProvider).toHaveBeenCalledTimes(2);
     expect(request).toHaveBeenCalledTimes(2);
   });

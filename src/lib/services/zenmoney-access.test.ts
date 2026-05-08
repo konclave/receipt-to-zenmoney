@@ -88,10 +88,7 @@ describe('getConfiguredZenMoneyToken', () => {
       zenmoneyAccessTokenExpiresAt: Date.now() - 1000,
       zenmoneyToken: 'manual-token',
     });
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue(new Response(null, { status: 401 })),
-    );
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })));
     await expect(getConfiguredZenMoneyToken()).resolves.toBe('manual-token');
   });
 });

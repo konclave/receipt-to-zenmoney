@@ -21,10 +21,9 @@ const fallbackKv: KvLike = {
   },
 };
 
-const loadModule = new Function(
-  'specifier',
-  'return import(specifier)',
-) as (specifier: string) => Promise<{ kv: KvLike }>;
+const loadModule = new Function('specifier', 'return import(specifier)') as (
+  specifier: string,
+) => Promise<{ kv: KvLike }>;
 
 async function getKvClient(): Promise<KvLike> {
   try {
