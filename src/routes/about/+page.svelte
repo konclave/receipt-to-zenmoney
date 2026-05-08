@@ -52,8 +52,15 @@
       <li>
         <span class="fact-icon">🔗</span>
         <div>
-          <strong>No middleman</strong>
-          <span>The app has no backend of its own. It talks directly to ZenMoney using your credentials.</span>
+          <strong>Your data goes direct</strong>
+          <span>Receipts and transactions travel straight from your device to ZenMoney. We don't sit in the middle.</span>
+        </div>
+      </li>
+      <li>
+        <span class="fact-icon">🔐</span>
+        <div>
+          <strong>One server-side step: signing in</strong>
+          <span>When you connect your ZenMoney account, the sign-in briefly passes through our server — the same way "Sign in with Google" works on any app. We never see your transactions, balance, or any financial data. After that, everything is direct again.</span>
         </div>
       </li>
     </ul>
