@@ -8,6 +8,8 @@
 
     let { children } = $props();
 
+    let isAbout = $derived($page.url.pathname === '/about');
+
     const navItems = [
         { href: "/", label: "Capture", icon: "📷" },
         { href: "/history", label: "History", icon: "📋" },
@@ -24,14 +26,15 @@
         if (
             (!settings.claudeApiKey || !hasZenMoneyConnection) &&
             !$page.url.pathname.startsWith("/settings") &&
-            !$page.url.pathname.startsWith("/oauth/callback")
+            !$page.url.pathname.startsWith("/oauth/callback") &&
+            !$page.url.pathname.startsWith("/about")
         ) {
             goto("/settings");
         }
     });
 </script>
 
-<div class="app">
+<div class="app" class:about={isAbout}>
     <main class="content">
         {@render children()}
     </main>
@@ -57,6 +60,14 @@
         height: 100dvh;
         max-width: 480px;
         margin: 0 auto;
+    }
+    @media (min-width: 640px) {
+        .app.about {
+            max-width: 100%;
+        }
+        .app.about .bottom-nav {
+            display: none;
+        }
     }
     .content {
         flex: 1;
