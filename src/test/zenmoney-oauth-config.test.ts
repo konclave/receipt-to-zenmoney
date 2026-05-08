@@ -14,7 +14,10 @@ describe('ZenMoney OAuth deployment config', () => {
   });
 
   it('does not expose ZenMoney OAuth secret material in PUBLIC env vars', () => {
-    expect(envExample).not.toContain('PUBLIC_ZENMONEY_CLIENT_SECRET');
+    expect(envExample).not.toMatch(/^PUBLIC_ZENMONEY_CLIENT_SECRET=/m);
+    expect(envExample).not.toMatch(/^PUBLIC_ZENMONEY_CLIENT_ID=/m);
+    expect(envExample).not.toMatch(/^PUBLIC_ZENMONEY_REDIRECT_URI=/m);
+    expect(envExample).not.toContain('ZENMONEY_SESSION_SECRET=');
     expect(envExample).toContain('ZENMONEY_CLIENT_SECRET=');
     expect(envExample).toContain('PUBLIC_ZENMONEY_OAUTH_ENABLED=');
   });

@@ -4,7 +4,6 @@ const mockConfig = {
   clientId: 'client-id',
   clientSecret: 'client-secret',
   redirectUri: 'https://app.example.com/api/zenmoney/oauth/callback',
-  sessionSecret: 'session-secret',
   tokenEncryptionKey: 'token-secret',
   oauthEnabled: true,
 };

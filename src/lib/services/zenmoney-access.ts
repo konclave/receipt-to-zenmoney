@@ -1,4 +1,5 @@
 import { getSettings, saveSettings } from "$lib/db/settings";
+import { resolveZenMoneyAuthMode } from "./zenmoney-auth-mode";
 
 const REFRESH_WINDOW_MS = 5 * 60_000;
 
@@ -21,7 +22,7 @@ export async function getZenMoneyAccessToken(
   forceRefresh = false,
 ): Promise<string> {
   const settings = await getSettings();
-  if (isOAuthEnabled()) {
+  if (resolveZenMoneyAuthMode(settings.zenmoneyAuthMode, isOAuthEnabled()) !== "oauth") {
     throw new Error("ZenMoney OAuth mode is not active.");
   }
 

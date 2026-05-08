@@ -47,10 +47,13 @@ To test OAuth locally, copy `.env.example` and set:
 ZENMONEY_CLIENT_ID=
 ZENMONEY_CLIENT_SECRET=
 ZENMONEY_REDIRECT_URI=http://localhost:5173/api/zenmoney/oauth/callback
-ZENMONEY_SESSION_SECRET=
 ZENMONEY_TOKEN_ENCRYPTION_KEY=
 PUBLIC_ZENMONEY_OAUTH_ENABLED=true
 ```
+
+Do not use the old `PUBLIC_ZENMONEY_CLIENT_ID`, `PUBLIC_ZENMONEY_CLIENT_SECRET`, or `PUBLIC_ZENMONEY_REDIRECT_URI` names. The server routes read the private `ZENMONEY_*` variables above.
+
+If you change `.env`, restart `pnpm dev` so SvelteKit reloads the environment.
 
 ## Building for production
 
