@@ -64,6 +64,10 @@
     @media (min-width: 640px) {
         .app.about {
             max-width: 100%;
+            height: auto;
+        }
+        .app.about .content {
+            overflow-y: visible;
         }
         .app.about .bottom-nav {
             display: none;
