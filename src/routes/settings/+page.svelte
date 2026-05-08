@@ -455,7 +455,10 @@
         {/if}
     </section>
 
+    <hr />
+
     <section>
+        <h2>ZenMoney Connection</h2>
         <label for="zm-token">
             ZenMoney Account
             <span
@@ -489,28 +492,29 @@
                 placeholder="Paste your ZenMoney token"
                 autocomplete="off"
             />
-            <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
         {/if}
-    </section>
 
-    <button
-        class="btn-primary"
-        onclick={handleSave}
-        disabled={saving || !settingsDirty}
-    >
-        {saving ? "Saving…" : "Save Settings"}
-    </button>
+        <button
+            class="btn-primary"
+            onclick={handleSave}
+            disabled={saving || !settingsDirty}
+        >
+            {saving ? "Saving…" : "Save Settings"}
+        </button>
+    </section>
 
     <hr />
 
     <section>
-        <h2>Categories</h2>
-        <p class="hint">
-            {categoryCount} categories cached
-            {lastSyncDate
-                ? `· Last synced ${lastSyncDate}`
-                : "· Not synced yet"}
-        </p>
+        <h2>ZenMoney Data</h2>
+        <label for="account"
+            >Categories <span class="hint"
+                >({categoryCount} cached
+                {lastSyncDate
+                    ? `· Last synced ${lastSyncDate}`
+                    : "· Not synced yet"})</span
+            ></label
+        >
         <button
             class="btn-secondary"
             onclick={handleReloadCategories}
