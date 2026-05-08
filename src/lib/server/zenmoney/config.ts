@@ -1,4 +1,5 @@
 import { env } from "$env/dynamic/private";
+import { PUBLIC_ZENMONEY_OAUTH_ENABLED } from "$env/static/public";
 
 export interface ZenMoneyServerConfig {
   clientId: string;
@@ -38,6 +39,6 @@ export function getZenMoneyServerConfig(): ZenMoneyServerConfig {
     clientSecret: env.ZENMONEY_CLIENT_SECRET ?? "",
     redirectUri: env.ZENMONEY_REDIRECT_URI ?? "",
     tokenEncryptionKey: env.ZENMONEY_TOKEN_ENCRYPTION_KEY ?? "",
-    oauthEnabled: import.meta.env.PUBLIC_ZENMONEY_OAUTH_ENABLED === "true",
+    oauthEnabled: PUBLIC_ZENMONEY_OAUTH_ENABLED === "true",
   });
 }
