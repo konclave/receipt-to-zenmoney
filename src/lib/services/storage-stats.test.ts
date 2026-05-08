@@ -1,7 +1,6 @@
 import { it, expect, beforeEach, vi } from 'vitest';
 import { getStorageStats } from './storage-stats';
 import { saveTransaction, bulkInsertTransactions } from '$lib/db/transactions';
-import { saveReceiptImage } from '$lib/db/receipt-images';
 import { _resetDb } from '$lib/db/index';
 import type { Transaction } from '$lib/types';
 
@@ -50,7 +49,6 @@ it('groups transactions by year in descending order', async () => {
 });
 
 it('includes receipt image blob sizes in byte count', async () => {
-  const { bulkGetReceiptImages } = await import('$lib/db/receipt-images');
   const tx = makeTx({ id: 'img-tx', date: '2025-01-01', hasReceipt: true });
   await saveTransaction(tx);
 

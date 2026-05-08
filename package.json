@@ -19,7 +19,7 @@
 	"devDependencies": {
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/git": "^10.0.1",
-		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/adapter-vercel": "^5.10.2",
 		"@sveltejs/kit": "^2.57.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@types/node": "^25.6.0",
@@ -38,6 +38,7 @@
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.94.0",
+		"@vercel/kv": "^3.0.0",
 		"idb": "^8.0.3",
 		"json5": "^2.2.3"
 	}

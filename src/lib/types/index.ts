@@ -41,6 +41,8 @@ export interface ParseResult {
 export interface Settings {
   claudeApiKey: string;
   zenmoneyToken: string;
+  zenmoneyAccessToken: string;
+  zenmoneyAccessTokenExpiresAt: number;
   zenmoneyServerTimestamp: number;
   zenmoneyAccountId: string;
   zenmoneyUserId: number;

@@ -5,20 +5,34 @@ import type { Settings } from '$lib/types';
 
 export async function getSettings(): Promise<Settings> {
   const db = await getDb();
-  const [apiKeyRaw, tokenRaw, ts, accountId, userId, orKeyRaw, aiProvider, orModel] =
-    await Promise.all([
-      db.get('settings', 'claudeApiKey'),
-      db.get('settings', 'zenmoneyToken'),
-      db.get('settings', 'zenmoneyServerTimestamp'),
-      db.get('settings', 'zenmoneyAccountId'),
-      db.get('settings', 'zenmoneyUserId'),
-      db.get('settings', 'openrouterApiKey'),
-      db.get('settings', 'aiProvider'),
-      db.get('settings', 'openrouterModel'),
-    ]);
+  const [
+    apiKeyRaw,
+    tokenRaw,
+    accessTokenRaw,
+    accessTokenExpiresAt,
+    ts,
+    accountId,
+    userId,
+    orKeyRaw,
+    aiProvider,
+    orModel,
+  ] = await Promise.all([
+    db.get('settings', 'claudeApiKey'),
+    db.get('settings', 'zenmoneyToken'),
+    db.get('settings', 'zenmoneyAccessToken'),
+    db.get('settings', 'zenmoneyAccessTokenExpiresAt'),
+    db.get('settings', 'zenmoneyServerTimestamp'),
+    db.get('settings', 'zenmoneyAccountId'),
+    db.get('settings', 'zenmoneyUserId'),
+    db.get('settings', 'openrouterApiKey'),
+    db.get('settings', 'aiProvider'),
+    db.get('settings', 'openrouterModel'),
+  ]);
   return {
     claudeApiKey: apiKeyRaw ? await decrypt(apiKeyRaw as string) : '',
     zenmoneyToken: tokenRaw ? await decrypt(tokenRaw as string) : '',
+    zenmoneyAccessToken: accessTokenRaw ? await decrypt(accessTokenRaw as string) : '',
+    zenmoneyAccessTokenExpiresAt: (accessTokenExpiresAt as number) ?? 0,
     zenmoneyServerTimestamp: (ts as number) ?? 0,
     zenmoneyAccountId: (accountId as string) ?? '',
     zenmoneyUserId: (userId as number) ?? 0,
@@ -39,6 +53,8 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     encrypted.claudeApiKey = await encrypt(partial.claudeApiKey);
   if (partial.zenmoneyToken !== undefined)
     encrypted.zenmoneyToken = await encrypt(partial.zenmoneyToken);
+  if (partial.zenmoneyAccessToken !== undefined)
+    encrypted.zenmoneyAccessToken = await encrypt(partial.zenmoneyAccessToken);
   if (partial.openrouterApiKey !== undefined)
     encrypted.openrouterApiKey = await encrypt(partial.openrouterApiKey);
 
@@ -48,6 +64,10 @@ export async function saveSettings(partial: Partial<Settings>): Promise<void> {
     puts.push(tx.store.put(encrypted.claudeApiKey, 'claudeApiKey'));
   if (encrypted.zenmoneyToken !== undefined)
     puts.push(tx.store.put(encrypted.zenmoneyToken, 'zenmoneyToken'));
+  if (encrypted.zenmoneyAccessToken !== undefined)
+    puts.push(tx.store.put(encrypted.zenmoneyAccessToken, 'zenmoneyAccessToken'));
+  if (partial.zenmoneyAccessTokenExpiresAt !== undefined)
+    puts.push(tx.store.put(partial.zenmoneyAccessTokenExpiresAt, 'zenmoneyAccessTokenExpiresAt'));
   if (partial.zenmoneyServerTimestamp !== undefined)
     puts.push(tx.store.put(partial.zenmoneyServerTimestamp, 'zenmoneyServerTimestamp'));
   if (partial.zenmoneyAccountId !== undefined)

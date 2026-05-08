@@ -5,6 +5,7 @@
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getInstrumentByCurrency } from '$lib/db/instruments'
   import { bulkGetReceiptImages } from '$lib/db/receipt-images'
+  import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client'
   import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney'
   import TransactionCard from '$lib/components/TransactionCard.svelte'
   import type { Transaction, Category, ReceiptImage } from '$lib/types'
@@ -23,7 +24,6 @@
 
   async function retryTransaction(tx: Transaction): Promise<void> {
     const settings = await getSettings()
-    if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
     const accountId = tx.accountId || settings.zenmoneyAccountId
     if (!accountId)
       throw new Error('No ZenMoney account set — go to Settings → Reload Categories')
@@ -38,10 +38,8 @@
 
     try {
       const payload = buildTransactionPayload(tx, accountId, settings.zenmoneyUserId, instrument.id)
-      const diffResponse = await syncDiff(
-        settings.zenmoneyToken,
-        settings.zenmoneyServerTimestamp,
-        [payload]
+      const diffResponse = await runZenMoneyRequestWithStoredToken((token) =>
+        syncDiff(token, settings.zenmoneyServerTimestamp, [payload])
       )
       await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
       await updateTransaction(tx.id, { status: 'submitted', zenmoneyId: tx.id })

@@ -4,7 +4,7 @@ import { getSettings, saveSettings } from './settings';
 import { _resetDb } from './index';
 
 beforeEach(async () => {
-  localStorage.clear();
+  window.localStorage.clear();
   _resetDb();
   await new Promise<void>((resolve) => {
     const req = globalThis.indexedDB.deleteDatabase('rzm');
@@ -18,6 +18,8 @@ describe('getSettings', () => {
     const s = await getSettings();
     expect(s.claudeApiKey).toBe('');
     expect(s.zenmoneyToken).toBe('');
+    expect(s.zenmoneyAccessToken).toBe('');
+    expect(s.zenmoneyAccessTokenExpiresAt).toBe(0);
     expect(s.zenmoneyServerTimestamp).toBe(0);
     expect(s.zenmoneyAccountId).toBe('');
   });
@@ -62,6 +64,16 @@ describe('saveSettings', () => {
     const s = await getSettings();
     expect(s.claudeApiKey).toBe('key-updated');
     expect(s.zenmoneyToken).toBe('token-b');
+  });
+
+  it('saves and decrypts zenmoneyAccessToken', async () => {
+    await saveSettings({ zenmoneyAccessToken: 'oauth-access-token' });
+    expect((await getSettings()).zenmoneyAccessToken).toBe('oauth-access-token');
+  });
+
+  it('saves zenmoneyAccessTokenExpiresAt', async () => {
+    await saveSettings({ zenmoneyAccessTokenExpiresAt: 1746441600000 });
+    expect((await getSettings()).zenmoneyAccessTokenExpiresAt).toBe(1746441600000);
   });
 });
 
