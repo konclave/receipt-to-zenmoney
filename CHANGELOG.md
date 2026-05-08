@@ -1,3 +1,16 @@
+# [1.10.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.9.0...v1.10.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* about page desktop scroll at viewport edge, not content edge ([8e1182d](https://github.com/konclave/receipt-to-zenmoney/commit/8e1182d871cdabec85c1c4dd9c042cc0a0308d2f))
+
+
+### Features
+
+* desktop layout for /about — single column, no nav, header links home ([51c79a0](https://github.com/konclave/receipt-to-zenmoney/commit/51c79a0496158a1ce5d61438b4cfe2ead351b482))
+* light theme via prefers-color-scheme media query ([cf7f2c0](https://github.com/konclave/receipt-to-zenmoney/commit/cf7f2c0d212d0e7619504162d0348001f57c478d))
+
 # [1.9.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.8.0...v1.9.0) (2026-05-08)
 
 
