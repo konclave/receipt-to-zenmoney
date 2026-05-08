@@ -15,6 +15,8 @@ describe('settings version info', () => {
       'utf8',
     );
 
-    expect(settingsPage).toContain('Version {data.appVersion}');
+    // Version is rendered via AppFeedback component
+    expect(settingsPage).toContain('AppFeedback');
+    expect(settingsPage).toContain('data.appVersion');
   });
 });
