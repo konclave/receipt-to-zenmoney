@@ -19,7 +19,7 @@
     import CleanupModal from "$lib/components/CleanupModal.svelte";
     import CleanupConfirmModal from "$lib/components/CleanupConfirmModal.svelte";
     import AppFeedback from "$lib/components/AppFeedback.svelte";
-    import { buildAuthUrl } from "$lib/services/zenmoney-auth";
+    import { buildAuthUrl, oauthConfigured } from "$lib/services/zenmoney-auth";
 
     let { data }: { data: { appVersion: string } } = $props();
 
@@ -476,10 +476,12 @@
                 >
             </div>
         {:else}
-            <button type="button" class="btn-oauth" onclick={startOAuthFlow}
-                >Connect with ZenMoney</button
-            >
-            <p class="hint divider">— or paste a token manually —</p>
+            {#if oauthConfigured}
+                <button type="button" class="btn-oauth" onclick={startOAuthFlow}
+                    >Connect with ZenMoney</button
+                >
+                <p class="hint divider">— or paste a token manually —</p>
+            {/if}
             <input
                 id="zm-token"
                 type="password"

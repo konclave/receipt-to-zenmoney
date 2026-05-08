@@ -7,6 +7,9 @@ import {
 const AUTH_URL = 'https://api.zenmoney.ru/oauth2/authorize/';
 const TOKEN_URL = 'https://api.zenmoney.ru/oauth2/token/';
 
+export const oauthConfigured =
+  Boolean(PUBLIC_ZENMONEY_CLIENT_ID) && Boolean(PUBLIC_ZENMONEY_CLIENT_SECRET);
+
 export function buildAuthUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: PUBLIC_ZENMONEY_CLIENT_ID,
