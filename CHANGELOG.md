@@ -1,3 +1,20 @@
+# [1.11.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.10.0...v1.11.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* address final review issues (canvas null, mime type, bounds validation) ([7ddbcff](https://github.com/konclave/receipt-to-zenmoney/commit/7ddbcffdd48ba52822407fffac174f35d1b59a13))
+* image crop ([29be294](https://github.com/konclave/receipt-to-zenmoney/commit/29be294b6585188f963a21bf10f4fada69ab51f3))
+* normalize missing receipt_bounds to null in validateParseResult ([b63f153](https://github.com/konclave/receipt-to-zenmoney/commit/b63f153d1ab46ed246fb66ba14eae1924cec6bce))
+
+
+### Features
+
+* add cropImage utility using Canvas API ([2e9054a](https://github.com/konclave/receipt-to-zenmoney/commit/2e9054a98e83cb3d0c1c86d2e96ec7b3f9c2ba8b))
+* add receipt_bounds field to ParseResult type ([c5203d5](https://github.com/konclave/receipt-to-zenmoney/commit/c5203d5ec069a4695a815ad0656cf8686835e194))
+* crop receipt image to bounds before storing in IndexedDB ([ad279bb](https://github.com/konclave/receipt-to-zenmoney/commit/ad279bb20a6d3de3a098d3e38ca667ee666be95f))
+* extend Claude prompt and validation to return receipt_bounds ([379f363](https://github.com/konclave/receipt-to-zenmoney/commit/379f3631c99ad210220c163a7be85d5f4ec54cbc))
+
 # [1.10.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.9.0...v1.10.0) (2026-05-08)
 
 
