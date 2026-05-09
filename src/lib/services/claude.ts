@@ -33,13 +33,23 @@ function validateParseResult(raw: unknown): ParseResult {
     throw new Error(
       `Invalid parse result: currency must be a non-empty string, got ${JSON.stringify(r.currency)}`,
     );
+  if (!('receipt_bounds' in r)) {
+    (r as Record<string, unknown>).receipt_bounds = null;
+  }
   if (r.receipt_bounds !== null && r.receipt_bounds !== undefined) {
     if (typeof r.receipt_bounds !== 'object' || Array.isArray(r.receipt_bounds))
       throw new Error('Invalid parse result: receipt_bounds must be an object or null');
     const b = r.receipt_bounds as Record<string, unknown>;
     for (const k of ['x', 'y', 'w', 'h'] as const) {
-      if (typeof b[k] !== 'number' || !isFinite(b[k] as number) || (b[k] as number) < 0 || (b[k] as number) > 1)
-        throw new Error(`Invalid parse result: receipt_bounds.${k} must be a number between 0 and 1`);
+      if (
+        typeof b[k] !== 'number' ||
+        !isFinite(b[k] as number) ||
+        (b[k] as number) < 0 ||
+        (b[k] as number) > 1
+      )
+        throw new Error(
+          `Invalid parse result: receipt_bounds.${k} must be a number between 0 and 1`,
+        );
     }
   }
   return raw as ParseResult;
