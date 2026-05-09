@@ -551,7 +551,7 @@
       aria-hidden="true"
       bind:this={fileInput}
       type="file"
-      accept=".rzm.gz"
+      accept=".gz"
       style="display:none"
       onchange={handleImport}
     />
