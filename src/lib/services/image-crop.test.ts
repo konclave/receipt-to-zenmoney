@@ -46,20 +46,29 @@ describe('cropImage', () => {
     expect(mockCanvas.height).toBe(360);
     expect(mockCtx.drawImage).toHaveBeenCalledWith(
       expect.any(MockImage),
-      20, 20, 160, 360,
-      0, 0, 160, 360
+      20,
+      20,
+      160,
+      360,
+      0,
+      0,
+      160,
+      360,
     );
     expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 0.85);
     expect(result).toBe('CROPPED_BASE64');
   });
 
   it('rejects when image fails to load', async () => {
-    vi.stubGlobal('Image', class {
-      onerror: ((e: unknown) => void) | null = null;
-      set src(_: string) {
-        this.onerror?.(new Error('load failed'));
-      }
-    });
+    vi.stubGlobal(
+      'Image',
+      class {
+        onerror: ((e: unknown) => void) | null = null;
+        set src(_: string) {
+          this.onerror?.(new Error('load failed'));
+        }
+      },
+    );
 
     await expect(cropImage('BAD', { x: 0, y: 0, w: 1, h: 1 })).rejects.toBeTruthy();
   });
