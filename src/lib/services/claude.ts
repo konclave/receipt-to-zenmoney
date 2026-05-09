@@ -1,9 +1,46 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { Category, ParseResult } from '$lib/types';
+import type { Category, ParseResult, ReceiptBounds } from '$lib/types';
 
 export type AiConfig =
   | { provider: 'anthropic'; apiKey: string }
   | { provider: 'openrouter'; apiKey: string; model: string };
+
+function normalizeReceiptBounds(value: unknown): ReceiptBounds | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const bounds = value as Record<string, unknown>;
+  const x = bounds.x;
+  const y = bounds.y;
+  const w = bounds.w;
+  const h = bounds.h;
+
+  if (
+    typeof x !== 'number' ||
+    !isFinite(x) ||
+    x < 0 ||
+    x > 1 ||
+    typeof y !== 'number' ||
+    !isFinite(y) ||
+    y < 0 ||
+    y > 1 ||
+    typeof w !== 'number' ||
+    !isFinite(w) ||
+    w < 0 ||
+    w > 1 ||
+    typeof h !== 'number' ||
+    !isFinite(h) ||
+    h < 0 ||
+    h > 1
+  ) {
+    return null;
+  }
+
+  if (w <= 0 || h <= 0) return null;
+  if (x + w > 1 || y + h > 1) return null;
+
+  return { x, y, w, h };
+}
 
 function validateParseResult(raw: unknown): ParseResult {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw))
@@ -33,29 +70,7 @@ function validateParseResult(raw: unknown): ParseResult {
     throw new Error(
       `Invalid parse result: currency must be a non-empty string, got ${JSON.stringify(r.currency)}`,
     );
-  if (!('receipt_bounds' in r)) {
-    (r as Record<string, unknown>).receipt_bounds = null;
-  }
-  if (r.receipt_bounds !== null && r.receipt_bounds !== undefined) {
-    if (typeof r.receipt_bounds !== 'object' || Array.isArray(r.receipt_bounds))
-      throw new Error('Invalid parse result: receipt_bounds must be an object or null');
-    const b = r.receipt_bounds as Record<string, unknown>;
-    for (const k of ['x', 'y', 'w', 'h'] as const) {
-      if (
-        typeof b[k] !== 'number' ||
-        !isFinite(b[k] as number) ||
-        (b[k] as number) < 0 ||
-        (b[k] as number) > 1
-      )
-        throw new Error(
-          `Invalid parse result: receipt_bounds.${k} must be a number between 0 and 1`,
-        );
-    }
-    if ((b.w as number) <= 0 || (b.h as number) <= 0)
-      throw new Error('Invalid parse result: receipt_bounds w and h must be > 0');
-    if ((b.x as number) + (b.w as number) > 1 || (b.y as number) + (b.h as number) > 1)
-      throw new Error('Invalid parse result: receipt_bounds x+w and y+h must not exceed 1');
-  }
+  r.receipt_bounds = normalizeReceiptBounds(r.receipt_bounds);
   return raw as ParseResult;
 }
 

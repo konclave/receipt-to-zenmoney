@@ -2,10 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cropImage } from './image-crop';
 
 class MockImage {
+  static width = 200;
+  static height = 400;
+
   onload: (() => void) | null = null;
   onerror: ((e: unknown) => void) | null = null;
-  naturalWidth = 200;
-  naturalHeight = 400;
+  naturalWidth = MockImage.width;
+  naturalHeight = MockImage.height;
   set src(_: string) {
     this.onload?.();
   }
@@ -23,6 +26,8 @@ describe('cropImage', () => {
 
   beforeEach(() => {
     vi.stubGlobal('Image', MockImage);
+    MockImage.width = 200;
+    MockImage.height = 400;
     createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tag) => {
       if (tag === 'canvas') return mockCanvas as unknown as HTMLCanvasElement;
       return document.createElement(tag);
@@ -57,6 +62,48 @@ describe('cropImage', () => {
     );
     expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 0.85);
     expect(result).toBe('CROPPED_BASE64');
+  });
+
+  it('clamps crop edges to the source image bounds', async () => {
+    MockImage.width = 101;
+    MockImage.height = 203;
+
+    await cropImage('FAKE_BASE64', { x: 0.5, y: 0.5, w: 0.5, h: 0.5 });
+
+    expect(mockCanvas.width).toBe(51);
+    expect(mockCanvas.height).toBe(102);
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(
+      expect.any(MockImage),
+      50,
+      101,
+      51,
+      102,
+      0,
+      0,
+      51,
+      102,
+    );
+  });
+
+  it('preserves a one-pixel crop for tiny but valid bounds', async () => {
+    MockImage.width = 100;
+    MockImage.height = 100;
+
+    await cropImage('FAKE_BASE64', { x: 0.1, y: 0.1, w: 0.001, h: 0.001 });
+
+    expect(mockCanvas.width).toBe(1);
+    expect(mockCanvas.height).toBe(1);
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(
+      expect.any(MockImage),
+      10,
+      10,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+    );
   });
 
   it('rejects when image fails to load', async () => {

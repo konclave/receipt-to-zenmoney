@@ -8,10 +8,26 @@ export async function cropImage(
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const sx = Math.round(bounds.x * img.naturalWidth);
-      const sy = Math.round(bounds.y * img.naturalHeight);
-      const sw = Math.round(bounds.w * img.naturalWidth);
-      const sh = Math.round(bounds.h * img.naturalHeight);
+      const naturalWidth = img.naturalWidth;
+      const naturalHeight = img.naturalHeight;
+      if (naturalWidth <= 0 || naturalHeight <= 0) {
+        reject(new Error('Image has invalid dimensions'));
+        return;
+      }
+
+      const sx = Math.max(0, Math.min(naturalWidth, Math.floor(bounds.x * naturalWidth)));
+      const sy = Math.max(0, Math.min(naturalHeight, Math.floor(bounds.y * naturalHeight)));
+      const ex = Math.max(
+        sx + 1,
+        Math.min(naturalWidth, Math.ceil((bounds.x + bounds.w) * naturalWidth)),
+      );
+      const ey = Math.max(
+        sy + 1,
+        Math.min(naturalHeight, Math.ceil((bounds.y + bounds.h) * naturalHeight)),
+      );
+      const sw = ex - sx;
+      const sh = ey - sy;
+
       const canvas = document.createElement('canvas');
       canvas.width = sw;
       canvas.height = sh;
