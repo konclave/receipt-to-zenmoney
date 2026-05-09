@@ -1,9 +1,46 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { Category, ParseResult } from '$lib/types';
+import type { Category, ParseResult, ReceiptBounds } from '$lib/types';
 
 export type AiConfig =
   | { provider: 'anthropic'; apiKey: string }
   | { provider: 'openrouter'; apiKey: string; model: string };
+
+function normalizeReceiptBounds(value: unknown): ReceiptBounds | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const bounds = value as Record<string, unknown>;
+  const x = bounds.x;
+  const y = bounds.y;
+  const w = bounds.w;
+  const h = bounds.h;
+
+  if (
+    typeof x !== 'number' ||
+    !isFinite(x) ||
+    x < 0 ||
+    x > 1 ||
+    typeof y !== 'number' ||
+    !isFinite(y) ||
+    y < 0 ||
+    y > 1 ||
+    typeof w !== 'number' ||
+    !isFinite(w) ||
+    w < 0 ||
+    w > 1 ||
+    typeof h !== 'number' ||
+    !isFinite(h) ||
+    h < 0 ||
+    h > 1
+  ) {
+    return null;
+  }
+
+  if (w <= 0 || h <= 0) return null;
+  if (x + w > 1 || y + h > 1) return null;
+
+  return { x, y, w, h };
+}
 
 function validateParseResult(raw: unknown): ParseResult {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw))
@@ -33,6 +70,7 @@ function validateParseResult(raw: unknown): ParseResult {
     throw new Error(
       `Invalid parse result: currency must be a non-empty string, got ${JSON.stringify(r.currency)}`,
     );
+  r.receipt_bounds = normalizeReceiptBounds(r.receipt_bounds);
   return raw as ParseResult;
 }
 
@@ -46,9 +84,10 @@ function buildPrompt(categories: Category[]): string {
 - best matching category ID from this list:
 ${categoryList}
 - transaction date (ISO 8601, use today ${today} if not visible)
+- receipt bounding box as fractions of image size (x, y, w, h each 0.0–1.0, tightest rectangle around the receipt); set to null if the receipt boundary cannot be determined
 
 Respond ONLY with valid JSON, no markdown:
-{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low"}`;
+{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low","receipt_bounds":{"x":number,"y":number,"w":number,"h":number}|null}`;
 }
 
 async function parseReceiptAnthropic(

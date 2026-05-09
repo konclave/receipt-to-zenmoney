@@ -14,6 +14,7 @@
   import { saveTransaction, updateTransaction } from '$lib/db/transactions'
   import { getPendingCapture, clearPendingCapture } from '$lib/db/pending-capture'
   import { saveReceiptImage } from '$lib/db/receipt-images'
+  import { cropImage } from '$lib/services/image-crop'
   import type { Category, PendingCapture, ZenMoneyAccount } from '$lib/types'
 
   let capture = $state<PendingCapture | null>(get(captureStore))
@@ -24,6 +25,7 @@
   let parseError = $state<string | null>(null)
   let submitError = $state<string | null>(null)
   let lowConfidence = $state(false)
+  let croppedImageBase64 = $state<string | null>(null)
 
   let amount = $state('')
   let merchant = $state('')
@@ -61,6 +63,13 @@
       date = result.date
       currency = result.currency
       lowConfidence = result.confidence === 'low'
+      if (result.receipt_bounds) {
+        try {
+          croppedImageBase64 = await cropImage(capture.imageBase64, result.receipt_bounds, capture.mimeType)
+        } catch {
+          // skip crop — original image will be stored
+        }
+      }
     } catch (e) {
       parseError = `Parsing failed: ${e}. Fill in the fields manually.`
     } finally {
@@ -95,8 +104,10 @@
 
     // Persist the receipt image; non-fatal if it fails
     try {
-      const blob = await (await fetch(`data:${capture!.mimeType};base64,${capture!.imageBase64}`)).blob()
-      await saveReceiptImage(txId, { blob, mimeType: capture!.mimeType })
+      const storedBase64 = croppedImageBase64 ?? capture!.imageBase64
+      const storedMime: 'image/jpeg' | 'image/png' | 'image/webp' = croppedImageBase64 ? 'image/jpeg' : capture!.mimeType
+      const blob = await (await fetch(`data:${storedMime};base64,${storedBase64}`)).blob()
+      await saveReceiptImage(txId, { blob, mimeType: storedMime })
       await updateTransaction(txId, { hasReceipt: true })
     } catch {
       // image save failed — transaction is still saved without hasReceipt
