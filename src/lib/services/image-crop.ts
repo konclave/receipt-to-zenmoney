@@ -1,6 +1,10 @@
 import type { ReceiptBounds } from '$lib/types';
 
-export async function cropImage(imageBase64: string, bounds: ReceiptBounds): Promise<string> {
+export async function cropImage(
+  imageBase64: string,
+  bounds: ReceiptBounds,
+  sourceMimeType: string = 'image/jpeg',
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -11,10 +15,15 @@ export async function cropImage(imageBase64: string, bounds: ReceiptBounds): Pro
       const canvas = document.createElement('canvas');
       canvas.width = sw;
       canvas.height = sh;
-      canvas.getContext('2d')!.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Could not get 2D canvas context'));
+        return;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
       resolve(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
     };
     img.onerror = reject;
-    img.src = `data:image/jpeg;base64,${imageBase64}`;
+    img.src = `data:${sourceMimeType};base64,${imageBase64}`;
   });
 }

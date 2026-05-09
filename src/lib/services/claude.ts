@@ -51,6 +51,10 @@ function validateParseResult(raw: unknown): ParseResult {
           `Invalid parse result: receipt_bounds.${k} must be a number between 0 and 1`,
         );
     }
+    if ((b.w as number) <= 0 || (b.h as number) <= 0)
+      throw new Error('Invalid parse result: receipt_bounds w and h must be > 0');
+    if ((b.x as number) + (b.w as number) > 1 || (b.y as number) + (b.h as number) > 1)
+      throw new Error('Invalid parse result: receipt_bounds x+w and y+h must not exceed 1');
   }
   return raw as ParseResult;
 }

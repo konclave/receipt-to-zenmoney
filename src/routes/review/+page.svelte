@@ -65,7 +65,7 @@
       lowConfidence = result.confidence === 'low'
       if (result.receipt_bounds) {
         try {
-          croppedImageBase64 = await cropImage(capture.imageBase64, result.receipt_bounds)
+          croppedImageBase64 = await cropImage(capture.imageBase64, result.receipt_bounds, capture.mimeType)
         } catch {
           // skip crop — original image will be stored
         }

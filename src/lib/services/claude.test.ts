@@ -167,8 +167,35 @@ describe('parseReceipt — Anthropic provider', () => {
   it('normalizes missing receipt_bounds to null', async () => {
     const { receipt_bounds: _, ...withoutBounds } = PARSE_RESULT;
     mockAnthropic(JSON.stringify(withoutBounds));
-    const result = await parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'sk-test' });
+    const result = await parseReceipt('img', CATEGORIES, {
+      provider: 'anthropic',
+      apiKey: 'sk-test',
+    });
     expect(result.receipt_bounds).toBeNull();
+  });
+
+  it('throws when receipt_bounds has zero width', async () => {
+    mockAnthropic(
+      JSON.stringify({
+        ...PARSE_RESULT,
+        receipt_bounds: { x: 0.1, y: 0.1, w: 0, h: 0.8 },
+      }),
+    );
+    await expect(
+      parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'sk-test' }),
+    ).rejects.toThrow('receipt_bounds');
+  });
+
+  it('throws when receipt_bounds overflows image boundary', async () => {
+    mockAnthropic(
+      JSON.stringify({
+        ...PARSE_RESULT,
+        receipt_bounds: { x: 0.5, y: 0.1, w: 0.6, h: 0.8 },
+      }),
+    );
+    await expect(
+      parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'sk-test' }),
+    ).rejects.toThrow('receipt_bounds');
   });
 });
 
