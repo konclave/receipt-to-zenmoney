@@ -33,6 +33,15 @@ function validateParseResult(raw: unknown): ParseResult {
     throw new Error(
       `Invalid parse result: currency must be a non-empty string, got ${JSON.stringify(r.currency)}`,
     );
+  if (r.receipt_bounds !== null && r.receipt_bounds !== undefined) {
+    if (typeof r.receipt_bounds !== 'object' || Array.isArray(r.receipt_bounds))
+      throw new Error('Invalid parse result: receipt_bounds must be an object or null');
+    const b = r.receipt_bounds as Record<string, unknown>;
+    for (const k of ['x', 'y', 'w', 'h'] as const) {
+      if (typeof b[k] !== 'number' || !isFinite(b[k] as number) || (b[k] as number) < 0 || (b[k] as number) > 1)
+        throw new Error(`Invalid parse result: receipt_bounds.${k} must be a number between 0 and 1`);
+    }
+  }
   return raw as ParseResult;
 }
 
@@ -46,9 +55,10 @@ function buildPrompt(categories: Category[]): string {
 - best matching category ID from this list:
 ${categoryList}
 - transaction date (ISO 8601, use today ${today} if not visible)
+- receipt bounding box as fractions of image size (x, y, w, h each 0.0–1.0, tightest rectangle around the receipt); set to null if the receipt boundary cannot be determined
 
 Respond ONLY with valid JSON, no markdown:
-{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low"}`;
+{"amount":number,"currency":"string","merchant":"string","categoryId":"string","date":"string","confidence":"high"|"medium"|"low","receipt_bounds":{"x":number,"y":number,"w":number,"h":number}|null}`;
 }
 
 async function parseReceiptAnthropic(

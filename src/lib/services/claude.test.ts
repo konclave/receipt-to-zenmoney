@@ -20,6 +20,7 @@ const PARSE_RESULT = {
   categoryId: 'c1',
   date: '2026-05-05',
   confidence: 'high',
+  receipt_bounds: null,
 };
 
 function mockAnthropic(responseText: string) {
@@ -126,6 +127,31 @@ describe('parseReceipt — Anthropic provider', () => {
     await expect(
       parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'key' }),
     ).rejects.toThrow('categoryId');
+  });
+
+  it('accepts a valid receipt_bounds object', async () => {
+    mockAnthropic(JSON.stringify({
+      ...PARSE_RESULT,
+      receipt_bounds: { x: 0.05, y: 0.1, w: 0.9, h: 0.85 }
+    }));
+    const result = await parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'sk-test' });
+    expect(result.receipt_bounds).toEqual({ x: 0.05, y: 0.1, w: 0.9, h: 0.85 });
+  });
+
+  it('accepts receipt_bounds: null', async () => {
+    mockAnthropic(JSON.stringify({ ...PARSE_RESULT, receipt_bounds: null }));
+    const result = await parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'sk-test' });
+    expect(result.receipt_bounds).toBeNull();
+  });
+
+  it('throws when receipt_bounds has a value outside 0–1', async () => {
+    mockAnthropic(JSON.stringify({
+      ...PARSE_RESULT,
+      receipt_bounds: { x: 1.5, y: 0.1, w: 0.9, h: 0.85 }
+    }));
+    await expect(
+      parseReceipt('img', CATEGORIES, { provider: 'anthropic', apiKey: 'sk-test' })
+    ).rejects.toThrow('receipt_bounds');
   });
 });
 
