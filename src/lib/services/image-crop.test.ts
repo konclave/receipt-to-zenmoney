@@ -93,17 +93,7 @@ describe('cropImage', () => {
 
     expect(mockCanvas.width).toBe(1);
     expect(mockCanvas.height).toBe(1);
-    expect(mockCtx.drawImage).toHaveBeenCalledWith(
-      expect.any(MockImage),
-      10,
-      10,
-      1,
-      1,
-      0,
-      0,
-      1,
-      1,
-    );
+    expect(mockCtx.drawImage).toHaveBeenCalledWith(expect.any(MockImage), 10, 10, 1, 1, 0, 0, 1, 1);
   });
 
   it('rejects when image fails to load', async () => {
