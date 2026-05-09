@@ -1,6 +1,6 @@
-import type { Category, Transaction, ZenMoneySyncResponse } from '$lib/types';
+import type { Category, Transaction, ZenMoneySyncResponse } from "$lib/types";
 
-const BASE_URL = 'https://api.zenmoney.ru';
+const BASE_URL = "https://api.zenmoney.ru";
 
 export async function syncDiff(
   token: string,
@@ -8,10 +8,10 @@ export async function syncDiff(
   transactions: object[] = [],
 ): Promise<ZenMoneySyncResponse> {
   const response = await fetch(`${BASE_URL}/v8/diff`, {
-    method: 'POST',
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       currentClientTimestamp: Math.floor(Date.now() / 1000),
@@ -20,12 +20,16 @@ export async function syncDiff(
     }),
   });
   if (!response.ok) {
-    throw new Error(`ZenMoney API error: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `ZenMoney API error: ${response.status} ${response.statusText}`,
+    );
   }
   return response.json();
 }
 
-export function mapResponseToCategories(response: ZenMoneySyncResponse): Category[] {
+export function mapResponseToCategories(
+  response: ZenMoneySyncResponse,
+): Category[] {
   const now = Date.now();
   return response.tag.map((tag) => ({
     id: tag.id,
