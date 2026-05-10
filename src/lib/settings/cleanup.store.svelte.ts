@@ -4,7 +4,20 @@ function toErrorMessage(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
 }
 
-async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<void> {
+function isAbortError(cause: unknown): boolean {
+  return (
+    typeof cause === 'object' &&
+    cause !== null &&
+    'name' in cause &&
+    cause.name === 'AbortError'
+  );
+}
+
+function getBackupDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<boolean> {
   const file = new File([blob], filename, { type: blob.type || 'application/gzip' });
 
   if (
@@ -13,11 +26,17 @@ async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<void
     typeof navigator.canShare === 'function' &&
     navigator.canShare({ files: [file] })
   ) {
-    await navigator.share({
-      files: [file],
-      title: 'Backup export',
-    });
-    return;
+    try {
+      await navigator.share({
+        files: [file],
+        title: 'ZenMoney Backup',
+      });
+      return true;
+    } catch (cause) {
+      if (isAbortError(cause)) {
+        return false;
+      }
+    }
   }
 
   const url = URL.createObjectURL(blob);
@@ -32,6 +51,8 @@ async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<void
   } finally {
     URL.revokeObjectURL(url);
   }
+
+  return true;
 }
 
 interface CleanupRepo {
@@ -122,7 +143,12 @@ export function createCleanupStore(repo: CleanupRepo, initialStats: StorageStats
     try {
       if (withBackup) {
         const { blob } = await repo.exportBackupForPeriod(target.period);
-        await shareOrDownloadBackup(blob, `receipt-to-zenmoney-${target.label}.rzm.gz`);
+        const filename =
+          target.period === 'all'
+            ? `rzm-backup-all-${getBackupDate()}.rzm.gz`
+            : `rzm-backup-${target.period}.rzm.gz`;
+        const completed = await shareOrDownloadBackup(blob, filename);
+        if (!completed) return;
       }
 
       const deletedIds = await repo.deleteTransactionsByPeriod(target.period);

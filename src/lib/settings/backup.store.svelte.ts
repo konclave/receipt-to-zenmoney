@@ -2,7 +2,20 @@ function toErrorMessage(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
 }
 
-async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<void> {
+function isAbortError(cause: unknown): boolean {
+  return (
+    typeof cause === 'object' &&
+    cause !== null &&
+    'name' in cause &&
+    cause.name === 'AbortError'
+  );
+}
+
+function getBackupDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<boolean> {
   const file = new File([blob], filename, { type: blob.type || 'application/gzip' });
 
   if (
@@ -11,11 +24,17 @@ async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<void
     typeof navigator.canShare === 'function' &&
     navigator.canShare({ files: [file] })
   ) {
-    await navigator.share({
-      files: [file],
-      title: 'Backup export',
-    });
-    return;
+    try {
+      await navigator.share({
+        files: [file],
+        title: 'ZenMoney Backup',
+      });
+      return true;
+    } catch (cause) {
+      if (isAbortError(cause)) {
+        return false;
+      }
+    }
   }
 
   const url = URL.createObjectURL(blob);
@@ -30,6 +49,8 @@ async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<void
   } finally {
     URL.revokeObjectURL(url);
   }
+
+  return true;
 }
 
 interface BackupRepo {
@@ -54,7 +75,8 @@ export function createBackupStore(repo: BackupRepo, effects: BackupEffects) {
 
     try {
       const { blob, count } = await repo.exportBackup();
-      await shareOrDownloadBackup(blob, `receipt-to-zenmoney-${Date.now()}.rzm.gz`);
+      const completed = await shareOrDownloadBackup(blob, `rzm-backup-${getBackupDate()}.rzm.gz`);
+      if (!completed) return;
       status = `Exported ${count} transaction(s)`;
     } catch (cause) {
       status = null;
