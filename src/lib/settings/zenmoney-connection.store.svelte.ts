@@ -27,10 +27,11 @@ export function createZenMoneyConnectionStore(
     saving = true;
     error = null;
     success = null;
+    const tokenToSave = manualToken;
 
     try {
-      await repo.saveManualZenMoneyToken(manualToken);
-      savedManualToken = manualToken;
+      await repo.saveManualZenMoneyToken(tokenToSave);
+      savedManualToken = tokenToSave;
       success = 'Saved';
     } catch (cause) {
       success = null;

@@ -67,10 +67,11 @@ export function createZenMoneyDataStore(
     savingAccount = true;
     error = null;
     success = null;
+    const accountIdToSave = selectedAccountId;
 
     try {
-      await repo.saveDefaultAccount(selectedAccountId);
-      savedSelectedAccountId = selectedAccountId;
+      await repo.saveDefaultAccount(accountIdToSave);
+      savedSelectedAccountId = accountIdToSave;
       success = 'Saved';
     } catch (cause) {
       success = null;

@@ -12,6 +12,33 @@ describe('createZenMoneyDataStore', () => {
     repo.saveDefaultAccount.mockReset();
   });
 
+  it('reports whether multiple accounts are available', () => {
+    const singleAccountStore = createZenMoneyDataStore(
+      {
+        categoryCount: 0,
+        lastSyncDate: null,
+        accounts: [{ id: 'acc-1', title: 'Main' }],
+        selectedAccountId: 'acc-1',
+      },
+      repo,
+    );
+    const multiAccountStore = createZenMoneyDataStore(
+      {
+        categoryCount: 0,
+        lastSyncDate: null,
+        accounts: [
+          { id: 'acc-1', title: 'Main' },
+          { id: 'acc-2', title: 'Spare' },
+        ],
+        selectedAccountId: 'acc-1',
+      },
+      repo,
+    );
+
+    expect(singleAccountStore.hasMultipleAccounts).toBe(false);
+    expect(multiAccountStore.hasMultipleAccounts).toBe(true);
+  });
+
   it('reloads categories and applies the returned auto-selected account', async () => {
     repo.reloadZenMoneyData.mockResolvedValue({
       categoryCount: 12,
@@ -104,5 +131,65 @@ describe('createZenMoneyDataStore', () => {
     expect(repo.saveDefaultAccount).toHaveBeenCalledWith('acc-2');
     expect(store.success).toBe('Saved');
     expect(store.accountDirty).toBe(false);
+  });
+
+  it('keeps accountDirty true when the selection changes during an in-flight save', async () => {
+    let resolveSave!: () => void;
+    repo.saveDefaultAccount.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveSave = resolve;
+      }),
+    );
+
+    const store = createZenMoneyDataStore(
+      {
+        categoryCount: 0,
+        lastSyncDate: null,
+        accounts: [
+          { id: 'acc-1', title: 'Main' },
+          { id: 'acc-2', title: 'Spare' },
+          { id: 'acc-3', title: 'Travel' },
+        ],
+        selectedAccountId: 'acc-1',
+      },
+      repo,
+    );
+
+    store.selectAccount('acc-2');
+    const savePromise = store.saveAccount();
+    expect(store.savingAccount).toBe(true);
+
+    store.selectAccount('acc-3');
+    resolveSave();
+    await savePromise;
+
+    expect(repo.saveDefaultAccount).toHaveBeenCalledWith('acc-2');
+    expect(store.accountDirty).toBe(true);
+    expect(store.success).toBe('Saved');
+  });
+
+  it('sets error when reload or saveAccount fails', async () => {
+    repo.reloadZenMoneyData.mockRejectedValueOnce(new Error('reload failed'));
+    repo.saveDefaultAccount.mockRejectedValueOnce(new Error('save failed'));
+
+    const store = createZenMoneyDataStore(
+      {
+        categoryCount: 0,
+        lastSyncDate: null,
+        accounts: [
+          { id: 'acc-1', title: 'Main' },
+          { id: 'acc-2', title: 'Spare' },
+        ],
+        selectedAccountId: 'acc-1',
+      },
+      repo,
+    );
+
+    await store.reloadCategories();
+    expect(store.error).toBe('reload failed');
+
+    store.selectAccount('acc-2');
+    await store.saveAccount();
+    expect(store.error).toBe('save failed');
   });
 });
