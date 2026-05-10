@@ -16,6 +16,11 @@ import { bulkDeleteReceiptImages } from '$lib/db/receipt-images';
 import type { Settings, ZenMoneyAccount } from '$lib/types';
 import type { StorageStats } from '$lib/services/storage-stats';
 
+export type AiSettingsInput = Pick<
+  Settings,
+  'aiProvider' | 'claudeApiKey' | 'openrouterApiKey' | 'openrouterModel'
+>;
+
 export interface LoadPageSnapshotInput {
   oauthEnabled: boolean;
 }
@@ -34,6 +39,23 @@ export interface ReloadZenMoneyDataResult {
   lastSyncDate: string | null;
   accounts: ZenMoneyAccount[];
   selectedAccountId: string;
+}
+
+export interface SettingsRepository {
+  loadPageSnapshot(input: LoadPageSnapshotInput): Promise<LoadPageSnapshotResult>;
+  fetchOpenRouterModels(): Promise<Array<{ id: string; name: string }>>;
+  saveAiSettings(input: AiSettingsInput): Promise<void>;
+  saveManualZenMoneyToken(token: string): Promise<void>;
+  disconnectZenMoney(): Promise<void>;
+  reloadZenMoneyData(): Promise<ReloadZenMoneyDataResult>;
+  saveDefaultAccount(accountId: string): Promise<void>;
+  exportBackup: typeof exportBackup;
+  importBackup: typeof importBackup;
+  exportBackupForPeriod: typeof exportBackupForPeriod;
+  getStorageStats: typeof getStorageStats;
+  deleteTransactionsByPeriod: typeof deleteTransactionsByPeriod;
+  bulkDeleteReceiptImages: typeof bulkDeleteReceiptImages;
+  clearZenMoneyAccessToken: typeof clearZenMoneyAccessToken;
 }
 
 interface OpenRouterModel {
@@ -107,7 +129,7 @@ async function fetchOpenRouterModels(): Promise<Array<{ id: string; name: string
     }));
 }
 
-async function saveAiSettings(input: Partial<Settings>): Promise<void> {
+async function saveAiSettings(input: AiSettingsInput): Promise<void> {
   await saveSettings(input);
 }
 
@@ -125,6 +147,7 @@ async function disconnectZenMoney(): Promise<void> {
 }
 
 async function reloadZenMoneyData(): Promise<ReloadZenMoneyDataResult> {
+  const lastSyncDate = new Date().toLocaleDateString();
   const response = await runZenMoneyRequestWithStoredToken((token) => syncDiff(token, 0));
   const categories = mapResponseToCategories(response);
   const accounts = sortAccounts(response.account);
@@ -144,7 +167,7 @@ async function reloadZenMoneyData(): Promise<ReloadZenMoneyDataResult> {
 
   return {
     categoryCount: categories.length,
-    lastSyncDate: toDateStringOrNull(categories[0]?.syncedAt),
+    lastSyncDate,
     accounts,
     selectedAccountId,
   };
@@ -154,8 +177,8 @@ async function saveDefaultAccount(accountId: string): Promise<void> {
   await saveSettings({ zenmoneyAccountId: accountId });
 }
 
-export function createSettingsRepository() {
-  return {
+export function createSettingsRepository(): SettingsRepository {
+  const repository: SettingsRepository = {
     loadPageSnapshot,
     fetchOpenRouterModels,
     saveAiSettings,
@@ -171,4 +194,5 @@ export function createSettingsRepository() {
     bulkDeleteReceiptImages,
     clearZenMoneyAccessToken,
   };
+  return repository;
 }

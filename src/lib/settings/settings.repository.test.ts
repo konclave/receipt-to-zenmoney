@@ -151,6 +151,7 @@ describe('createSettingsRepository', () => {
     vi.mocked(syncDiff).mockResolvedValue(response);
     vi.mocked(mapResponseToCategories).mockReturnValue(mappedCategories);
 
+    const expectedLastSyncDate = new Date().toLocaleDateString();
     const repo = createSettingsRepository();
     const result = await repo.reloadZenMoneyData();
 
@@ -167,8 +168,30 @@ describe('createSettingsRepository', () => {
     });
     expect(result.selectedAccountId).toBe('acc-1');
     expect(result.categoryCount).toBe(2);
-    expect(result.lastSyncDate).toBe(new Date(1746441600000).toLocaleDateString());
+    expect(result.lastSyncDate).toBe(expectedLastSyncDate);
     expect(result.accounts).toEqual(response.account);
+  });
+
+  it('returns a non-null lastSyncDate when reload maps zero categories', async () => {
+    const response = {
+      serverTimestamp: 1746441600,
+      user: [{ id: 77 }],
+      instrument: [{ id: 1, shortTitle: 'USD' }],
+      tag: [],
+      account: [{ id: 'acc-1', title: 'Main account' }],
+    };
+
+    vi.mocked(runZenMoneyRequestWithStoredToken).mockImplementation(async (request) =>
+      request('stored-token'),
+    );
+    vi.mocked(syncDiff).mockResolvedValue(response);
+    vi.mocked(mapResponseToCategories).mockReturnValue([]);
+
+    const repo = createSettingsRepository();
+    const result = await repo.reloadZenMoneyData();
+
+    expect(result.categoryCount).toBe(0);
+    expect(result.lastSyncDate).not.toBeNull();
   });
 
   it('fetches image-capable OpenRouter models in sorted order', async () => {
@@ -206,6 +229,22 @@ describe('createSettingsRepository', () => {
       { id: 'a-model', name: 'A Model' },
       { id: 'z-model', name: '🆓 Z Model' },
     ]);
+  });
+
+  it('throws when OpenRouter returns a non-OK response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        statusText: 'Service Unavailable',
+      }),
+    );
+
+    const repo = createSettingsRepository();
+    await expect(repo.fetchOpenRouterModels()).rejects.toThrow(
+      'OpenRouter API error: 503 Service Unavailable',
+    );
   });
 
   it('disconnects ZenMoney even if logout fetch fails', async () => {
