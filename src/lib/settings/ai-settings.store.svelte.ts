@@ -63,22 +63,21 @@ export function createAiSettingsStore(
   async function save() {
     saving = true;
     error = null;
+    success = null;
+
+    const payload = {
+      aiProvider: provider,
+      claudeApiKey,
+      openrouterApiKey,
+      openrouterModel,
+    };
 
     try {
-      await repo.saveAiSettings({
-        aiProvider: provider,
-        claudeApiKey,
-        openrouterApiKey,
-        openrouterModel,
-      });
-      saved = {
-        aiProvider: provider,
-        claudeApiKey,
-        openrouterApiKey,
-        openrouterModel,
-      };
+      await repo.saveAiSettings(payload);
+      saved = payload;
       success = 'Saved';
     } catch (cause) {
+      success = null;
       error = cause instanceof Error ? cause.message : String(cause);
     } finally {
       saving = false;
