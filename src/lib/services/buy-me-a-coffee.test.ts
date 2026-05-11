@@ -10,9 +10,7 @@ describe('renderBuyMeACoffeeButton', () => {
 
     const script = host.querySelector('script');
     expect(script).not.toBeNull();
-    expect(script?.src).toBe(
-      'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js',
-    );
+    expect(script?.src).toBe('https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js');
     expect(script?.dataset.name).toBe('bmc-button');
     expect(script?.dataset.slug).toBe('konclave');
     expect(script?.dataset.text).toBe('Buy me a coffee');

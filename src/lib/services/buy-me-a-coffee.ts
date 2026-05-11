@@ -1,5 +1,4 @@
-const BUY_ME_A_COFFEE_SCRIPT_SRC =
-  'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+const BUY_ME_A_COFFEE_SCRIPT_SRC = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
 
 export function renderBuyMeACoffeeButton(host: HTMLElement): HTMLScriptElement {
   host.replaceChildren();
