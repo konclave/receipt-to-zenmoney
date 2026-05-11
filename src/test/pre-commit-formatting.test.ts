@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const packageJsonPath = resolve(process.cwd(), 'package.json');
-const preCommitHookPath = resolve(process.cwd(), '.husky/pre-commit');
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const packageJsonPath = resolve(repoRoot, 'package.json');
+const preCommitHookPath = resolve(repoRoot, '.husky/pre-commit');
 
 describe('staged formatting pre-commit hook', () => {
   it('installs repo-managed hook tooling and routes staged files by formatter', () => {
@@ -20,7 +22,7 @@ describe('staged formatting pre-commit hook', () => {
       'prettier-plugin-svelte': expect.any(String),
     });
 
-    expect(packageJson.scripts?.prepare).toContain('husky');
+    expect(packageJson.scripts?.prepare).toBe('svelte-kit sync && husky');
     expect(packageJson['lint-staged']).toEqual({
       '*.{js,cjs,mjs,ts,cts,mts,tsx,jsx,json,css,html}': 'oxfmt --write',
       '*.svelte':
@@ -30,9 +32,12 @@ describe('staged formatting pre-commit hook', () => {
 
   it('commits through a husky pre-commit hook that runs lint-staged', () => {
     expect(existsSync(preCommitHookPath)).toBe(true);
+    if (!existsSync(preCommitHookPath)) {
+      return;
+    }
 
-    const hook = readFileSync(preCommitHookPath, 'utf8');
+    const hook = readFileSync(preCommitHookPath, 'utf8').trim();
 
-    expect(hook).toContain('pnpm exec lint-staged');
+    expect(hook).toBe('pnpm exec lint-staged');
   });
 });
