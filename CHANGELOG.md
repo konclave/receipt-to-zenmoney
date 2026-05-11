@@ -1,3 +1,17 @@
+# [1.12.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.11.0...v1.12.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* accounts sorting ([79bbdef](https://github.com/konclave/receipt-to-zenmoney/commit/79bbdef4829412fe4ff6ed3063e7c1beb2f1e267))
+* backup accept filetype ([18ed69f](https://github.com/konclave/receipt-to-zenmoney/commit/18ed69f2bfb316c6ca2d3c1153bed53e3d6c5255))
+* harden ai settings save state ([36ac8fa](https://github.com/konclave/receipt-to-zenmoney/commit/36ac8faff6406e81a0fcba7e0975d9fd6f09aa05))
+
+
+### Features
+
+* add buymeacoffee button ([665ff87](https://github.com/konclave/receipt-to-zenmoney/commit/665ff877406278493298c382e2810cb63a03f2e8))
+
 # [1.11.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.10.0...v1.11.0) (2026-05-09)
 
 
