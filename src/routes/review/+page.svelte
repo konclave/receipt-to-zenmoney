@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { get } from "svelte/store";
   import { goto } from "$app/navigation";
   import { captureStore } from "$lib/stores/capture";
   import { parseReceipt, type AiConfig } from "$lib/services/claude";
   import { resolveReviewAccountId } from "$lib/services/review-account";
   import { runZenMoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
+  import { renderBuyMeACoffeeButton } from "$lib/services/buy-me-a-coffee";
   import { syncDiff, buildTransactionPayload } from "$lib/services/zenmoney";
   import { getAccounts } from "$lib/db/accounts";
   import { getInstrumentByCurrency } from "$lib/db/instruments";
@@ -29,6 +30,7 @@
   let submitError = $state<string | null>(null);
   let lowConfidence = $state(false);
   let croppedImageBase64 = $state<string | null>(null);
+  let buyMeACoffeeHost = $state<HTMLDivElement | null>(null);
 
   let amount = $state("");
   let merchant = $state("");
@@ -98,6 +100,10 @@
       parseError = `Parsing failed: ${e}. Fill in the fields manually.`;
     } finally {
       parsing = false;
+      await tick();
+      if (buyMeACoffeeHost) {
+        renderBuyMeACoffeeButton(buyMeACoffeeHost);
+      }
     }
   });
 
@@ -257,19 +263,7 @@
       <button type="submit" class="btn-primary" disabled={submitting}>
         {submitting ? "Submitting…" : "Submit to ZenMoney"}
       </button>
-      <script
-        type="text/javascript"
-        src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-        data-name="bmc-button"
-        data-slug="konclave"
-        data-color="#FFDD00"
-        data-emoji=""
-        data-font="Cookie"
-        data-text="Buy me a coffee"
-        data-outline-color="#000000"
-        data-font-color="#000000"
-        data-coffee-color="#ffffff"
-      ></script>
+      <div class="buy-me-a-coffee" bind:this={buyMeACoffeeHost}></div>
     </form>
   {/if}
 </div>
@@ -358,6 +352,10 @@
   }
   .btn-primary:disabled {
     opacity: 0.5;
+  }
+  .buy-me-a-coffee {
+    display: flex;
+    justify-content: center;
   }
   .alert {
     padding: 12px;
