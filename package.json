@@ -31,7 +31,7 @@
 		"fake-indexeddb": "^6.2.5",
 		"husky": "^9.1.7",
 		"jsdom": "^29.1.1",
-		"lint-staged": "^17.0.4",
+		"lint-staged": "^16.2.6",
 		"oxfmt": "^0.48.0",
 		"oxlint": "^1.63.0",
 		"prettier": "^3.8.3",
