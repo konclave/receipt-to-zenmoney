@@ -18,6 +18,7 @@ export function createZenMoneyConnectionStore(
   let success = $state<string | null>(null);
 
   const connected = $derived(Boolean(savedManualToken || savedAccessToken));
+  const dirty = $derived(manualToken !== savedManualToken);
 
   function startOAuthFlow() {
     window.location.href = '/api/zenmoney/oauth/start';
@@ -79,6 +80,9 @@ export function createZenMoneyConnectionStore(
     },
     get connected() {
       return connected;
+    },
+    get dirty() {
+      return dirty;
     },
     startOAuthFlow,
     saveManualToken,

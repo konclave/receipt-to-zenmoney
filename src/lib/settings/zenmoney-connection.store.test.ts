@@ -51,6 +51,25 @@ describe('createZenMoneyConnectionStore', () => {
     expect(store.connected).toBe(true);
   });
 
+  it('tracks dirty state from the saved manual token and clears it after save', async () => {
+    const store = createZenMoneyConnectionStore(
+      {
+        zenmoneyToken: '',
+        zenmoneyAccessToken: '',
+      },
+      repo,
+    );
+
+    expect(store.dirty).toBe(false);
+
+    store.manualToken = 'manual-token';
+    expect(store.dirty).toBe(true);
+
+    await store.saveManualToken();
+
+    expect(store.dirty).toBe(false);
+  });
+
   it('starts the OAuth flow by navigating to the ZenMoney start endpoint', () => {
     const stubWindow = { location: { href: 'http://localhost/' } };
     vi.stubGlobal('window', stubWindow);

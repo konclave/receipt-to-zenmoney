@@ -41,11 +41,12 @@ export function createAiSettingsStore(
       openrouterApiKey !== saved.openrouterApiKey ||
       openrouterModel !== saved.openrouterModel,
   );
+  const claudeApiKeySaved = $derived(saved.claudeApiKey.length > 0);
+  const openrouterApiKeySaved = $derived(saved.openrouterApiKey.length > 0);
 
   async function loadModels() {
     modelsLoading = true;
     modelsFailed = false;
-    error = null;
 
     try {
       const next = await repo.fetchOpenRouterModels();
@@ -54,7 +55,6 @@ export function createAiSettingsStore(
         : [{ id: openrouterModel, name: openrouterModel }, ...next];
     } catch (cause) {
       modelsFailed = true;
-      error = cause instanceof Error ? cause.message : String(cause);
     } finally {
       modelsLoading = false;
     }
@@ -126,6 +126,12 @@ export function createAiSettingsStore(
     },
     get dirty() {
       return dirty;
+    },
+    get claudeApiKeySaved() {
+      return claudeApiKeySaved;
+    },
+    get openrouterApiKeySaved() {
+      return openrouterApiKeySaved;
     },
     setProvider(value: Settings['aiProvider']) {
       provider = value;
