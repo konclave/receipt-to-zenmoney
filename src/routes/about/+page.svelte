@@ -23,6 +23,11 @@
       Open the app, take a picture, and the transaction appears in your
       ZenMoney account. That's it.
     </p>
+    <p>
+      It also keeps a local history of your receipt images on your device, so
+      you can look back at past scans, export a backup, and restore that
+      history later if needed.
+    </p>
   </section>
 
   <section>
