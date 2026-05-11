@@ -7,7 +7,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "svelte-kit sync && husky",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
@@ -15,6 +15,10 @@
 		"lint": "oxlint src",
 		"format": "oxfmt src",
 		"format:check": "oxfmt --check src"
+	},
+	"lint-staged": {
+		"*.{js,cjs,mjs,ts,cts,mts,tsx,jsx,json,css,html}": "oxfmt --write",
+		"*.svelte": "prettier --write --plugin prettier-plugin-svelte --single-quote"
 	},
 	"devDependencies": {
 		"@semantic-release/changelog": "^6.0.3",
@@ -25,9 +29,13 @@
 		"@types/node": "^25.6.0",
 		"@vitest/browser": "^4.1.5",
 		"fake-indexeddb": "^6.2.5",
+		"husky": "^9.1.7",
 		"jsdom": "^29.1.1",
+		"lint-staged": "^17.0.4",
 		"oxfmt": "^0.48.0",
 		"oxlint": "^1.63.0",
+		"prettier": "^3.8.3",
+		"prettier-plugin-svelte": "^3.5.1",
 		"semantic-release": "^25.0.3",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
