@@ -15,29 +15,34 @@ describe('settings version info', () => {
       'utf8',
     );
 
-    // Version is rendered via AppFeedback component
     expect(settingsPage).toContain('AppFeedback');
     expect(settingsPage).toContain('data.appVersion');
   });
 
-  it('links ZenMoney connect flow to the broker start endpoint', () => {
+  it('creates the refactored settings page store with OAuth configuration', () => {
     const settingsPage = readFileSync(
       resolve(process.cwd(), 'src/routes/settings/+page.svelte'),
       'utf8',
     );
 
-    expect(settingsPage).toContain('/api/zenmoney/oauth/start');
-    expect(settingsPage).toContain('/api/zenmoney/logout');
+    expect(settingsPage).toContain('createSettingsPageStore');
+    expect(settingsPage).toContain('PUBLIC_ZENMONEY_OAUTH_ENABLED');
+    expect(settingsPage).toContain('oauthEnabled');
+    expect(settingsPage).toContain('page.load()');
   });
 
-  it('keeps the manual ZenMoney token input available alongside OAuth', () => {
+  it('renders the extracted settings sections in the route shell', () => {
     const settingsPage = readFileSync(
       resolve(process.cwd(), 'src/routes/settings/+page.svelte'),
       'utf8',
     );
 
-    expect(settingsPage).toContain('placeholder="Paste your ZenMoney token"');
-    expect(settingsPage).toContain('/api/zenmoney/oauth/start');
-    expect(settingsPage).toContain('PUBLIC_ZENMONEY_OAUTH_ENABLED');
+    expect(settingsPage).toContain('AiSettingsSection');
+    expect(settingsPage).toContain('ZenMoneyConnectionSection');
+    expect(settingsPage).toContain('ZenMoneyDataSection');
+    expect(settingsPage).toContain('BackupRestoreSection');
+    expect(settingsPage).toContain('StorageCleanupSection');
+    expect(settingsPage).not.toContain('handleReloadCategories');
+    expect(settingsPage).not.toContain('handleCleanupConfirm');
   });
 });
