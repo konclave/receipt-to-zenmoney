@@ -25,8 +25,7 @@ describe('staged formatting pre-commit hook', () => {
     expect(packageJson.scripts?.prepare).toBe('svelte-kit sync && husky');
     expect(packageJson['lint-staged']).toEqual({
       '*.{js,cjs,mjs,ts,cts,mts,tsx,jsx,json,css,html}': 'oxfmt --write',
-      '*.svelte':
-        'prettier --write --plugin prettier-plugin-svelte --single-quote',
+      '*.svelte': 'prettier --write --plugin prettier-plugin-svelte --single-quote',
     });
   });
 

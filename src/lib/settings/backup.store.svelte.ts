@@ -4,10 +4,7 @@ function toErrorMessage(cause: unknown): string {
 
 function isAbortError(cause: unknown): boolean {
   return (
-    typeof cause === 'object' &&
-    cause !== null &&
-    'name' in cause &&
-    cause.name === 'AbortError'
+    typeof cause === 'object' && cause !== null && 'name' in cause && cause.name === 'AbortError'
   );
 }
 

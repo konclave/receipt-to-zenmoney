@@ -99,9 +99,7 @@ describe('createSettingsRepository', () => {
     expect(snapshot.oauthEnabled).toBe(true);
     expect(snapshot.settings.zenmoneyToken).toBe('manual');
     expect(snapshot.categoryCount).toBe(2);
-    expect(snapshot.lastSyncDate).toBe(
-      new Date(1746441600000).toLocaleDateString(),
-    );
+    expect(snapshot.lastSyncDate).toBe(new Date(1746441600000).toLocaleDateString());
     expect(snapshot.accounts.map((account) => account.title)).toEqual(['Alpha', 'Beta']);
     expect(snapshot.storageStats?.totalBytes).toBe(98765);
   });

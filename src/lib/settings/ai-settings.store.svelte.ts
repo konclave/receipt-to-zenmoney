@@ -16,10 +16,7 @@ interface AiSettingsRepo {
 }
 
 export function createAiSettingsStore(
-  initial: Pick<
-    Settings,
-    'aiProvider' | 'claudeApiKey' | 'openrouterApiKey' | 'openrouterModel'
-  >,
+  initial: Pick<Settings, 'aiProvider' | 'claudeApiKey' | 'openrouterApiKey' | 'openrouterModel'>,
   repo: AiSettingsRepo,
 ) {
   let provider = $state(initial.aiProvider);

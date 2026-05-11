@@ -5,11 +5,7 @@ import { saveInstruments } from '$lib/db/instruments';
 import { clearZenMoneyAccessToken } from '$lib/services/zenmoney-access';
 import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
 import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney';
-import {
-  exportBackup,
-  importBackup,
-  exportBackupForPeriod,
-} from '$lib/services/backup';
+import { exportBackup, importBackup, exportBackupForPeriod } from '$lib/services/backup';
 import { getStorageStats } from '$lib/services/storage-stats';
 import { deleteTransactionsByPeriod } from '$lib/db/transactions';
 import { bulkDeleteReceiptImages } from '$lib/db/receipt-images';
