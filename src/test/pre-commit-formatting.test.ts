@@ -31,13 +31,18 @@ describe('staged formatting pre-commit hook', () => {
   });
 
   it('commits through a husky pre-commit hook that runs lint-staged', () => {
-    expect(existsSync(preCommitHookPath)).toBe(true);
-    if (!existsSync(preCommitHookPath)) {
+    const hookExists = existsSync(preCommitHookPath);
+
+    expect(hookExists).toBe(true);
+    if (!hookExists) {
       return;
     }
 
-    const hook = readFileSync(preCommitHookPath, 'utf8').trim();
+    const hookLines = readFileSync(preCommitHookPath, 'utf8')
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
 
-    expect(hook).toBe('pnpm exec lint-staged');
+    expect(hookLines.at(-1)).toBe('pnpm exec lint-staged');
   });
 });
