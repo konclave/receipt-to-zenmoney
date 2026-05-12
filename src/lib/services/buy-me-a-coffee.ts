@@ -1,22 +1,21 @@
-const BUY_ME_A_COFFEE_SCRIPT_SRC = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+const BUY_ME_A_COFFEE_EMBED_PATH = '/bmc-button.html';
 
-export function renderBuyMeACoffeeButton(host: HTMLElement): HTMLScriptElement {
+export function renderBuyMeACoffeeButton(host: HTMLElement): HTMLIFrameElement {
   host.replaceChildren();
 
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = BUY_ME_A_COFFEE_SCRIPT_SRC;
-  script.dataset.name = 'bmc-button';
-  script.dataset.slug = 'konclave';
-  script.dataset.color = '#FFDD00';
-  script.dataset.emoji = '';
-  script.dataset.font = 'Cookie';
-  script.dataset.text = 'Buy me a coffee';
-  script.dataset.outlineColor = '#000000';
-  script.dataset.fontColor = '#000000';
-  script.dataset.coffeeColor = '#ffffff';
+  const frame = document.createElement('iframe');
+  frame.src = BUY_ME_A_COFFEE_EMBED_PATH;
+  frame.title = 'Buy me a coffee';
+  frame.loading = 'lazy';
+  frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  frame.style.width = '100%';
+  frame.style.maxWidth = '240px';
+  frame.style.height = '70px';
+  frame.style.border = '0';
+  frame.style.overflow = 'hidden';
+  frame.style.background = 'transparent';
 
-  host.append(script);
+  host.append(frame);
 
-  return script;
+  return frame;
 }
