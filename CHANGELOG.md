@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.0...v1.13.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* buy me a coffee button ([e29301f](https://github.com/konclave/receipt-to-zenmoney/commit/e29301ffb48e760b50942c8c0d2e0cbaf7ec8675))
+
 # [1.13.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.12.0...v1.13.0) (2026-05-11)
 
 
