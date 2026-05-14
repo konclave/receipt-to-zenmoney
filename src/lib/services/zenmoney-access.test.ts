@@ -7,9 +7,12 @@ import {
   getZenMoneyAuthMode,
 } from './zenmoney-access';
 
+const envMock = vi.hoisted(() => ({ PUBLIC_ZENMONEY_OAUTH_ENABLED: 'true' }));
+vi.mock('$env/static/public', () => envMock);
+
 beforeEach(async () => {
   vi.restoreAllMocks();
-  vi.stubEnv('PUBLIC_ZENMONEY_OAUTH_ENABLED', 'true');
+  envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'true';
   await clearZenMoneyAccessToken();
 });
 
@@ -46,7 +49,7 @@ describe('getZenMoneyAccessToken', () => {
   });
 
   it('throws when OAuth is disabled', async () => {
-    vi.stubEnv('PUBLIC_ZENMONEY_OAUTH_ENABLED', 'false');
+    envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'false';
     await expect(getZenMoneyAccessToken()).rejects.toThrow('OAuth not enabled');
   });
 
@@ -64,7 +67,7 @@ describe('getZenMoneyAccessToken', () => {
 
 describe('getConfiguredZenMoneyToken', () => {
   it('returns the saved manual token when OAuth is disabled', async () => {
-    vi.stubEnv('PUBLIC_ZENMONEY_OAUTH_ENABLED', 'false');
+    envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'false';
     await saveSettings({ zenmoneyToken: 'manual-token' });
     await expect(getConfiguredZenMoneyToken()).resolves.toBe('manual-token');
   });
@@ -95,7 +98,7 @@ describe('getConfiguredZenMoneyToken', () => {
 
 describe('getZenMoneyAuthMode', () => {
   it('returns manual when OAuth is disabled', async () => {
-    vi.stubEnv('PUBLIC_ZENMONEY_OAUTH_ENABLED', 'false');
+    envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'false';
     expect(await getZenMoneyAuthMode()).toBe('manual');
   });
 
