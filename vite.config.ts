@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ["icons/apple-touch-icon.png"],
       manifest: {
         name: "Receipt to Zenmoney",
-        short_name: "ReceiptZM",
+        short_name: "Receipt2Zenmoney",
         description:
           "Photograph receipts and import transactions into Zenmoney",
         theme_color: "#6c63ff",
