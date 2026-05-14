@@ -267,6 +267,17 @@ describe('parseReceipt — OpenRouter provider', () => {
     ).rejects.toThrow('401');
   });
 
+  it('parses response wrapped in markdown code fence with leading whitespace', async () => {
+    const fenced = `\n\n\n\`\`\`json\n${JSON.stringify(PARSE_RESULT)}\n\`\`\`\n`;
+    mockOpenRouter(fenced);
+    const result = await parseReceipt('img', CATEGORIES, {
+      provider: 'openrouter',
+      apiKey: 'sk-or-test',
+      model: 'nvidia/nemotron-nano-12b-v2-vl:free',
+    });
+    expect(result.amount).toBe(PARSE_RESULT.amount);
+  });
+
   it('throws when OpenRouter returns invalid JSON in content', async () => {
     mockOpenRouter('not json');
     await expect(

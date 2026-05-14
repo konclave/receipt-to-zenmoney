@@ -105,7 +105,11 @@ async function parseReceiptAnthropic(
         content: [
           {
             type: 'image',
-            source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 },
+            source: {
+              type: 'base64',
+              media_type: 'image/jpeg',
+              data: imageBase64,
+            },
           },
           { type: 'text', text: buildPrompt(categories) },
         ],
@@ -135,7 +139,10 @@ async function parseReceiptOpenRouter(
         {
           role: 'user',
           content: [
-            { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${imageBase64}` } },
+            {
+              type: 'image_url',
+              image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
+            },
             { type: 'text', text: buildPrompt(categories) },
           ],
         },
@@ -151,7 +158,12 @@ async function parseReceiptOpenRouter(
   const data = (await response.json()) as {
     choices: Array<{ message: { content: string } }>;
   };
-  const text = data.choices?.[0]?.message?.content ?? '';
+  const raw = data.choices?.[0]?.message?.content ?? '';
+  const text = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/, '')
+    .trim();
   return validateParseResult(JSON.parse(text));
 }
 
