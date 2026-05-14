@@ -1,3 +1,10 @@
+## [1.13.6](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.5...v1.13.6) (2026-05-14)
+
+
+### Bug Fixes
+
+* remove image crop ([b7f2c71](https://github.com/konclave/receipt-to-zenmoney/commit/b7f2c7105a4936fae6c5e1cbdce720feb37ca866))
+
 ## [1.13.5](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.4...v1.13.5) (2026-05-14)
 
 
