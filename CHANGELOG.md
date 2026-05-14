@@ -1,3 +1,10 @@
+## [1.13.5](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.4...v1.13.5) (2026-05-14)
+
+
+### Bug Fixes
+
+* support openrouter alternative response ([8a880a3](https://github.com/konclave/receipt-to-zenmoney/commit/8a880a35066be67386e9e74a73e0344d5bf3f8be))
+
 ## [1.13.4](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.3...v1.13.4) (2026-05-14)
 
 
