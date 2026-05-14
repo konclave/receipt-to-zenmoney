@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.1...v1.13.2) (2026-05-14)
+
+
+### Bug Fixes
+
+* env var read on the server side ([5b29307](https://github.com/konclave/receipt-to-zenmoney/commit/5b293073fcf71b5b4fc5aeb531231baa6e54ffcd))
+
 ## [1.13.1](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.0...v1.13.1) (2026-05-12)
 
 
