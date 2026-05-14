@@ -1,10 +1,10 @@
-# ZenMoney OAuth Broker Implementation Plan
+# Zenmoney OAuth Broker Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Move ZenMoney OAuth code exchange and refresh-token handling to Vercel server routes while keeping manual ZenMoney personal-token auth as an explicit alternate mode and preserving direct browser-to-ZenMoney API calls.
+**Goal:** Move Zenmoney OAuth code exchange and refresh-token handling to Vercel server routes while keeping manual Zenmoney personal-token auth as an explicit alternate mode and preserving direct browser-to-Zenmoney API calls.
 
-**Architecture:** Convert the app from static-only deployment to `adapter-vercel`, add a minimal server-side OAuth broker backed by Vercel KV, and introduce explicit ZenMoney auth modes: `oauth` and `manual`. In OAuth mode the client stores `zenmoneyAccessToken` plus `zenmoneyAccessTokenExpiresAt` in IndexedDB; in manual mode it continues to store the user-provided personal token. The broker owns `client_secret`, refresh tokens, and rolling auth sessions; the browser fetches a fresh OAuth access token when missing, near expiry, or rejected by ZenMoney.
+**Architecture:** Convert the app from static-only deployment to `adapter-vercel`, add a minimal server-side OAuth broker backed by Vercel KV, and introduce explicit Zenmoney auth modes: `oauth` and `manual`. In OAuth mode the client stores `zenmoneyAccessToken` plus `zenmoneyAccessTokenExpiresAt` in IndexedDB; in manual mode it continues to store the user-provided personal token. The broker owns `client_secret`, refresh tokens, and rolling auth sessions; the browser fetches a fresh OAuth access token when missing, near expiry, or rejected by Zenmoney.
 
 **Tech Stack:** SvelteKit 2, Svelte 5, Vitest, IndexedDB via `idb`, Vercel Functions via `@sveltejs/adapter-vercel`, Vercel KV via `@vercel/kv`, Web Crypto on the client, Node `crypto` on the server.
 
@@ -27,7 +27,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-describe('ZenMoney OAuth deployment config', () => {
+describe('Zenmoney OAuth deployment config', () => {
   const packageJson = readFileSync(resolve(process.cwd(), 'package.json'), 'utf8');
   const svelteConfig = readFileSync(resolve(process.cwd(), 'svelte.config.js'), 'utf8');
   const envExample = readFileSync(resolve(process.cwd(), '.env.example'), 'utf8');
@@ -38,7 +38,7 @@ describe('ZenMoney OAuth deployment config', () => {
     expect(svelteConfig).toContain("@sveltejs/adapter-vercel");
   });
 
-  it('does not expose ZenMoney OAuth secret material in PUBLIC env vars', () => {
+  it('does not expose Zenmoney OAuth secret material in PUBLIC env vars', () => {
     expect(envExample).not.toContain('PUBLIC_ZENMONEY_CLIENT_SECRET');
     expect(envExample).toContain('ZENMONEY_CLIENT_SECRET=');
     expect(envExample).toContain('PUBLIC_ZENMONEY_OAUTH_ENABLED=');
@@ -92,9 +92,9 @@ export default {
 
 ```dotenv
 # .env.example
-# ZenMoney OAuth server credentials
+# Zenmoney OAuth server credentials
 # Add both http://localhost:5173/api/zenmoney/oauth/callback (dev)
-# and your production callback URL in ZenMoney app settings.
+# and your production callback URL in Zenmoney app settings.
 ZENMONEY_CLIENT_ID=
 ZENMONEY_CLIENT_SECRET=
 ZENMONEY_REDIRECT_URI=http://localhost:5173/api/zenmoney/oauth/callback
@@ -113,7 +113,7 @@ Expected: PASS
 
 ```bash
 git add package.json svelte.config.js vercel.json .env.example src/test/zenmoney-oauth-config.test.ts
-git commit -m "build: switch ZenMoney OAuth deployment to Vercel server routes"
+git commit -m "build: switch Zenmoney OAuth deployment to Vercel server routes"
 ```
 
 ### Task 2: Add Server OAuth And Session Primitives
@@ -141,7 +141,7 @@ import {
 import { encryptRefreshToken, decryptRefreshToken } from './crypto';
 
 describe('buildAuthorizeUrl', () => {
-  it('builds ZenMoney authorize URL from server config', () => {
+  it('builds Zenmoney authorize URL from server config', () => {
     const url = buildAuthorizeUrl({
       clientId: 'client-id',
       redirectUri: 'https://app.example.com/api/zenmoney/oauth/callback',
@@ -205,13 +205,13 @@ Expected: FAIL because the server helper modules do not exist yet.
 
 ```ts
 // src/lib/server/zenmoney/types.ts
-export interface ZenMoneyTokenResponse {
+export interface ZenmoneyTokenResponse {
   access_token: string;
   refresh_token: string;
   expires_in: number;
 }
 
-export interface ZenMoneySessionRecord {
+export interface ZenmoneySessionRecord {
   sessionId: string;
   refreshToken: string;
   accessToken: string | null;
@@ -226,7 +226,7 @@ export interface ZenMoneySessionRecord {
 // src/lib/server/zenmoney/config.ts
 import { env } from '$env/dynamic/private';
 
-export function getZenMoneyServerConfig() {
+export function getZenmoneyServerConfig() {
   return {
     clientId: env.ZENMONEY_CLIENT_ID ?? '',
     clientSecret: env.ZENMONEY_CLIENT_SECRET ?? '',
@@ -339,18 +339,18 @@ export async function decryptRefreshToken(payload: string, secret: string): Prom
 // src/lib/server/zenmoney/session-store.ts
 import { kv } from '@vercel/kv';
 import { SESSION_IDLE_TTL_SECONDS, SESSION_ABSOLUTE_TTL_MS } from './cookies';
-import type { ZenMoneySessionRecord } from './types';
+import type { ZenmoneySessionRecord } from './types';
 
 function sessionKey(sessionId: string): string {
   return `zenmoney:session:${sessionId}`;
 }
 
-export async function saveSession(record: ZenMoneySessionRecord): Promise<void> {
+export async function saveSession(record: ZenmoneySessionRecord): Promise<void> {
   await kv.set(sessionKey(record.sessionId), record, { ex: SESSION_IDLE_TTL_SECONDS });
 }
 
-export async function getSession(sessionId: string): Promise<ZenMoneySessionRecord | null> {
-  return (await kv.get<ZenMoneySessionRecord>(sessionKey(sessionId))) ?? null;
+export async function getSession(sessionId: string): Promise<ZenmoneySessionRecord | null> {
+  return (await kv.get<ZenmoneySessionRecord>(sessionKey(sessionId))) ?? null;
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
@@ -363,7 +363,7 @@ export function buildNewSession(input: {
   accessToken: string;
   accessTokenExpiresAt: number;
   now?: number;
-}): ZenMoneySessionRecord {
+}): ZenmoneySessionRecord {
   const now = input.now ?? Date.now();
   return {
     sessionId: input.sessionId,
@@ -387,7 +387,7 @@ Expected: PASS
 
 ```bash
 git add src/lib/server/zenmoney/config.ts src/lib/server/zenmoney/types.ts src/lib/server/zenmoney/cookies.ts src/lib/server/zenmoney/crypto.ts src/lib/server/zenmoney/session-store.ts src/lib/server/zenmoney/oauth.ts src/lib/server/zenmoney/oauth.test.ts
-git commit -m "feat: add ZenMoney server OAuth primitives"
+git commit -m "feat: add Zenmoney server OAuth primitives"
 ```
 
 ### Task 3: Implement OAuth Broker Routes
@@ -409,12 +409,12 @@ import { GET as callback } from './callback/+server';
 import { GET as accessToken } from '../access-token/+server';
 import { POST as logout } from '../logout/+server';
 
-describe('ZenMoney OAuth routes', () => {
+describe('Zenmoney OAuth routes', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('redirects to ZenMoney authorize URL and sets state cookie', async () => {
+  it('redirects to Zenmoney authorize URL and sets state cookie', async () => {
     const cookies = fakeCookies();
     const response = await start({ cookies, url: new URL('https://app.example.com/api/zenmoney/oauth/start') } as never);
 
@@ -470,12 +470,12 @@ Expected: FAIL because the route files do not exist yet.
 import { redirect } from '@sveltejs/kit';
 import { randomUUID } from 'node:crypto';
 import { buildAuthorizeUrl } from '$lib/server/zenmoney/oauth';
-import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
+import { getZenmoneyServerConfig } from '$lib/server/zenmoney/config';
 import { OAUTH_STATE_TTL_SECONDS, STATE_COOKIE } from '$lib/server/zenmoney/cookies';
 
 export const GET = async ({ cookies }) => {
   const state = randomUUID();
-  const config = getZenMoneyServerConfig();
+  const config = getZenmoneyServerConfig();
 
   cookies.set(STATE_COOKIE, state, {
     path: '/',
@@ -497,7 +497,7 @@ export const GET = async ({ cookies }) => {
 // src/routes/api/zenmoney/oauth/callback/+server.ts
 import { redirect } from '@sveltejs/kit';
 import { randomUUID } from 'node:crypto';
-import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
+import { getZenmoneyServerConfig } from '$lib/server/zenmoney/config';
 import { STATE_COOKIE, SESSION_COOKIE, SESSION_IDLE_TTL_SECONDS } from '$lib/server/zenmoney/cookies';
 import { buildTokenExchangeBody, TOKEN_URL } from '$lib/server/zenmoney/oauth';
 import { buildNewSession, saveSession } from '$lib/server/zenmoney/session-store';
@@ -513,7 +513,7 @@ export const GET = async ({ cookies, fetch, url }) => {
     throw redirect(302, '/settings?zenmoneyAuthError=state');
   }
 
-  const config = getZenMoneyServerConfig();
+  const config = getZenmoneyServerConfig();
   const tokenResponse = await fetch(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -556,7 +556,7 @@ export const GET = async ({ cookies, fetch, url }) => {
 ```ts
 // src/routes/api/zenmoney/access-token/+server.ts
 import { json } from '@sveltejs/kit';
-import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
+import { getZenmoneyServerConfig } from '$lib/server/zenmoney/config';
 import { SESSION_COOKIE, SESSION_IDLE_TTL_SECONDS } from '$lib/server/zenmoney/cookies';
 import { decryptRefreshToken } from '$lib/server/zenmoney/crypto';
 import { buildRefreshBody, isAccessTokenStale, TOKEN_URL } from '$lib/server/zenmoney/oauth';
@@ -566,7 +566,7 @@ export const GET = async ({ cookies, fetch }) => {
   const sessionId = cookies.get(SESSION_COOKIE);
   if (!sessionId) return json({ message: 'Not connected' }, { status: 401 });
 
-  const config = getZenMoneyServerConfig();
+  const config = getZenmoneyServerConfig();
   const session = await getSession(sessionId);
   if (!session || session.absoluteExpiresAt <= Date.now()) {
     if (sessionId) cookies.delete(SESSION_COOKIE, { path: '/' });
@@ -637,7 +637,7 @@ Expected: PASS
 
 ```bash
 git add src/routes/api/zenmoney/oauth/start/+server.ts src/routes/api/zenmoney/oauth/callback/+server.ts src/routes/api/zenmoney/access-token/+server.ts src/routes/api/zenmoney/logout/+server.ts src/routes/api/zenmoney/oauth/routes.test.ts
-git commit -m "feat: add ZenMoney OAuth broker routes"
+git commit -m "feat: add Zenmoney OAuth broker routes"
 ```
 
 ### Task 4: Persist Auth Mode And Add OAuth Access-Token Helper
@@ -656,23 +656,23 @@ git commit -m "feat: add ZenMoney OAuth broker routes"
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getSettings, saveSettings } from '$lib/db/settings';
 import {
-  getConfiguredZenMoneyToken,
-  getZenMoneyAccessToken,
-  clearZenMoneyAccessToken,
+  getConfiguredZenmoneyToken,
+  getZenmoneyAccessToken,
+  clearZenmoneyAccessToken,
 } from './zenmoney-access';
 
 beforeEach(async () => {
   vi.restoreAllMocks();
 });
 
-describe('getZenMoneyAccessToken', () => {
+describe('getZenmoneyAccessToken', () => {
   it('reuses a stored token when it is not close to expiry', async () => {
     await saveSettings({
       zenmoneyAccessToken: 'stored-token',
       zenmoneyAccessTokenExpiresAt: Date.now() + 60 * 60_000,
     });
 
-    expect(await getZenMoneyAccessToken()).toBe('stored-token');
+    expect(await getZenmoneyAccessToken()).toBe('stored-token');
   });
 
   it('refreshes through the broker when the token is expired', async () => {
@@ -685,7 +685,7 @@ describe('getZenMoneyAccessToken', () => {
       expiresAt: Date.now() + 60 * 60_000,
     }), { status: 200 })));
 
-    expect(await getZenMoneyAccessToken()).toBe('fresh-token');
+    expect(await getZenmoneyAccessToken()).toBe('fresh-token');
     expect((await getSettings()).zenmoneyAccessToken).toBe('fresh-token');
   });
 
@@ -694,7 +694,7 @@ describe('getZenMoneyAccessToken', () => {
       zenmoneyAccessToken: 'token',
       zenmoneyAccessTokenExpiresAt: Date.now() + 1000,
     });
-    await clearZenMoneyAccessToken();
+    await clearZenmoneyAccessToken();
     const settings = await getSettings();
     expect(settings.zenmoneyAccessToken).toBe('');
     expect(settings.zenmoneyAccessTokenExpiresAt).toBe(0);
@@ -706,7 +706,7 @@ describe('getZenMoneyAccessToken', () => {
       zenmoneyToken: 'manual-token',
     });
 
-    await expect(getConfiguredZenMoneyToken()).resolves.toBe('manual-token');
+    await expect(getConfiguredZenmoneyToken()).resolves.toBe('manual-token');
   });
 });
 ```
@@ -780,17 +780,17 @@ function tokenNeedsRefresh(expiresAt: number, now = Date.now()): boolean {
   return !expiresAt || expiresAt - now <= REFRESH_WINDOW_MS;
 }
 
-export async function clearZenMoneyAccessToken(): Promise<void> {
+export async function clearZenmoneyAccessToken(): Promise<void> {
   await saveSettings({
     zenmoneyAccessToken: '',
     zenmoneyAccessTokenExpiresAt: 0,
   });
 }
 
-export async function getZenMoneyAccessToken(forceRefresh = false): Promise<string> {
+export async function getZenmoneyAccessToken(forceRefresh = false): Promise<string> {
   const settings = await getSettings();
   if (settings.zenmoneyAuthMode !== 'oauth') {
-    throw new Error('ZenMoney OAuth mode is not active.');
+    throw new Error('Zenmoney OAuth mode is not active.');
   }
   if (
     !forceRefresh &&
@@ -804,8 +804,8 @@ export async function getZenMoneyAccessToken(forceRefresh = false): Promise<stri
     credentials: 'include',
   });
   if (!response.ok) {
-    await clearZenMoneyAccessToken();
-    throw new Error('ZenMoney connection expired. Reconnect in Settings.');
+    await clearZenmoneyAccessToken();
+    throw new Error('Zenmoney connection expired. Reconnect in Settings.');
   }
 
   const data = (await response.json()) as { accessToken: string; expiresAt: number };
@@ -816,17 +816,17 @@ export async function getZenMoneyAccessToken(forceRefresh = false): Promise<stri
   return data.accessToken;
 }
 
-export async function getConfiguredZenMoneyToken(forceRefresh = false): Promise<string> {
+export async function getConfiguredZenmoneyToken(forceRefresh = false): Promise<string> {
   const settings = await getSettings();
   if (settings.zenmoneyAuthMode === 'manual') {
-    if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set');
+    if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set');
     return settings.zenmoneyToken;
   }
 
-  return getZenMoneyAccessToken(forceRefresh);
+  return getZenmoneyAccessToken(forceRefresh);
 }
 
-export async function getZenMoneyAuthMode(): Promise<'manual' | 'oauth'> {
+export async function getZenmoneyAuthMode(): Promise<'manual' | 'oauth'> {
   return (await getSettings()).zenmoneyAuthMode;
 }
 ```
@@ -841,7 +841,7 @@ Expected: PASS
 
 ```bash
 git add src/lib/types/index.ts src/lib/db/settings.ts src/lib/db/settings.test.ts src/lib/services/zenmoney-access.ts src/lib/services/zenmoney-access.test.ts
-git commit -m "feat: support ZenMoney auth modes in local settings"
+git commit -m "feat: support Zenmoney auth modes in local settings"
 ```
 
 ### Task 5: Migrate Settings, Callback, And App Gating To Dual-Mode Auth
@@ -856,7 +856,7 @@ git commit -m "feat: support ZenMoney auth modes in local settings"
 
 ```ts
 // src/routes/settings/version.test.ts (append cases)
-it('links ZenMoney connect flow to the broker start endpoint', () => {
+it('links Zenmoney connect flow to the broker start endpoint', () => {
   const settingsPage = readFileSync(
     resolve(process.cwd(), 'src/routes/settings/+page.svelte'),
     'utf8',
@@ -866,13 +866,13 @@ it('links ZenMoney connect flow to the broker start endpoint', () => {
   expect(settingsPage).toContain("/api/zenmoney/logout");
 });
 
-it('keeps the manual ZenMoney token input available', () => {
+it('keeps the manual Zenmoney token input available', () => {
   const settingsPage = readFileSync(
     resolve(process.cwd(), 'src/routes/settings/+page.svelte'),
     'utf8',
   );
 
-  expect(settingsPage).toContain('placeholder="Paste your ZenMoney token"');
+  expect(settingsPage).toContain('placeholder="Paste your Zenmoney token"');
   expect(settingsPage).toContain('zenmoneyAuthMode');
   expect(settingsPage).toContain('PUBLIC_ZENMONEY_OAUTH_ENABLED');
 });
@@ -890,14 +890,14 @@ Expected: FAIL because Settings does not yet contain explicit auth-mode handling
 // src/routes/oauth/callback/+page.svelte (script excerpt)
 import { onMount } from 'svelte';
 import { goto } from '$app/navigation';
-import { getZenMoneyAccessToken } from '$lib/services/zenmoney-access';
+import { getZenmoneyAccessToken } from '$lib/services/zenmoney-access';
 
 let status = $state<'loading' | 'error'>('loading');
 let errorMessage = $state('');
 
 onMount(async () => {
   try {
-    await getZenMoneyAccessToken(true);
+    await getZenmoneyAccessToken(true);
     goto('/settings?zenmoneyConnected=1');
   } catch (error) {
     status = 'error';
@@ -908,7 +908,7 @@ onMount(async () => {
 
 ```ts
 // src/routes/settings/+page.svelte (script excerpts)
-import { getZenMoneyAccessToken, clearZenMoneyAccessToken } from '$lib/services/zenmoney-access';
+import { getZenmoneyAccessToken, clearZenmoneyAccessToken } from '$lib/services/zenmoney-access';
 
 let zenmoneyAuthMode = $state<'manual' | 'oauth'>('manual');
 let zenmoneyConnected = $state(false);
@@ -929,15 +929,15 @@ function startOAuthFlow() {
   window.location.href = '/api/zenmoney/oauth/start';
 }
 
-async function disconnectZenMoney() {
+async function disconnectZenmoney() {
   await fetch('/api/zenmoney/logout', { method: 'POST', credentials: 'include' });
-  await clearZenMoneyAccessToken();
+  await clearZenmoneyAccessToken();
   zenmoneyConnected = false;
 }
 
 async function handleReloadCategories() {
   const token =
-    zenmoneyAuthMode === 'manual' ? zenmoneyToken : await getZenMoneyAccessToken();
+    zenmoneyAuthMode === 'manual' ? zenmoneyToken : await getZenmoneyAccessToken();
   const response = await syncDiff(token, 0);
   // existing category save logic
 }
@@ -956,13 +956,13 @@ onMount(async () => {
 - [ ] **Step 4: Update the Settings markup so manual token is always available and OAuth is conditional**
 
 ```svelte
-<!-- src/routes/settings/+page.svelte (ZenMoney section excerpt) -->
-<label for="zm-token">ZenMoney token</label>
+<!-- src/routes/settings/+page.svelte (Zenmoney section excerpt) -->
+<label for="zm-token">Zenmoney token</label>
 <input
   id="zm-token"
   type="password"
   bind:value={zenmoneyToken}
-  placeholder="Paste your ZenMoney token"
+  placeholder="Paste your Zenmoney token"
   autocomplete="off"
 />
 
@@ -975,13 +975,13 @@ onMount(async () => {
   {#if zenmoneyAuthMode === 'oauth' && zenmoneyConnected}
     <div class="connected-row">
       <span class="connected-badge">✓ Connected</span>
-      <button type="button" class="btn-disconnect" onclick={disconnectZenMoney}>
+      <button type="button" class="btn-disconnect" onclick={disconnectZenmoney}>
         Disconnect
       </button>
     </div>
   {:else}
     <button type="button" class="btn-oauth" onclick={startOAuthFlow}>
-      Connect with ZenMoney
+      Connect with Zenmoney
     </button>
   {/if}
 {/if}
@@ -997,10 +997,10 @@ Expected: PASS
 
 ```bash
 git add src/routes/settings/+page.svelte src/routes/oauth/callback/+page.svelte src/routes/+layout.svelte src/routes/settings/version.test.ts
-git commit -m "feat: add dual-mode ZenMoney auth settings"
+git commit -m "feat: add dual-mode Zenmoney auth settings"
 ```
 
-### Task 6: Add One-Retry ZenMoney Calls And Migrate Review/History Flows
+### Task 6: Add One-Retry Zenmoney Calls And Migrate Review/History Flows
 
 **Files:**
 - Create: `src/lib/services/zenmoney-client.ts`
@@ -1016,9 +1016,9 @@ git commit -m "feat: add dual-mode ZenMoney auth settings"
 ```ts
 // src/lib/services/zenmoney-client.test.ts
 import { describe, expect, it, vi } from 'vitest';
-import { runZenMoneyRequest } from './zenmoney-client';
+import { runZenmoneyRequest } from './zenmoney-client';
 
-describe('runZenMoneyRequest', () => {
+describe('runZenmoneyRequest', () => {
   it('retries once with a fresh token after a 401', async () => {
     const tokenProvider = vi
       .fn()
@@ -1026,28 +1026,28 @@ describe('runZenMoneyRequest', () => {
       .mockResolvedValueOnce('fresh-token');
     const request = vi
       .fn()
-      .mockRejectedValueOnce(new Error('ZenMoney API error: 401 Unauthorized'))
+      .mockRejectedValueOnce(new Error('Zenmoney API error: 401 Unauthorized'))
       .mockResolvedValueOnce({ ok: true });
 
-    await expect(runZenMoneyRequest(tokenProvider, request)).resolves.toEqual({ ok: true });
+    await expect(runZenmoneyRequest(tokenProvider, request)).resolves.toEqual({ ok: true });
     expect(tokenProvider).toHaveBeenCalledTimes(2);
     expect(request).toHaveBeenCalledTimes(2);
   });
 
   it('does not loop forever on repeated 401 errors', async () => {
     const tokenProvider = vi.fn().mockResolvedValue('token');
-    const request = vi.fn().mockRejectedValue(new Error('ZenMoney API error: 401 Unauthorized'));
+    const request = vi.fn().mockRejectedValue(new Error('Zenmoney API error: 401 Unauthorized'));
 
-    await expect(runZenMoneyRequest(tokenProvider, request)).rejects.toThrow('401');
+    await expect(runZenmoneyRequest(tokenProvider, request)).rejects.toThrow('401');
     expect(request).toHaveBeenCalledTimes(2);
   });
 
   it('does not force-refresh manual-token mode', async () => {
     const tokenProvider = vi.fn().mockResolvedValue('manual-token');
     const authModeProvider = vi.fn().mockResolvedValue('manual');
-    const request = vi.fn().mockRejectedValue(new Error('ZenMoney API error: 401 Unauthorized'));
+    const request = vi.fn().mockRejectedValue(new Error('Zenmoney API error: 401 Unauthorized'));
 
-    await expect(runZenMoneyRequest(tokenProvider, authModeProvider, request)).rejects.toThrow('401');
+    await expect(runZenmoneyRequest(tokenProvider, authModeProvider, request)).rejects.toThrow('401');
     expect(tokenProvider).toHaveBeenCalledTimes(1);
     expect(request).toHaveBeenCalledTimes(1);
   });
@@ -1060,17 +1060,17 @@ Run: `pnpm test -- --run src/lib/services/zenmoney-client.test.ts src/lib/servic
 
 Expected: FAIL because the retry wrapper does not exist yet and current callers still require `settings.zenmoneyToken`.
 
-- [ ] **Step 3: Implement a central retry wrapper for direct ZenMoney requests**
+- [ ] **Step 3: Implement a central retry wrapper for direct Zenmoney requests**
 
 ```ts
 // src/lib/services/zenmoney-client.ts
-import { getConfiguredZenMoneyToken, getZenMoneyAuthMode } from './zenmoney-access';
+import { getConfiguredZenmoneyToken, getZenmoneyAuthMode } from './zenmoney-access';
 
 function isUnauthorized(error: unknown): boolean {
   return error instanceof Error && error.message.includes('401');
 }
 
-export async function runZenMoneyRequest<T>(
+export async function runZenmoneyRequest<T>(
   tokenProvider: (forceRefresh?: boolean) => Promise<string>,
   authModeProvider: () => Promise<'manual' | 'oauth'>,
   request: (token: string) => Promise<T>,
@@ -1082,47 +1082,47 @@ export async function runZenMoneyRequest<T>(
   }
 
   if ((await authModeProvider()) !== 'oauth') {
-    throw new Error('ZenMoney API error: 401 Unauthorized');
+    throw new Error('Zenmoney API error: 401 Unauthorized');
   }
 
   return request(await tokenProvider(true));
 }
 
-export async function runZenMoneyRequestWithStoredToken<T>(
+export async function runZenmoneyRequestWithStoredToken<T>(
   request: (token: string) => Promise<T>,
 ): Promise<T> {
-  return runZenMoneyRequest(getConfiguredZenMoneyToken, getZenMoneyAuthMode, request);
+  return runZenmoneyRequest(getConfiguredZenmoneyToken, getZenmoneyAuthMode, request);
 }
 ```
 
-- [ ] **Step 4: Migrate all ZenMoney callers to broker-backed access tokens**
+- [ ] **Step 4: Migrate all Zenmoney callers to broker-backed access tokens**
 
 ```ts
 // src/routes/settings/+page.svelte (reload excerpt)
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
 
-const response = await runZenMoneyRequestWithStoredToken((token) => syncDiff(token, 0));
+const response = await runZenmoneyRequestWithStoredToken((token) => syncDiff(token, 0));
 ```
 
 ```ts
 // src/routes/review/+page.svelte (submit excerpt)
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
 
-const diffResponse = await runZenMoneyRequestWithStoredToken((token) =>
+const diffResponse = await runZenmoneyRequestWithStoredToken((token) =>
   syncDiff(token, settings.zenmoneyServerTimestamp, [payload]),
 );
 ```
 
 ```ts
 // src/routes/history/+page.svelte (retry excerpt)
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
 
-const diffResponse = await runZenMoneyRequestWithStoredToken((token) =>
+const diffResponse = await runZenmoneyRequestWithStoredToken((token) =>
   syncDiff(token, settings.zenmoneyServerTimestamp, [payload]),
 );
 ```
 
-- [ ] **Step 5: Run the ZenMoney service and retry tests to verify they pass**
+- [ ] **Step 5: Run the Zenmoney service and retry tests to verify they pass**
 
 Run: `pnpm test -- --run src/lib/services/zenmoney-client.test.ts src/lib/services/zenmoney.test.ts src/lib/db/settings.test.ts`
 
@@ -1132,7 +1132,7 @@ Expected: PASS
 
 ```bash
 git add src/lib/services/zenmoney-client.ts src/lib/services/zenmoney-client.test.ts src/lib/services/zenmoney.ts src/lib/services/zenmoney.test.ts src/routes/settings/+page.svelte src/routes/review/+page.svelte src/routes/history/+page.svelte
-git commit -m "feat: refresh and retry direct ZenMoney API calls"
+git commit -m "feat: refresh and retry direct Zenmoney API calls"
 ```
 
 ### Task 7: Update Documentation And Run Full Verification
@@ -1145,15 +1145,15 @@ git commit -m "feat: refresh and retry direct ZenMoney API calls"
 - [ ] **Step 1: Update the README for Vercel OAuth broker setup**
 
 ```md
-## ZenMoney connection
+## Zenmoney connection
 
-ZenMoney OAuth now uses a small Vercel-hosted auth broker.
+Zenmoney OAuth now uses a small Vercel-hosted auth broker.
 
-- The server stores the ZenMoney `client_secret` and refresh token.
-- The app supports two ZenMoney auth modes:
+- The server stores the Zenmoney `client_secret` and refresh token.
+- The app supports two Zenmoney auth modes:
   - manual personal token
   - OAuth with a short-lived locally stored access token
-- Vercel KV is required for ZenMoney session storage.
+- Vercel KV is required for Zenmoney session storage.
 
 Required Vercel environment variables:
 
@@ -1183,7 +1183,7 @@ Expected: PASS and emit a Vercel-compatible SvelteKit build output.
 
 ```bash
 git add README.md .env.example docs/superpowers/specs/2026-05-08-zenmoney-oauth-broker-design.md
-git commit -m "docs: document ZenMoney OAuth broker deployment"
+git commit -m "docs: document Zenmoney OAuth broker deployment"
 ```
 
 - [ ] **Step 4: Manual Vercel verification**
@@ -1191,11 +1191,11 @@ git commit -m "docs: document ZenMoney OAuth broker deployment"
 Run on a preview deployment after setting all env vars and Vercel KV:
 
 ```text
-1. Open /settings and tap "Connect with ZenMoney".
-2. Complete ZenMoney OAuth and confirm the app returns to /settings.
+1. Open /settings and tap "Connect with Zenmoney".
+2. Complete Zenmoney OAuth and confirm the app returns to /settings.
 3. Tap "Reload Categories" and confirm categories, accounts, and user id save locally.
 4. Capture and submit a receipt from /review.
 5. Retry a failed transaction from /history.
-6. Tap "Disconnect" and confirm the next ZenMoney action requires reconnect.
+6. Tap "Disconnect" and confirm the next Zenmoney action requires reconnect.
 7. Simulate expiry by lowering zenmoneyAccessTokenExpiresAt in IndexedDB and verify silent refresh.
 ```

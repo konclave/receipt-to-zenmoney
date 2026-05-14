@@ -9,7 +9,7 @@ const mockConfig = {
 };
 
 vi.mock('$lib/server/zenmoney/config', () => ({
-  getZenMoneyServerConfig: () => mockConfig,
+  getZenmoneyServerConfig: () => mockConfig,
 }));
 
 vi.mock('$lib/server/zenmoney/session-store', () => ({
@@ -56,7 +56,7 @@ function fakeCookies(initial: Record<string, string> = {}) {
   };
 }
 
-describe('ZenMoney OAuth routes', () => {
+describe('Zenmoney OAuth routes', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     mockConfig.oauthEnabled = true;
@@ -66,7 +66,7 @@ describe('ZenMoney OAuth routes', () => {
     vi.mocked(buildNewSession).mockClear();
   });
 
-  it('redirects to ZenMoney authorize URL and sets state cookie', async () => {
+  it('redirects to Zenmoney authorize URL and sets state cookie', async () => {
     const cookies = fakeCookies();
     const response = await start({
       cookies,
@@ -124,7 +124,10 @@ describe('ZenMoney OAuth routes', () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(
-      expect.objectContaining({ accessToken: 'cached-token', expiresAt: expect.any(Number) }),
+      expect.objectContaining({
+        accessToken: 'cached-token',
+        expiresAt: expect.any(Number),
+      }),
     );
   });
 

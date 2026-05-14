@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getSettings, saveSettings } from '$lib/db/settings';
 import {
-  getConfiguredZenMoneyToken,
-  getZenMoneyAccessToken,
-  clearZenMoneyAccessToken,
-  getZenMoneyAuthMode,
+  getConfiguredZenmoneyToken,
+  getZenmoneyAccessToken,
+  clearZenmoneyAccessToken,
+  getZenmoneyAuthMode,
 } from './zenmoney-access';
 
 const envMock = vi.hoisted(() => ({ PUBLIC_ZENMONEY_OAUTH_ENABLED: 'true' }));
@@ -13,17 +13,17 @@ vi.mock('$env/static/public', () => envMock);
 beforeEach(async () => {
   vi.restoreAllMocks();
   envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'true';
-  await clearZenMoneyAccessToken();
+  await clearZenmoneyAccessToken();
 });
 
-describe('getZenMoneyAccessToken', () => {
+describe('getZenmoneyAccessToken', () => {
   it('reuses a stored token when it is not close to expiry', async () => {
     await saveSettings({
       zenmoneyAccessToken: 'stored-token',
       zenmoneyAccessTokenExpiresAt: Date.now() + 60 * 60_000,
     });
 
-    expect(await getZenMoneyAccessToken()).toBe('stored-token');
+    expect(await getZenmoneyAccessToken()).toBe('stored-token');
   });
 
   it('refreshes through the broker when the token is expired', async () => {
@@ -44,13 +44,13 @@ describe('getZenMoneyAccessToken', () => {
       ),
     );
 
-    expect(await getZenMoneyAccessToken()).toBe('fresh-token');
+    expect(await getZenmoneyAccessToken()).toBe('fresh-token');
     expect((await getSettings()).zenmoneyAccessToken).toBe('fresh-token');
   });
 
   it('throws when OAuth is disabled', async () => {
     envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'false';
-    await expect(getZenMoneyAccessToken()).rejects.toThrow('OAuth not enabled');
+    await expect(getZenmoneyAccessToken()).rejects.toThrow('OAuth not enabled');
   });
 
   it('clears local token state', async () => {
@@ -58,23 +58,23 @@ describe('getZenMoneyAccessToken', () => {
       zenmoneyAccessToken: 'token',
       zenmoneyAccessTokenExpiresAt: Date.now() + 1000,
     });
-    await clearZenMoneyAccessToken();
+    await clearZenmoneyAccessToken();
     const settings = await getSettings();
     expect(settings.zenmoneyAccessToken).toBe('');
     expect(settings.zenmoneyAccessTokenExpiresAt).toBe(0);
   });
 });
 
-describe('getConfiguredZenMoneyToken', () => {
+describe('getConfiguredZenmoneyToken', () => {
   it('returns the saved manual token when OAuth is disabled', async () => {
     envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'false';
     await saveSettings({ zenmoneyToken: 'manual-token' });
-    await expect(getConfiguredZenMoneyToken()).resolves.toBe('manual-token');
+    await expect(getConfiguredZenmoneyToken()).resolves.toBe('manual-token');
   });
 
   it('returns the manual token when OAuth is enabled but no session exists', async () => {
     await saveSettings({ zenmoneyToken: 'manual-token' });
-    await expect(getConfiguredZenMoneyToken()).resolves.toBe('manual-token');
+    await expect(getConfiguredZenmoneyToken()).resolves.toBe('manual-token');
   });
 
   it('returns OAuth token when session is active', async () => {
@@ -82,7 +82,7 @@ describe('getConfiguredZenMoneyToken', () => {
       zenmoneyAccessToken: 'oauth-token',
       zenmoneyAccessTokenExpiresAt: Date.now() + 60 * 60_000,
     });
-    await expect(getConfiguredZenMoneyToken()).resolves.toBe('oauth-token');
+    await expect(getConfiguredZenmoneyToken()).resolves.toBe('oauth-token');
   });
 
   it('falls back to manual token when broker returns 401', async () => {
@@ -92,22 +92,25 @@ describe('getConfiguredZenMoneyToken', () => {
       zenmoneyToken: 'manual-token',
     });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })));
-    await expect(getConfiguredZenMoneyToken()).resolves.toBe('manual-token');
+    await expect(getConfiguredZenmoneyToken()).resolves.toBe('manual-token');
   });
 });
 
-describe('getZenMoneyAuthMode', () => {
+describe('getZenmoneyAuthMode', () => {
   it('returns manual when OAuth is disabled', async () => {
     envMock.PUBLIC_ZENMONEY_OAUTH_ENABLED = 'false';
-    expect(await getZenMoneyAuthMode()).toBe('manual');
+    expect(await getZenmoneyAuthMode()).toBe('manual');
   });
 
   it('returns oauth when OAuth is enabled and a session token exists', async () => {
-    await saveSettings({ zenmoneyAccessToken: 'some-token', zenmoneyAccessTokenExpiresAt: 1 });
-    expect(await getZenMoneyAuthMode()).toBe('oauth');
+    await saveSettings({
+      zenmoneyAccessToken: 'some-token',
+      zenmoneyAccessTokenExpiresAt: 1,
+    });
+    expect(await getZenmoneyAuthMode()).toBe('oauth');
   });
 
   it('returns manual when OAuth is enabled but no session exists', async () => {
-    expect(await getZenMoneyAuthMode()).toBe('manual');
+    expect(await getZenmoneyAuthMode()).toBe('manual');
   });
 });

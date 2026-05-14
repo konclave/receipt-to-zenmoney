@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AppFeedback from '$lib/components/AppFeedback.svelte';
+  import AppFeedback from "$lib/components/AppFeedback.svelte";
 
   let { data }: { data: { appVersion: string } } = $props();
 </script>
@@ -8,7 +8,7 @@
   <a href="/" class="app-header">
     <div class="app-icon">🧾</div>
     <div class="app-title">
-      <h1>Receipt to ZenMoney</h1>
+      <h1>Receipt to Zenmoney</h1>
       <p class="tagline">Photograph receipts, track expenses</p>
     </div>
   </a>
@@ -16,17 +16,17 @@
   <section>
     <h2>What does it do?</h2>
     <p>
-      Receipt to ZenMoney turns a photo of any receipt into a ZenMoney expense
-      — automatically. No typing, no manual category picking.
+      Receipt to Zenmoney turns a photo of any receipt into a Zenmoney expense —
+      automatically. No typing, no manual category picking.
     </p>
     <p>
-      Open the app, take a picture, and the transaction appears in your
-      ZenMoney account. That's it.
+      Open the app, take a picture, and the transaction appears in your Zenmoney
+      account. That's it.
     </p>
     <p>
       It also keeps a local history of your receipt images on your device, so
-      you can look back at past scans, export a backup, and restore that
-      history later if needed.
+      you can look back at past scans, export a backup, and restore that history
+      later if needed.
     </p>
   </section>
 
@@ -37,35 +37,52 @@
         <span class="fact-icon">📱</span>
         <div>
           <strong>Installs like a native app</strong>
-          <span>Add it to your home screen — no App Store needed. Works offline between syncs.</span>
+          <span
+            >Add it to your home screen — no App Store needed. Works offline
+            between syncs.</span
+          >
         </div>
       </li>
       <li>
         <span class="fact-icon">🔒</span>
         <div>
           <strong>Everything stays on your device</strong>
-          <span>Transactions, receipts, and settings are stored locally. Nothing is uploaded to any server.</span>
+          <span
+            >Transactions, receipts, and settings are stored locally. Nothing is
+            uploaded to any server.</span
+          >
         </div>
       </li>
       <li>
         <span class="fact-icon">👁️</span>
         <div>
           <strong>AI only sees the photo</strong>
-          <span>The AI model receives only the receipt image — no account details, no history, no personal data.</span>
+          <span
+            >The AI model receives only the receipt image — no account details,
+            no history, no personal data.</span
+          >
         </div>
       </li>
       <li>
         <span class="fact-icon">🔗</span>
         <div>
           <strong>Your data goes direct</strong>
-          <span>Receipts and transactions travel straight from your device to ZenMoney. We don't sit in the middle.</span>
+          <span
+            >Receipts and transactions travel straight from your device to
+            Zenmoney. We don't sit in the middle.</span
+          >
         </div>
       </li>
       <li>
         <span class="fact-icon">🔐</span>
         <div>
           <strong>One server-side step: signing in</strong>
-          <span>When you connect your ZenMoney account, the sign-in briefly passes through our server — the same way "Sign in with Google" works on any app. We never see your transactions, balance, or any financial data. After that, everything is direct again.</span>
+          <span
+            >When you connect your Zenmoney account, the sign-in briefly passes
+            through our server — the same way "Sign in with Google" works on any
+            app. We never see your transactions, balance, or any financial data.
+            After that, everything is direct again.</span
+          >
         </div>
       </li>
     </ul>
@@ -92,7 +109,7 @@
         <span class="step-icon">✅</span>
         <div>
           <strong>Synced</strong>
-          <span>The expense lands in ZenMoney instantly</span>
+          <span>The expense lands in Zenmoney instantly</span>
         </div>
       </li>
     </ol>

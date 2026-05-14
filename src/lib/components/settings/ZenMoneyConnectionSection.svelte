@@ -1,17 +1,17 @@
 <script lang="ts">
-  import type { createZenMoneyConnectionStore } from "$lib/settings/zenmoney-connection.store.svelte";
+  import type { createZenmoneyConnectionStore } from "$lib/settings/zenmoney-connection.store.svelte";
 
   let {
     oauthEnabled,
     store,
   }: {
     oauthEnabled: boolean;
-    store: ReturnType<typeof createZenMoneyConnectionStore>;
+    store: ReturnType<typeof createZenmoneyConnectionStore>;
   } = $props();
 </script>
 
 <section>
-  <h2>ZenMoney Connection</h2>
+  <h2>Zenmoney Connection</h2>
   {#if store.error}<div class="alert error">{store.error}</div>{/if}
   {#if store.success}<div class="alert success">{store.success}</div>{/if}
 
@@ -30,14 +30,14 @@
       </div>
     {:else}
       <button type="button" class="btn-oauth" onclick={store.startOAuthFlow}>
-        Connect with ZenMoney
+        Connect with Zenmoney
       </button>
       <p class="hint divider">— or paste a token manually —</p>
       <input
         id="zm-token"
         type="password"
         bind:value={store.manualToken}
-        placeholder="Paste your ZenMoney token"
+        placeholder="Paste your Zenmoney token"
         autocomplete="off"
       />
     {/if}

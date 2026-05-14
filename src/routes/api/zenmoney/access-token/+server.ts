@@ -1,11 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { Cookies } from '@sveltejs/kit';
-import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
+import { getZenmoneyServerConfig } from '$lib/server/zenmoney/config';
 import { SESSION_COOKIE, SESSION_IDLE_TTL_SECONDS } from '$lib/server/zenmoney/cookies';
 import { decryptRefreshToken, encryptRefreshToken } from '$lib/server/zenmoney/crypto';
 import { buildRefreshBody, isAccessTokenStale, TOKEN_URL } from '$lib/server/zenmoney/oauth';
 import { deleteSession, getSession, saveSession } from '$lib/server/zenmoney/session-store';
-import type { ZenMoneyTokenResponse } from '$lib/server/zenmoney/types';
+import type { ZenmoneyTokenResponse } from '$lib/server/zenmoney/types';
 
 export const GET = async ({
   cookies,
@@ -14,7 +14,7 @@ export const GET = async ({
   cookies: Cookies;
   fetch: typeof globalThis.fetch;
 }) => {
-  const config = getZenMoneyServerConfig();
+  const config = getZenmoneyServerConfig();
   if (!config.oauthEnabled) {
     return json({ message: 'OAuth disabled' }, { status: 404 });
   }
@@ -48,7 +48,7 @@ export const GET = async ({
       return json({ message: 'Refresh failed' }, { status: 401 });
     }
 
-    const tokenData = (await refreshResponse.json()) as ZenMoneyTokenResponse;
+    const tokenData = (await refreshResponse.json()) as ZenmoneyTokenResponse;
     session.accessToken = tokenData.access_token;
     session.accessTokenExpiresAt = Date.now() + tokenData.expires_in * 1000;
     if (tokenData.refresh_token) {

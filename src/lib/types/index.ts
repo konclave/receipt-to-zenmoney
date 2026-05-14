@@ -59,30 +59,30 @@ export interface Settings {
   openrouterModel: string;
 }
 
-export interface ZenMoneyTag {
+export interface ZenmoneyTag {
   id: string;
   title: string;
   parent: string | null;
 }
 
-export interface ZenMoneyAccount {
+export interface ZenmoneyAccount {
   id: string;
   title: string;
 }
 
-export interface ZenMoneyUser {
+export interface ZenmoneyUser {
   id: number;
 }
 
-export interface ZenMoneyInstrument {
+export interface ZenmoneyInstrument {
   id: number;
   shortTitle: string;
 }
 
-export interface ZenMoneySyncResponse {
+export interface ZenmoneySyncResponse {
   serverTimestamp: number;
-  user: ZenMoneyUser[];
-  instrument: ZenMoneyInstrument[];
-  tag: ZenMoneyTag[];
-  account: ZenMoneyAccount[];
+  user: ZenmoneyUser[];
+  instrument: ZenmoneyInstrument[];
+  tag: ZenmoneyTag[];
+  account: ZenmoneyAccount[];
 }

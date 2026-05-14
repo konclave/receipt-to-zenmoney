@@ -8,7 +8,7 @@ import {
 import { encryptRefreshToken, decryptRefreshToken } from './crypto';
 
 describe('buildAuthorizeUrl', () => {
-  it('builds ZenMoney authorize URL from server config', () => {
+  it('builds Zenmoney authorize URL from server config', () => {
     const url = buildAuthorizeUrl({
       clientId: 'client-id',
       redirectUri: 'https://app.example.com/api/zenmoney/oauth/callback',

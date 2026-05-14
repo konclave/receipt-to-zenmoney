@@ -71,8 +71,8 @@ In `src/lib/db/index.ts`, update `AppDB` to add the new store:
 interface AppDB {
   settings: { key: string; value: string | number };
   categories: { key: string; value: Category };
-  accounts: { key: string; value: ZenMoneyAccount };
-  instruments: { key: number; value: ZenMoneyInstrument };
+  accounts: { key: string; value: ZenmoneyAccount };
+  instruments: { key: number; value: ZenmoneyInstrument };
   transactions: {
     key: string;
     value: Transaction;
@@ -117,8 +117,8 @@ import type {
   Category,
   Transaction,
   PendingCapture,
-  ZenMoneyAccount,
-  ZenMoneyInstrument,
+  ZenmoneyAccount,
+  ZenmoneyInstrument,
   ReceiptImage,
 } from '$lib/types';
 ```
@@ -773,14 +773,14 @@ async function handleSubmit() {
 
   try {
     const settings = await getSettings()
-    if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
+    if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set')
     if (!reviewAccountId)
-      throw new Error('No ZenMoney account available — go to Settings and reload categories')
+      throw new Error('No Zenmoney account available — go to Settings and reload categories')
     if (!settings.zenmoneyUserId)
-      throw new Error('No ZenMoney user ID — go to Settings and reload categories')
+      throw new Error('No Zenmoney user ID — go to Settings and reload categories')
     const instrument = await getInstrumentByCurrency(tx.currency)
     if (!instrument)
-      throw new Error(`No ZenMoney instrument for currency ${tx.currency} — go to Settings and reload categories`)
+      throw new Error(`No Zenmoney instrument for currency ${tx.currency} — go to Settings and reload categories`)
     const payload = buildTransactionPayload(tx, reviewAccountId, settings.zenmoneyUserId, instrument.id)
     const diffResponse = await syncDiff(settings.zenmoneyToken, settings.zenmoneyServerTimestamp, [payload])
     await saveSettings({ zenmoneyServerTimestamp: diffResponse.serverTimestamp })
@@ -977,15 +977,15 @@ Replace the contents of `src/routes/history/+page.svelte`:
 
   async function retryTransaction(tx: Transaction): Promise<void> {
     const settings = await getSettings()
-    if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
+    if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set')
     const accountId = tx.accountId || settings.zenmoneyAccountId
     if (!accountId)
-      throw new Error('No ZenMoney account set — go to Settings → Reload Categories')
+      throw new Error('No Zenmoney account set — go to Settings → Reload Categories')
     if (!settings.zenmoneyUserId)
-      throw new Error('No ZenMoney user ID — go to Settings → Reload Categories')
+      throw new Error('No Zenmoney user ID — go to Settings → Reload Categories')
     const instrument = await getInstrumentByCurrency(tx.currency)
     if (!instrument)
-      throw new Error(`No ZenMoney instrument for currency ${tx.currency} — go to Settings → Reload Categories`)
+      throw new Error(`No Zenmoney instrument for currency ${tx.currency} — go to Settings → Reload Categories`)
 
     await updateTransaction(tx.id, { status: 'pending' })
     transactions = await getTransactions()

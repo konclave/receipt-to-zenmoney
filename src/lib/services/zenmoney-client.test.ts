@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { runZenMoneyRequest } from './zenmoney-client';
+import { runZenmoneyRequest } from './zenmoney-client';
 
-describe('runZenMoneyRequest', () => {
+describe('runZenmoneyRequest', () => {
   it('retries once with a fresh token after a 401', async () => {
     const tokenProvider = vi
       .fn()
@@ -10,10 +10,10 @@ describe('runZenMoneyRequest', () => {
     const authModeProvider = vi.fn().mockResolvedValue('oauth');
     const request = vi
       .fn()
-      .mockRejectedValueOnce(new Error('ZenMoney API error: 401 Unauthorized'))
+      .mockRejectedValueOnce(new Error('Zenmoney API error: 401 Unauthorized'))
       .mockResolvedValueOnce({ ok: true });
 
-    await expect(runZenMoneyRequest(tokenProvider, authModeProvider, request)).resolves.toEqual({
+    await expect(runZenmoneyRequest(tokenProvider, authModeProvider, request)).resolves.toEqual({
       ok: true,
     });
     expect(tokenProvider).toHaveBeenCalledTimes(2);
@@ -23,9 +23,9 @@ describe('runZenMoneyRequest', () => {
   it('does not loop forever on repeated 401 errors', async () => {
     const tokenProvider = vi.fn().mockResolvedValue('token');
     const authModeProvider = vi.fn().mockResolvedValue('oauth');
-    const request = vi.fn().mockRejectedValue(new Error('ZenMoney API error: 401 Unauthorized'));
+    const request = vi.fn().mockRejectedValue(new Error('Zenmoney API error: 401 Unauthorized'));
 
-    await expect(runZenMoneyRequest(tokenProvider, authModeProvider, request)).rejects.toThrow(
+    await expect(runZenmoneyRequest(tokenProvider, authModeProvider, request)).rejects.toThrow(
       '401',
     );
     expect(request).toHaveBeenCalledTimes(2);
@@ -34,9 +34,9 @@ describe('runZenMoneyRequest', () => {
   it('does not force-refresh manual-token mode', async () => {
     const tokenProvider = vi.fn().mockResolvedValue('manual-token');
     const authModeProvider = vi.fn().mockResolvedValue('manual');
-    const request = vi.fn().mockRejectedValue(new Error('ZenMoney API error: 401 Unauthorized'));
+    const request = vi.fn().mockRejectedValue(new Error('Zenmoney API error: 401 Unauthorized'));
 
-    await expect(runZenMoneyRequest(tokenProvider, authModeProvider, request)).rejects.toThrow(
+    await expect(runZenmoneyRequest(tokenProvider, authModeProvider, request)).rejects.toThrow(
       '401',
     );
     expect(tokenProvider).toHaveBeenCalledTimes(1);

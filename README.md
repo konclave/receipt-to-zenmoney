@@ -1,8 +1,8 @@
-# Receipt to ZenMoney
+# Receipt to Zenmoney
 
-A mobile-first PWA that photographs receipts, extracts transaction data using Claude AI, and imports it directly into [ZenMoney](https://zenmoney.ru).
+A mobile-first PWA that photographs receipts, extracts transaction data using Claude AI, and imports it directly into [Zenmoney](https://zenmoney.ru).
 
-The app always supports a manual ZenMoney personal token. It can also expose a ZenMoney OAuth flow backed by a minimal Vercel auth broker when the deployer enables it.
+The app always supports a manual Zenmoney personal token. It can also expose a Zenmoney OAuth flow backed by a minimal Vercel auth broker when the deployer enables it.
 
 ## How it works
 
@@ -10,7 +10,7 @@ The app always supports a manual ZenMoney personal token. It can also expose a Z
 2. Take a photo of a receipt (or pick one from your gallery)
 3. Claude AI extracts the amount, merchant name, and best-matching category
 4. Review and correct the parsed values if needed
-5. Tap **Submit to ZenMoney** — the transaction is saved
+5. Tap **Submit to Zenmoney** — the transaction is saved
 
 ## First-time setup
 
@@ -19,16 +19,16 @@ The app will redirect you to **Settings** on first launch.
 **Claude API key**
 Get yours at [console.anthropic.com](https://console.anthropic.com). The key is used locally — it never leaves your device.
 
-**ZenMoney token**
-Get yours at [app.zenmoney.ru/consumer](https://app.zenmoney.ru/consumer/). Paste it into the ZenMoney Token field.
+**Zenmoney token**
+Get yours at [app.zenmoney.ru/consumer](https://app.zenmoney.ru/consumer/). Paste it into the Zenmoney Token field.
 
-**ZenMoney OAuth (optional)**
-If the deployer enables `PUBLIC_ZENMONEY_OAUTH_ENABLED=true`, Settings also shows a ZenMoney OAuth connect flow. The browser stores only the short-lived ZenMoney `access_token`; the Vercel backend keeps the `client_secret` and refresh token server-side.
+**Zenmoney OAuth (optional)**
+If the deployer enables `PUBLIC_ZENMONEY_OAUTH_ENABLED=true`, Settings also shows a Zenmoney OAuth connect flow. The browser stores only the short-lived Zenmoney `access_token`; the Vercel backend keeps the `client_secret` and refresh token server-side.
 
 **Load categories**
-After saving both keys, tap **Reload Categories**. This fetches your ZenMoney tags and saves them locally so the AI can pick the right one. If you have a single account it is selected automatically; if you have multiple, a picker appears — choose your default.
+After saving both keys, tap **Reload Categories**. This fetches your Zenmoney tags and saves them locally so the AI can pick the right one. If you have a single account it is selected automatically; if you have multiple, a picker appears — choose your default.
 
-You only need to do this once. Tap **Reload Categories** again any time your ZenMoney tags change.
+You only need to do this once. Tap **Reload Categories** again any time your Zenmoney tags change.
 
 ## Running locally (development)
 
@@ -39,7 +39,7 @@ pnpm dev
 
 Open `http://localhost:5173` in your browser, or use your LAN IP (e.g. `http://192.168.x.x:5173`) to test on a phone.
 
-For manual-token mode, no ZenMoney server env vars are required.
+For manual-token mode, no Zenmoney server env vars are required.
 
 To test OAuth locally, copy `.env.example` and set:
 
@@ -51,7 +51,7 @@ ZENMONEY_TOKEN_ENCRYPTION_KEY=
 PUBLIC_ZENMONEY_OAUTH_ENABLED=true
 ```
 
-`ZENMONEY_TOKEN_ENCRYPTION_KEY` is a private server-side secret used to encrypt the ZenMoney `refresh_token` before it is stored in the broker session store. Generate it with:
+`ZENMONEY_TOKEN_ENCRYPTION_KEY` is a private server-side secret used to encrypt the Zenmoney `refresh_token` before it is stored in the broker session store. Generate it with:
 
 ```sh
 openssl rand -hex 32
@@ -79,9 +79,9 @@ pnpm preview
 
 ## Key storage and security
 
-Your Claude API key, manual ZenMoney token, and cached ZenMoney OAuth access token are encrypted with AES-GCM-256 before being written to IndexedDB. The encryption key is generated once, stored as a non-extractable `CryptoKey` object in a separate IndexedDB store, and never serialised to a string. It cannot be read back by JavaScript — only used for encrypt/decrypt operations within the same browser origin.
+Your Claude API key, manual Zenmoney token, and cached Zenmoney OAuth access token are encrypted with AES-GCM-256 before being written to IndexedDB. The encryption key is generated once, stored as a non-extractable `CryptoKey` object in a separate IndexedDB store, and never serialised to a string. It cannot be read back by JavaScript — only used for encrypt/decrypt operations within the same browser origin.
 
-When OAuth is enabled, the ZenMoney `client_secret` and refresh token are never stored in browser-accessible app state. They stay in the Vercel broker session.
+When OAuth is enabled, the Zenmoney `client_secret` and refresh token are never stored in browser-accessible app state. They stay in the Vercel broker session.
 
 This protects your credentials from casual inspection (DevTools, browser backups, exported storage). It does not protect against malicious code running on the same origin, which is an inherent limitation of any client-side secret store. For a personal single-user tool this is the appropriate trade-off.
 
@@ -108,7 +108,7 @@ After opening the production build in a mobile browser, use the browser menu to 
 - [idb](https://github.com/jakearchibald/idb) — IndexedDB wrapper for local storage
 - [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) — AES-GCM encryption for stored API keys
 - [@anthropic-ai/sdk](https://github.com/anthropic-ai/sdk-js) — Claude AI for receipt parsing
-- [@vercel/kv](https://vercel.com/docs/storage/vercel-kv) — broker session storage for ZenMoney OAuth
+- [@vercel/kv](https://vercel.com/docs/storage/vercel-kv) — broker session storage for Zenmoney OAuth
 - [vite-plugin-pwa](https://vite-pwa-org.netlify.app) — service worker and PWA manifest
 - [Vitest](https://vitest.dev) — unit testing
 - [oxlint](https://oxc.rs/docs/guide/usage/linter) + [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) — linting and formatting

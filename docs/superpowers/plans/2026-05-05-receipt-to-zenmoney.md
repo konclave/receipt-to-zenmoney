@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a mobile-first PWA that photographs receipts, uses Claude AI to extract amount/merchant/category, and submits transactions to ZenMoney — with no backend; user stores their own API keys locally in the browser.
+**Goal:** Build a mobile-first PWA that photographs receipts, uses Claude AI to extract amount/merchant/category, and submits transactions to Zenmoney — with no backend; user stores their own API keys locally in the browser.
 
-**Architecture:** Pure client-side SvelteKit app with `adapter-static` (SPA mode, static export). User provides their own Claude API key and ZenMoney token, stored AES-GCM encrypted in IndexedDB. All API calls go directly from the browser. Service worker provides offline shell.
+**Architecture:** Pure client-side SvelteKit app with `adapter-static` (SPA mode, static export). User provides their own Claude API key and Zenmoney token, stored AES-GCM encrypted in IndexedDB. All API calls go directly from the browser. Service worker provides offline shell.
 
 **Tech Stack:** SvelteKit 2 + Svelte 5, TypeScript, Melt UI next-gen (`melt` package, headless WAI-ARIA primitives), Svelte scoped CSS + CSS custom properties, `vite-plugin-pwa`, `idb`, `@anthropic-ai/sdk`, Vitest + `fake-indexeddb`, `oxlint`, `oxfmt`, `pnpm`
 
@@ -34,7 +34,7 @@
 - `src/routes/+layout.ts` — `prerender = true`, `ssr = false`
 - `src/routes/+layout.svelte` — bottom nav + first-launch redirect
 - `src/routes/+page.svelte` — Capture screen (camera viewfinder + file picker)
-- `src/routes/review/+page.svelte` — Review & edit parsed receipt, submit to ZenMoney
+- `src/routes/review/+page.svelte` — Review & edit parsed receipt, submit to Zenmoney
 - `src/routes/history/+page.svelte` — Local transaction history list
 - `src/routes/settings/+page.svelte` — API keys, token, category reload, account picker
 - `src/lib/components/CategoryPicker.svelte` — Melt UI Select wrapper
@@ -197,21 +197,21 @@ export interface Settings {
   zenmoneyAccountId: string
 }
 
-export interface ZenMoneyTag {
+export interface ZenmoneyTag {
   id: string
   title: string
   parent: string | null
 }
 
-export interface ZenMoneyAccount {
+export interface ZenmoneyAccount {
   id: string
   title: string
 }
 
-export interface ZenMoneySyncResponse {
+export interface ZenmoneySyncResponse {
   serverTimestamp: number
-  tag: ZenMoneyTag[]
-  account: ZenMoneyAccount[]
+  tag: ZenmoneyTag[]
+  account: ZenmoneyAccount[]
 }
 ```
 
@@ -689,7 +689,7 @@ git commit -m "feat: add IndexedDB layer for settings, categories, and transacti
 
 ---
 
-## Task 5: ZenMoney Service (TDD)
+## Task 5: Zenmoney Service (TDD)
 
 **Files:** `src/lib/services/zenmoney.test.ts`, `src/lib/services/zenmoney.ts`
 
@@ -699,9 +699,9 @@ git commit -m "feat: add IndexedDB layer for settings, categories, and transacti
 // src/lib/services/zenmoney.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { syncDiff, mapResponseToCategories, buildTransactionPayload } from './zenmoney'
-import type { ZenMoneySyncResponse, Transaction } from '$lib/types'
+import type { ZenmoneySyncResponse, Transaction } from '$lib/types'
 
-const MOCK_RESPONSE: ZenMoneySyncResponse = {
+const MOCK_RESPONSE: ZenmoneySyncResponse = {
   serverTimestamp: 1746441600,
   tag: [
     { id: 'tag-1', title: 'Groceries', parent: null },
@@ -777,7 +777,7 @@ describe('mapResponseToCategories', () => {
 })
 
 describe('buildTransactionPayload', () => {
-  it('builds correct ZenMoney transaction object', () => {
+  it('builds correct Zenmoney transaction object', () => {
     const tx: Transaction = {
       id: 'local-uuid',
       zenmoneyId: null,
@@ -816,7 +816,7 @@ Expected: FAIL — `Cannot find module './zenmoney'`
 
 ```typescript
 // src/lib/services/zenmoney.ts
-import type { Category, Transaction, ZenMoneySyncResponse } from '$lib/types'
+import type { Category, Transaction, ZenmoneySyncResponse } from '$lib/types'
 
 const BASE_URL = 'https://api.zenmoney.ru'
 
@@ -824,7 +824,7 @@ export async function syncDiff(
   token: string,
   serverTimestamp: number,
   transactions: object[] = []
-): Promise<ZenMoneySyncResponse> {
+): Promise<ZenmoneySyncResponse> {
   const response = await fetch(`${BASE_URL}/v8/diff`, {
     method: 'POST',
     headers: {
@@ -838,12 +838,12 @@ export async function syncDiff(
     })
   })
   if (!response.ok) {
-    throw new Error(`ZenMoney API error: ${response.status} ${response.statusText}`)
+    throw new Error(`Zenmoney API error: ${response.status} ${response.statusText}`)
   }
   return response.json()
 }
 
-export function mapResponseToCategories(response: ZenMoneySyncResponse): Category[] {
+export function mapResponseToCategories(response: ZenmoneySyncResponse): Category[] {
   const now = Date.now()
   return response.tag.map((tag) => ({
     id: tag.id,
@@ -880,7 +880,7 @@ Expected: PASS — 7 tests pass.
 
 ```bash
 git add src/lib/services/zenmoney.ts src/lib/services/zenmoney.test.ts
-git commit -m "feat: add ZenMoney sync API service"
+git commit -m "feat: add Zenmoney sync API service"
 ```
 
 ---
@@ -1239,13 +1239,13 @@ git commit -m "feat: add app layout with bottom nav and first-launch redirect"
   import { getSettings, saveSettings } from '$lib/db/settings'
   import { getCategories, saveCategories } from '$lib/db/categories'
   import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney'
-  import type { ZenMoneyAccount } from '$lib/types'
+  import type { ZenmoneyAccount } from '$lib/types'
 
   let claudeApiKey = $state('')
   let zenmoneyToken = $state('')
   let categoryCount = $state(0)
   let lastSyncDate = $state<string | null>(null)
-  let accounts = $state<ZenMoneyAccount[]>([])
+  let accounts = $state<ZenmoneyAccount[]>([])
   let selectedAccountId = $state('')
   let saving = $state(false)
   let syncing = $state(false)
@@ -1282,7 +1282,7 @@ git commit -m "feat: add app layout with bottom nav and first-launch redirect"
     error = null
     try {
       const s = await getSettings()
-      if (!s.zenmoneyToken) throw new Error('ZenMoney token is required')
+      if (!s.zenmoneyToken) throw new Error('Zenmoney token is required')
       const response = await syncDiff(s.zenmoneyToken, 0)
       const cats = mapResponseToCategories(response)
       await saveCategories(cats)
@@ -1316,9 +1316,9 @@ git commit -m "feat: add app layout with bottom nav and first-launch redirect"
   </section>
 
   <section>
-    <label for="zm-token">ZenMoney Token</label>
+    <label for="zm-token">Zenmoney Token</label>
     <input id="zm-token" type="password" bind:value={zenmoneyToken}
-      placeholder="Paste your ZenMoney token" autocomplete="off" />
+      placeholder="Paste your Zenmoney token" autocomplete="off" />
     <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
   </section>
 
@@ -1704,7 +1704,7 @@ git commit -m "feat: add CategoryPicker component using Melt UI Select"
     await saveTransaction(tx)
     try {
       const settings = await getSettings()
-      if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
+      if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set')
       if (!settings.zenmoneyAccountId)
         throw new Error('No default account set — go to Settings → Reload Categories')
       const payload = buildTransactionPayload(tx, settings.zenmoneyAccountId)
@@ -1763,7 +1763,7 @@ git commit -m "feat: add CategoryPicker component using Melt UI Select"
         <input id="date" type="date" bind:value={date} required />
       </div>
       <button type="submit" class="btn-primary" disabled={submitting}>
-        {submitting ? 'Submitting…' : 'Submit to ZenMoney'}
+        {submitting ? 'Submitting…' : 'Submit to Zenmoney'}
       </button>
     </form>
   {/if}
@@ -1795,17 +1795,17 @@ git commit -m "feat: add CategoryPicker component using Melt UI Select"
 pnpm dev
 ```
 
-1. Go to /settings, enter valid Claude API key + ZenMoney token, click "Reload Categories"
+1. Go to /settings, enter valid Claude API key + Zenmoney token, click "Reload Categories"
 2. Go to / (Capture), take a photo or upload a receipt image
 3. Verify Review screen shows: thumbnail, parsing spinner, then pre-filled form
 4. Check the category picker opens and shows categories
-5. Click "Submit to ZenMoney" — should navigate to /history
+5. Click "Submit to Zenmoney" — should navigate to /history
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add src/routes/review/
-git commit -m "feat: add review screen with Claude parsing and ZenMoney submission"
+git commit -m "feat: add review screen with Claude parsing and Zenmoney submission"
 ```
 
 ---
@@ -1963,9 +1963,9 @@ Expected output: `Icons created` and two PNG files in `static/icons/`.
 
 ```json
 {
-  "name": "Receipt to ZenMoney",
+  "name": "Receipt to Zenmoney",
   "short_name": "ReceiptZM",
-  "description": "Photograph receipts and import transactions into ZenMoney",
+  "description": "Photograph receipts and import transactions into Zenmoney",
   "theme_color": "#6c63ff",
   "background_color": "#0f1117",
   "display": "standalone",
@@ -1993,9 +1993,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Receipt to ZenMoney',
+        name: 'Receipt to Zenmoney',
         short_name: 'ReceiptZM',
-        description: 'Photograph receipts and import transactions into ZenMoney',
+        description: 'Photograph receipts and import transactions into Zenmoney',
         theme_color: '#6c63ff',
         background_color: '#0f1117',
         display: 'standalone',
@@ -2031,11 +2031,11 @@ Open http://localhost:4173. Check:
 - DevTools → Application → Manifest: shows app name, icons, standalone display
 - Browser address bar or menu should offer "Install app" / "Add to Home Screen"
 
-- [ ] **Step 5: Test CORS for ZenMoney API**
+- [ ] **Step 5: Test CORS for Zenmoney API**
 
-In the running preview app, go to Settings, enter your ZenMoney token, click "Reload Categories". Check DevTools → Network.
+In the running preview app, go to Settings, enter your Zenmoney token, click "Reload Categories". Check DevTools → Network.
 
-- If **200 OK**: ZenMoney CORS works — categories load. Done.
+- If **200 OK**: Zenmoney CORS works — categories load. Done.
 - If **CORS error**: document in a new GitHub issue. Workaround: deploy a Cloudflare Worker as a thin proxy (out of scope for this plan; create a separate task).
 
 - [ ] **Step 6: Run the full test suite**
@@ -2060,10 +2060,10 @@ git commit -m "feat: add PWA configuration with service worker and app manifest"
 After all tasks complete, run through this end-to-end flow:
 
 1. **Setup:** `pnpm dev` → open on mobile browser via LAN IP (e.g. http://192.168.x.x:5173)
-2. **First launch:** redirects to Settings → enter Claude API key + ZenMoney token → Save → Reload Categories → `N categories cached`
+2. **First launch:** redirects to Settings → enter Claude API key + Zenmoney token → Save → Reload Categories → `N categories cached`
 3. **Capture:** tap Capture tab → camera opens → take receipt photo
 4. **Parse:** Review screen shows thumbnail → spinner → form pre-filled with amount, merchant, category
-5. **Submit:** confirm values → Submit to ZenMoney → navigates to History, entry appears with `submitted` badge
-6. **Verify in ZenMoney:** open ZenMoney app → transaction appears
+5. **Submit:** confirm values → Submit to Zenmoney → navigates to History, entry appears with `submitted` badge
+6. **Verify in Zenmoney:** open Zenmoney app → transaction appears
 7. **Offline:** disable network → History still shows locally; Capture still works → re-enable → pending transaction retries on next submit
 8. **PWA install:** `pnpm build && pnpm preview` → browser offers install → installs → opens without browser chrome

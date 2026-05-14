@@ -2,14 +2,14 @@ import { getSettings, saveSettings } from '$lib/db/settings';
 import { getCategories, saveCategories } from '$lib/db/categories';
 import { getAccounts, saveAccounts } from '$lib/db/accounts';
 import { saveInstruments } from '$lib/db/instruments';
-import { clearZenMoneyAccessToken } from '$lib/services/zenmoney-access';
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { clearZenmoneyAccessToken } from '$lib/services/zenmoney-access';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
 import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney';
 import { exportBackup, importBackup, exportBackupForPeriod } from '$lib/services/backup';
 import { getStorageStats } from '$lib/services/storage-stats';
 import { deleteTransactionsByPeriod } from '$lib/db/transactions';
 import { bulkDeleteReceiptImages } from '$lib/db/receipt-images';
-import type { Settings, ZenMoneyAccount } from '$lib/types';
+import type { Settings, ZenmoneyAccount } from '$lib/types';
 import type { StorageStats } from '$lib/services/storage-stats';
 
 export type AiSettingsInput = Pick<
@@ -26,14 +26,14 @@ export interface LoadPageSnapshotResult {
   settings: Settings;
   categoryCount: number;
   lastSyncDate: string | null;
-  accounts: ZenMoneyAccount[];
+  accounts: ZenmoneyAccount[];
   storageStats: StorageStats | null;
 }
 
-export interface ReloadZenMoneyDataResult {
+export interface ReloadZenmoneyDataResult {
   categoryCount: number;
   lastSyncDate: string | null;
-  accounts: ZenMoneyAccount[];
+  accounts: ZenmoneyAccount[];
   selectedAccountId: string;
 }
 
@@ -41,9 +41,9 @@ export interface SettingsRepository {
   loadPageSnapshot(input: LoadPageSnapshotInput): Promise<LoadPageSnapshotResult>;
   fetchOpenRouterModels(): Promise<Array<{ id: string; name: string }>>;
   saveAiSettings(input: AiSettingsInput): Promise<void>;
-  saveManualZenMoneyToken(token: string): Promise<void>;
-  disconnectZenMoney(): Promise<void>;
-  reloadZenMoneyData(): Promise<ReloadZenMoneyDataResult>;
+  saveManualZenmoneyToken(token: string): Promise<void>;
+  disconnectZenmoney(): Promise<void>;
+  reloadZenmoneyData(): Promise<ReloadZenmoneyDataResult>;
   saveDefaultAccount(accountId: string): Promise<void>;
   exportBackup: typeof exportBackup;
   importBackup: typeof importBackup;
@@ -51,7 +51,7 @@ export interface SettingsRepository {
   getStorageStats: typeof getStorageStats;
   deleteTransactionsByPeriod: typeof deleteTransactionsByPeriod;
   bulkDeleteReceiptImages: typeof bulkDeleteReceiptImages;
-  clearZenMoneyAccessToken: typeof clearZenMoneyAccessToken;
+  clearZenmoneyAccessToken: typeof clearZenmoneyAccessToken;
 }
 
 interface OpenRouterModel {
@@ -68,7 +68,7 @@ interface OpenRouterModelsResponse {
   data: OpenRouterModel[];
 }
 
-function sortAccounts(accounts: ZenMoneyAccount[]): ZenMoneyAccount[] {
+function sortAccounts(accounts: ZenmoneyAccount[]): ZenmoneyAccount[] {
   return [...accounts].sort((left, right) => left.title.localeCompare(right.title));
 }
 
@@ -129,22 +129,22 @@ async function saveAiSettings(input: AiSettingsInput): Promise<void> {
   await saveSettings(input);
 }
 
-async function saveManualZenMoneyToken(token: string): Promise<void> {
+async function saveManualZenmoneyToken(token: string): Promise<void> {
   await saveSettings({ zenmoneyToken: token });
 }
 
-async function disconnectZenMoney(): Promise<void> {
+async function disconnectZenmoney(): Promise<void> {
   await fetch('/api/zenmoney/logout', {
     method: 'POST',
     credentials: 'include',
   }).catch(() => {});
-  await clearZenMoneyAccessToken();
+  await clearZenmoneyAccessToken();
   await saveSettings({ zenmoneyToken: '' });
 }
 
-async function reloadZenMoneyData(): Promise<ReloadZenMoneyDataResult> {
+async function reloadZenmoneyData(): Promise<ReloadZenmoneyDataResult> {
   const lastSyncDate = new Date().toLocaleDateString();
-  const response = await runZenMoneyRequestWithStoredToken((token) => syncDiff(token, 0));
+  const response = await runZenmoneyRequestWithStoredToken((token) => syncDiff(token, 0));
   const categories = mapResponseToCategories(response);
   const accounts = sortAccounts(response.account);
   const selectedAccountId = accounts.length === 1 ? accounts[0].id : '';
@@ -178,9 +178,9 @@ export function createSettingsRepository(): SettingsRepository {
     loadPageSnapshot,
     fetchOpenRouterModels,
     saveAiSettings,
-    saveManualZenMoneyToken,
-    disconnectZenMoney,
-    reloadZenMoneyData,
+    saveManualZenmoneyToken,
+    disconnectZenmoney,
+    reloadZenmoneyData,
     saveDefaultAccount,
     exportBackup,
     importBackup,
@@ -188,7 +188,7 @@ export function createSettingsRepository(): SettingsRepository {
     getStorageStats,
     deleteTransactionsByPeriod,
     bulkDeleteReceiptImages,
-    clearZenMoneyAccessToken,
+    clearZenmoneyAccessToken,
   };
   return repository;
 }

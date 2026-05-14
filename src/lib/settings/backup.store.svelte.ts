@@ -13,7 +13,9 @@ function getBackupDate(): string {
 }
 
 async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<boolean> {
-  const file = new File([blob], filename, { type: blob.type || 'application/gzip' });
+  const file = new File([blob], filename, {
+    type: blob.type || 'application/gzip',
+  });
 
   if (
     typeof navigator !== 'undefined' &&
@@ -24,7 +26,7 @@ async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<bool
     try {
       await navigator.share({
         files: [file],
-        title: 'ZenMoney Backup',
+        title: 'Zenmoney Backup',
       });
       return true;
     } catch (cause) {

@@ -1,13 +1,13 @@
 import type { Settings } from '$lib/types';
 
-interface ZenMoneyConnectionRepo {
-  saveManualZenMoneyToken(token: string): Promise<void>;
-  disconnectZenMoney(): Promise<void>;
+interface ZenmoneyConnectionRepo {
+  saveManualZenmoneyToken(token: string): Promise<void>;
+  disconnectZenmoney(): Promise<void>;
 }
 
-export function createZenMoneyConnectionStore(
+export function createZenmoneyConnectionStore(
   initial: Pick<Settings, 'zenmoneyToken' | 'zenmoneyAccessToken'>,
-  repo: ZenMoneyConnectionRepo,
+  repo: ZenmoneyConnectionRepo,
 ) {
   let manualToken = $state(initial.zenmoneyToken);
   let savedManualToken = $state(initial.zenmoneyToken);
@@ -31,7 +31,7 @@ export function createZenMoneyConnectionStore(
     const tokenToSave = manualToken;
 
     try {
-      await repo.saveManualZenMoneyToken(tokenToSave);
+      await repo.saveManualZenmoneyToken(tokenToSave);
       savedManualToken = tokenToSave;
       success = 'Saved';
     } catch (cause) {
@@ -48,7 +48,7 @@ export function createZenMoneyConnectionStore(
     success = null;
 
     try {
-      await repo.disconnectZenMoney();
+      await repo.disconnectZenmoney();
       manualToken = '';
       savedManualToken = '';
       savedAccessToken = '';

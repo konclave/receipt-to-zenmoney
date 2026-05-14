@@ -30,7 +30,14 @@ describe('createCleanupStore', () => {
     const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
-    return { click, remove, createElement, createObjectURL, revokeObjectURL, link };
+    return {
+      click,
+      remove,
+      createElement,
+      createObjectURL,
+      revokeObjectURL,
+      link,
+    };
   }
 
   it('builds the all-years cleanup target from the summed yearly counts and total bytes', () => {
@@ -135,7 +142,7 @@ describe('createCleanupStore', () => {
 
     expect(repo.exportBackupForPeriod).toHaveBeenCalledWith('all');
     const [{ files, title }] = share.mock.calls[0];
-    expect(title).toBe('ZenMoney Backup');
+    expect(title).toBe('Zenmoney Backup');
     expect(files[0].name).toBe('rzm-backup-all-2026-05-10.rzm.gz');
     expect(repo.deleteTransactionsByPeriod).not.toHaveBeenCalled();
     expect(repo.bulkDeleteReceiptImages).not.toHaveBeenCalled();
@@ -182,7 +189,7 @@ describe('createCleanupStore', () => {
 
     expect(repo.exportBackupForPeriod).toHaveBeenCalledWith(2025);
     const [{ files, title }] = share.mock.calls[0];
-    expect(title).toBe('ZenMoney Backup');
+    expect(title).toBe('Zenmoney Backup');
     expect(files[0].name).toBe('rzm-backup-2025.rzm.gz');
     expect(createObjectURL).toHaveBeenCalledWith(blob);
     expect(link.download).toBe('rzm-backup-2025.rzm.gz');

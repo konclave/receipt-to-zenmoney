@@ -1,4 +1,4 @@
-# Receipt to ZenMoney Implementation Review
+# Receipt to Zenmoney Implementation Review
 
 Date: 2026-05-06
 
@@ -6,7 +6,7 @@ Date: 2026-05-06
 
 The application is in good shape overall: the main receipt capture -> parse -> review -> submit flow is clear, the codebase is compact, and the unit coverage around storage and service helpers is solid.
 
-The main improvement areas are reliability of the mobile flow, correctness at the external API boundaries, and recovery from partial failure. Most of the risk is not in the UI itself, but in what happens when the app is refreshed, the AI returns imperfect output, or the ZenMoney sync flow does not behave exactly as expected.
+The main improvement areas are reliability of the mobile flow, correctness at the external API boundaries, and recovery from partial failure. Most of the risk is not in the UI itself, but in what happens when the app is refreshed, the AI returns imperfect output, or the Zenmoney sync flow does not behave exactly as expected.
 
 ## Findings
 
@@ -73,7 +73,7 @@ Why it matters:
 Recommendation:
 
 - Persist the fetched account list locally.
-- Or load available accounts on mount using the stored ZenMoney token.
+- Or load available accounts on mount using the stored Zenmoney token.
 
 ## 4. Submission lifecycle needs retry and reconciliation support
 
@@ -92,14 +92,14 @@ There is also a weak assumption in the current flow where `zenmoneyId` is set to
 Why it matters:
 
 - Failed submissions remain stranded.
-- Network interruptions can create ambiguity around whether ZenMoney accepted the transaction.
+- Network interruptions can create ambiguity around whether Zenmoney accepted the transaction.
 - History becomes a dead-end instead of an operational queue.
 
 Recommendation:
 
 - Add retry actions for failed transactions from the history screen.
 - Add a sync/reconciliation step that verifies server state after submission.
-- Clarify whether the ZenMoney API treats the client-supplied ID as the canonical transaction ID.
+- Clarify whether the Zenmoney API treats the client-supplied ID as the canonical transaction ID.
 
 ## 5. Claude output is parsed but not validated
 
@@ -111,7 +111,7 @@ Files:
 
 Problem:
 
-The Claude response is passed through `JSON.parse`, but there is no runtime validation of field shapes or values before the data is used in the form and later sent to ZenMoney.
+The Claude response is passed through `JSON.parse`, but there is no runtime validation of field shapes or values before the data is used in the form and later sent to Zenmoney.
 
 Why it matters:
 
@@ -172,7 +172,7 @@ Recommendation:
 ### Settings UX
 
 - Add field-level validation and clearer error messages for invalid credentials.
-- Consider showing whether the Claude key and ZenMoney token are present without forcing users to re-enter them.
+- Consider showing whether the Claude key and Zenmoney token are present without forcing users to re-enter them.
 
 ### Tooling cleanup
 

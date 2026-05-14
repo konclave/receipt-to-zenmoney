@@ -5,7 +5,7 @@
   import { captureStore } from "$lib/stores/capture";
   import { parseReceipt, type AiConfig } from "$lib/services/claude";
   import { resolveReviewAccountId } from "$lib/services/review-account";
-  import { runZenMoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
+  import { runZenmoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
   import { renderBuyMeACoffeeButton } from "$lib/services/buy-me-a-coffee";
   import { syncDiff, buildTransactionPayload } from "$lib/services/zenmoney";
   import { getAccounts } from "$lib/db/accounts";
@@ -19,11 +19,11 @@
   } from "$lib/db/pending-capture";
   import { saveReceiptImage } from "$lib/db/receipt-images";
   import { cropImage } from "$lib/services/image-crop";
-  import type { Category, PendingCapture, ZenMoneyAccount } from "$lib/types";
+  import type { Category, PendingCapture, ZenmoneyAccount } from "$lib/types";
 
   let capture = $state<PendingCapture | null>(get(captureStore));
   let categories = $state<Category[]>([]);
-  let accounts = $state<ZenMoneyAccount[]>([]);
+  let accounts = $state<ZenmoneyAccount[]>([]);
   let parsing = $state(true);
   let submitting = $state(false);
   let parseError = $state<string | null>(null);
@@ -150,16 +150,16 @@
       const settings = await getSettings();
       if (!reviewAccountId)
         throw new Error(
-          "No ZenMoney account available — go to Settings and reload categories",
+          "No Zenmoney account available — go to Settings and reload categories",
         );
       if (!settings.zenmoneyUserId)
         throw new Error(
-          "No ZenMoney user ID — go to Settings and reload categories",
+          "No Zenmoney user ID — go to Settings and reload categories",
         );
       const instrument = await getInstrumentByCurrency(tx.currency);
       if (!instrument)
         throw new Error(
-          `No ZenMoney instrument for currency ${tx.currency} — go to Settings and reload categories`,
+          `No Zenmoney instrument for currency ${tx.currency} — go to Settings and reload categories`,
         );
       const payload = buildTransactionPayload(
         tx,
@@ -167,7 +167,7 @@
         settings.zenmoneyUserId,
         instrument.id,
       );
-      const diffResponse = await runZenMoneyRequestWithStoredToken((token) =>
+      const diffResponse = await runZenmoneyRequestWithStoredToken((token) =>
         syncDiff(token, settings.zenmoneyServerTimestamp, [payload]),
       );
       await saveSettings({
@@ -261,7 +261,7 @@
         <input id="date" type="date" bind:value={date} required />
       </div>
       <button type="submit" class="btn-primary" disabled={submitting}>
-        {submitting ? "Submitting…" : "Submit to ZenMoney"}
+        {submitting ? "Submitting…" : "Submit to Zenmoney"}
       </button>
       <div class="buy-me-a-coffee" bind:this={buyMeACoffeeHost}></div>
     </form>

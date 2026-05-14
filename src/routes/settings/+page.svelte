@@ -1,16 +1,16 @@
 <!-- src/routes/settings/+page.svelte -->
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { env } from '$env/dynamic/public';
-  import AppFeedback from '$lib/components/AppFeedback.svelte';
-  import AiSettingsSection from '$lib/components/settings/AiSettingsSection.svelte';
-  import BackupRestoreSection from '$lib/components/settings/BackupRestoreSection.svelte';
-  import StorageCleanupSection from '$lib/components/settings/StorageCleanupSection.svelte';
-  import ZenMoneyConnectionSection from '$lib/components/settings/ZenMoneyConnectionSection.svelte';
-  import ZenMoneyDataSection from '$lib/components/settings/ZenMoneyDataSection.svelte';
-  import { createSettingsPageStore } from '$lib/settings/settings-page.store.svelte';
+  import { onMount } from "svelte";
+  import { env } from "$env/dynamic/public";
+  import AppFeedback from "$lib/components/AppFeedback.svelte";
+  import AiSettingsSection from "$lib/components/settings/AiSettingsSection.svelte";
+  import BackupRestoreSection from "$lib/components/settings/BackupRestoreSection.svelte";
+  import StorageCleanupSection from "$lib/components/settings/StorageCleanupSection.svelte";
+  import ZenmoneyConnectionSection from "$lib/components/settings/ZenMoneyConnectionSection.svelte";
+  import ZenmoneyDataSection from "$lib/components/settings/ZenMoneyDataSection.svelte";
+  import { createSettingsPageStore } from "$lib/settings/settings-page.store.svelte";
 
-  const oauthEnabled = env.PUBLIC_ZENMONEY_OAUTH_ENABLED === 'true';
+  const oauthEnabled = env.PUBLIC_ZENMONEY_OAUTH_ENABLED === "true";
   const page = createSettingsPageStore({ oauthEnabled });
 
   let { data }: { data: { appVersion: string } } = $props();
@@ -31,9 +31,9 @@
   {:else if page.ai && page.zenmoneyConnection && page.zenmoneyData && page.backup && page.cleanup}
     <AiSettingsSection store={page.ai} />
     <hr />
-    <ZenMoneyConnectionSection oauthEnabled={oauthEnabled} store={page.zenmoneyConnection} />
+    <ZenmoneyConnectionSection {oauthEnabled} store={page.zenmoneyConnection} />
     <hr />
-    <ZenMoneyDataSection store={page.zenmoneyData} />
+    <ZenmoneyDataSection store={page.zenmoneyData} />
     <hr />
     <BackupRestoreSection store={page.backup} />
     <hr />

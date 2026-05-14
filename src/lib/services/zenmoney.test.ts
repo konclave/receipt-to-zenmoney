@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { syncDiff, mapResponseToCategories, buildTransactionPayload } from './zenmoney';
-import type { ZenMoneySyncResponse, Transaction } from '$lib/types';
+import type { ZenmoneySyncResponse, Transaction } from '$lib/types';
 
-const MOCK_RESPONSE: ZenMoneySyncResponse = {
+const MOCK_RESPONSE: ZenmoneySyncResponse = {
   serverTimestamp: 1746441600,
   user: [{ id: 42 }],
   instrument: [{ id: 2, shortTitle: 'RUB' }],
@@ -47,7 +47,11 @@ describe('syncDiff', () => {
   it('throws on non-OK response', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({ ok: false, status: 401, statusText: 'Unauthorized' }),
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+      }),
     );
     await expect(syncDiff('bad', 0)).rejects.toThrow('401');
   });
@@ -70,7 +74,11 @@ describe('mapResponseToCategories', () => {
   it('maps ZM tags to Category objects', () => {
     const result = mapResponseToCategories(MOCK_RESPONSE);
     expect(result).toHaveLength(3);
-    expect(result[0]).toMatchObject({ id: 'tag-1', title: 'Groceries', parentId: null });
+    expect(result[0]).toMatchObject({
+      id: 'tag-1',
+      title: 'Groceries',
+      parentId: null,
+    });
     expect(result[2]).toMatchObject({ id: 'tag-3', parentId: 'tag-2' });
   });
 
@@ -83,7 +91,7 @@ describe('mapResponseToCategories', () => {
 });
 
 describe('buildTransactionPayload', () => {
-  it('builds correct ZenMoney transaction object', () => {
+  it('builds correct Zenmoney transaction object', () => {
     const tx: Transaction = {
       id: 'local-uuid',
       zenmoneyId: null,

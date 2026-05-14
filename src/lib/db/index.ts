@@ -3,15 +3,15 @@ import type {
   Category,
   Transaction,
   PendingCapture,
-  ZenMoneyAccount,
-  ZenMoneyInstrument,
+  ZenmoneyAccount,
+  ZenmoneyInstrument,
 } from '$lib/types';
 
 interface AppDB {
   settings: { key: string; value: string | number };
   categories: { key: string; value: Category };
-  accounts: { key: string; value: ZenMoneyAccount };
-  instruments: { key: number; value: ZenMoneyInstrument };
+  accounts: { key: string; value: ZenmoneyAccount };
+  instruments: { key: number; value: ZenmoneyInstrument };
   transactions: {
     key: string;
     value: Transaction;
@@ -30,7 +30,9 @@ export async function getDb(): Promise<IDBPDatabase<AppDB>> {
         if (oldVersion < 1) {
           db.createObjectStore('settings');
           db.createObjectStore('categories', { keyPath: 'id' });
-          const txStore = db.createObjectStore('transactions', { keyPath: 'id' });
+          const txStore = db.createObjectStore('transactions', {
+            keyPath: 'id',
+          });
           txStore.createIndex('by-date', 'date');
         }
         if (oldVersion < 2) {

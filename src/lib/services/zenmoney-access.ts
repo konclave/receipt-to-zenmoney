@@ -11,14 +11,14 @@ function tokenNeedsRefresh(expiresAt: number, now = Date.now()): boolean {
   return !expiresAt || expiresAt - now <= REFRESH_WINDOW_MS;
 }
 
-export async function clearZenMoneyAccessToken(): Promise<void> {
+export async function clearZenmoneyAccessToken(): Promise<void> {
   await saveSettings({
     zenmoneyAccessToken: '',
     zenmoneyAccessTokenExpiresAt: 0,
   });
 }
 
-export async function getZenMoneyAccessToken(forceRefresh = false): Promise<string> {
+export async function getZenmoneyAccessToken(forceRefresh = false): Promise<string> {
   if (!isOAuthEnabled()) throw new Error('OAuth not enabled.');
 
   const settings = await getSettings();
@@ -34,8 +34,8 @@ export async function getZenMoneyAccessToken(forceRefresh = false): Promise<stri
     credentials: 'include',
   });
   if (!response.ok) {
-    await clearZenMoneyAccessToken();
-    throw new Error('ZenMoney connection expired. Reconnect in Settings.');
+    await clearZenmoneyAccessToken();
+    throw new Error('Zenmoney connection expired. Reconnect in Settings.');
   }
 
   const data = (await response.json()) as {
@@ -49,7 +49,7 @@ export async function getZenMoneyAccessToken(forceRefresh = false): Promise<stri
   return data.accessToken;
 }
 
-export async function getConfiguredZenMoneyToken(forceRefresh = false): Promise<string> {
+export async function getConfiguredZenmoneyToken(forceRefresh = false): Promise<string> {
   if (isOAuthEnabled()) {
     const settings = await getSettings();
     const hasSession = settings.zenmoneyAccessToken || settings.zenmoneyAccessTokenExpiresAt > 0;
@@ -76,16 +76,16 @@ export async function getConfiguredZenMoneyToken(forceRefresh = false): Promise<
         });
         return data.accessToken;
       }
-      await clearZenMoneyAccessToken();
+      await clearZenmoneyAccessToken();
     }
   }
 
   const settings = await getSettings();
-  if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set');
+  if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set');
   return settings.zenmoneyToken;
 }
 
-export async function getZenMoneyAuthMode(): Promise<'manual' | 'oauth'> {
+export async function getZenmoneyAuthMode(): Promise<'manual' | 'oauth'> {
   if (!isOAuthEnabled()) return 'manual';
   const settings = await getSettings();
   return settings.zenmoneyAccessToken || settings.zenmoneyAccessTokenExpiresAt > 0

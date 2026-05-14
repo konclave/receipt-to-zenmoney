@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createZenMoneyDataStore } from './zenmoney-data.store.svelte';
+import { createZenmoneyDataStore } from './zenmoney-data.store.svelte';
 
-describe('createZenMoneyDataStore', () => {
+describe('createZenmoneyDataStore', () => {
   const repo = {
-    reloadZenMoneyData: vi.fn(),
+    reloadZenmoneyData: vi.fn(),
     saveDefaultAccount: vi.fn(),
   };
 
   beforeEach(() => {
-    repo.reloadZenMoneyData.mockReset();
+    repo.reloadZenmoneyData.mockReset();
     repo.saveDefaultAccount.mockReset();
   });
 
   it('reports whether multiple accounts are available', () => {
-    const singleAccountStore = createZenMoneyDataStore(
+    const singleAccountStore = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -22,7 +22,7 @@ describe('createZenMoneyDataStore', () => {
       },
       repo,
     );
-    const multiAccountStore = createZenMoneyDataStore(
+    const multiAccountStore = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -40,14 +40,14 @@ describe('createZenMoneyDataStore', () => {
   });
 
   it('reloads categories and applies the returned auto-selected account', async () => {
-    repo.reloadZenMoneyData.mockResolvedValue({
+    repo.reloadZenmoneyData.mockResolvedValue({
       categoryCount: 12,
       lastSyncDate: '5/10/2026',
       accounts: [{ id: 'acc-1', title: 'Main account' }],
       selectedAccountId: 'acc-1',
     });
 
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -71,13 +71,13 @@ describe('createZenMoneyDataStore', () => {
       accounts: Array<{ id: string; title: string }>;
       selectedAccountId: string;
     }) => void;
-    repo.reloadZenMoneyData.mockReturnValue(
+    repo.reloadZenmoneyData.mockReturnValue(
       new Promise((resolve) => {
         resolveReload = resolve;
       }),
     );
 
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -112,7 +112,7 @@ describe('createZenMoneyDataStore', () => {
   });
 
   it('persists the current account and clears accountDirty', async () => {
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -141,7 +141,7 @@ describe('createZenMoneyDataStore', () => {
       }),
     );
 
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -169,10 +169,10 @@ describe('createZenMoneyDataStore', () => {
   });
 
   it('sets error when reload or saveAccount fails', async () => {
-    repo.reloadZenMoneyData.mockRejectedValueOnce(new Error('reload failed'));
+    repo.reloadZenmoneyData.mockRejectedValueOnce(new Error('reload failed'));
     repo.saveDefaultAccount.mockRejectedValueOnce(new Error('save failed'));
 
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,

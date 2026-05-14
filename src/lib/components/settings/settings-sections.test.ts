@@ -25,8 +25,8 @@ describe('settings route composition', () => {
 
     expect(settingsPage).toContain('createSettingsPageStore');
     expect(settingsPage).toContain('AiSettingsSection');
-    expect(settingsPage).toContain('ZenMoneyConnectionSection');
-    expect(settingsPage).toContain('ZenMoneyDataSection');
+    expect(settingsPage).toContain('ZenmoneyConnectionSection');
+    expect(settingsPage).toContain('ZenmoneyDataSection');
     expect(settingsPage).toContain('BackupRestoreSection');
     expect(settingsPage).toContain('StorageCleanupSection');
     expect(settingsPage).not.toContain('handleReloadCategories');

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Cookies } from '@sveltejs/kit';
-import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
+import { getZenmoneyServerConfig } from '$lib/server/zenmoney/config';
 import {
   SESSION_COOKIE,
   SESSION_IDLE_TTL_SECONDS,
@@ -9,7 +9,7 @@ import {
 import { encryptRefreshToken } from '$lib/server/zenmoney/crypto';
 import { buildTokenExchangeBody, TOKEN_URL } from '$lib/server/zenmoney/oauth';
 import { buildNewSession, saveSession } from '$lib/server/zenmoney/session-store';
-import type { ZenMoneyTokenResponse } from '$lib/server/zenmoney/types';
+import type { ZenmoneyTokenResponse } from '$lib/server/zenmoney/types';
 
 export const GET = async ({
   cookies,
@@ -20,7 +20,7 @@ export const GET = async ({
   fetch: typeof globalThis.fetch;
   url: URL;
 }) => {
-  const config = getZenMoneyServerConfig();
+  const config = getZenmoneyServerConfig();
   if (!config.oauthEnabled) {
     return new Response(null, {
       status: 302,
@@ -59,7 +59,7 @@ export const GET = async ({
     });
   }
 
-  const tokenData = (await tokenResponse.json()) as ZenMoneyTokenResponse;
+  const tokenData = (await tokenResponse.json()) as ZenmoneyTokenResponse;
   const sessionId = randomUUID();
   const expiresAt = Date.now() + tokenData.expires_in * 1000;
 

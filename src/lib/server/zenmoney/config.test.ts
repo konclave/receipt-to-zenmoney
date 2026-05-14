@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { assertZenMoneyServerConfig } from './config';
+import { assertZenmoneyServerConfig } from './config';
 
-describe('assertZenMoneyServerConfig', () => {
+describe('assertZenmoneyServerConfig', () => {
   it('throws a helpful error when required OAuth env vars are missing', () => {
     expect(() =>
-      assertZenMoneyServerConfig({
+      assertZenmoneyServerConfig({
         clientId: 'client-id',
         clientSecret: '',
         redirectUri: '',
@@ -12,13 +12,13 @@ describe('assertZenMoneyServerConfig', () => {
         oauthEnabled: true,
       }),
     ).toThrow(
-      'ZenMoney OAuth is enabled but server env vars are missing: ZENMONEY_CLIENT_SECRET, ZENMONEY_REDIRECT_URI, ZENMONEY_TOKEN_ENCRYPTION_KEY',
+      'Zenmoney OAuth is enabled but server env vars are missing: ZENMONEY_CLIENT_SECRET, ZENMONEY_REDIRECT_URI, ZENMONEY_TOKEN_ENCRYPTION_KEY',
     );
   });
 
   it('does not require private OAuth env vars when OAuth is disabled', () => {
     expect(
-      assertZenMoneyServerConfig({
+      assertZenmoneyServerConfig({
         clientId: '',
         clientSecret: '',
         redirectUri: '',

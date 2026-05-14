@@ -1,7 +1,7 @@
 import { getDb } from './index';
-import type { ZenMoneyInstrument } from '$lib/types';
+import type { ZenmoneyInstrument } from '$lib/types';
 
-export async function saveInstruments(instruments: ZenMoneyInstrument[]): Promise<void> {
+export async function saveInstruments(instruments: ZenmoneyInstrument[]): Promise<void> {
   const db = await getDb();
   const tx = db.transaction('instruments', 'readwrite');
   await tx.store.clear();
@@ -11,7 +11,7 @@ export async function saveInstruments(instruments: ZenMoneyInstrument[]): Promis
 
 export async function getInstrumentByCurrency(
   currency: string,
-): Promise<ZenMoneyInstrument | undefined> {
+): Promise<ZenmoneyInstrument | undefined> {
   const db = await getDb();
   const all = await db.getAll('instruments');
   return all.find((i) => i.shortTitle === currency);

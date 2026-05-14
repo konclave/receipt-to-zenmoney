@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-describe('ZenMoney OAuth deployment config', () => {
+describe('Zenmoney OAuth deployment config', () => {
   const packageJson = readFileSync(resolve(process.cwd(), 'package.json'), 'utf8');
   const svelteConfig = readFileSync(resolve(process.cwd(), 'svelte.config.js'), 'utf8');
   const envExample = readFileSync(resolve(process.cwd(), '.env.example'), 'utf8');
@@ -13,7 +13,7 @@ describe('ZenMoney OAuth deployment config', () => {
     expect(svelteConfig).toContain('@sveltejs/adapter-vercel');
   });
 
-  it('does not expose ZenMoney OAuth secret material in PUBLIC env vars', () => {
+  it('does not expose Zenmoney OAuth secret material in PUBLIC env vars', () => {
     expect(envExample).not.toMatch(/^PUBLIC_ZENMONEY_CLIENT_SECRET=/m);
     expect(envExample).not.toMatch(/^PUBLIC_ZENMONEY_CLIENT_ID=/m);
     expect(envExample).not.toMatch(/^PUBLIC_ZENMONEY_REDIRECT_URI=/m);

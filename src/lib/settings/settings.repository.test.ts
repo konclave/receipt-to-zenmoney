@@ -6,8 +6,8 @@ import { getAccounts, saveAccounts } from '$lib/db/accounts';
 import { saveInstruments } from '$lib/db/instruments';
 import { getStorageStats } from '$lib/services/storage-stats';
 import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney';
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
-import { clearZenMoneyAccessToken } from '$lib/services/zenmoney-access';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { clearZenmoneyAccessToken } from '$lib/services/zenmoney-access';
 import { exportBackup, importBackup, exportBackupForPeriod } from '$lib/services/backup';
 import { deleteTransactionsByPeriod } from '$lib/db/transactions';
 import { bulkDeleteReceiptImages } from '$lib/db/receipt-images';
@@ -41,11 +41,11 @@ vi.mock('$lib/services/zenmoney', () => ({
 }));
 
 vi.mock('$lib/services/zenmoney-client', () => ({
-  runZenMoneyRequestWithStoredToken: vi.fn(),
+  runZenmoneyRequestWithStoredToken: vi.fn(),
 }));
 
 vi.mock('$lib/services/zenmoney-access', () => ({
-  clearZenMoneyAccessToken: vi.fn(),
+  clearZenmoneyAccessToken: vi.fn(),
 }));
 
 vi.mock('$lib/services/backup', () => ({
@@ -81,8 +81,18 @@ describe('createSettingsRepository', () => {
       openrouterModel: 'openai/gpt-4o',
     });
     vi.mocked(getCategories).mockResolvedValue([
-      { id: 'cat-1', title: 'Groceries', parentId: null, syncedAt: 1746441600000 },
-      { id: 'cat-2', title: 'Transport', parentId: null, syncedAt: 1746528000000 },
+      {
+        id: 'cat-1',
+        title: 'Groceries',
+        parentId: null,
+        syncedAt: 1746441600000,
+      },
+      {
+        id: 'cat-2',
+        title: 'Transport',
+        parentId: null,
+        syncedAt: 1746528000000,
+      },
     ]);
     vi.mocked(getAccounts).mockResolvedValue([
       { id: 'acc-b', title: 'Beta' },
@@ -127,7 +137,7 @@ describe('createSettingsRepository', () => {
     expect(snapshot.storageStats).toBeNull();
   });
 
-  it('reloads ZenMoney data and auto-selects the only account', async () => {
+  it('reloads Zenmoney data and auto-selects the only account', async () => {
     const response = {
       serverTimestamp: 1746441600,
       user: [{ id: 77 }],
@@ -139,11 +149,21 @@ describe('createSettingsRepository', () => {
       account: [{ id: 'acc-1', title: 'Main account' }],
     };
     const mappedCategories = [
-      { id: 'cat-1', title: 'Groceries', parentId: null, syncedAt: 1746441600000 },
-      { id: 'cat-2', title: 'Transport', parentId: 'cat-1', syncedAt: 1746441600000 },
+      {
+        id: 'cat-1',
+        title: 'Groceries',
+        parentId: null,
+        syncedAt: 1746441600000,
+      },
+      {
+        id: 'cat-2',
+        title: 'Transport',
+        parentId: 'cat-1',
+        syncedAt: 1746441600000,
+      },
     ];
 
-    vi.mocked(runZenMoneyRequestWithStoredToken).mockImplementation(async (request) =>
+    vi.mocked(runZenmoneyRequestWithStoredToken).mockImplementation(async (request) =>
       request('stored-token'),
     );
     vi.mocked(syncDiff).mockResolvedValue(response);
@@ -151,9 +171,9 @@ describe('createSettingsRepository', () => {
 
     const expectedLastSyncDate = new Date().toLocaleDateString();
     const repo = createSettingsRepository();
-    const result = await repo.reloadZenMoneyData();
+    const result = await repo.reloadZenmoneyData();
 
-    expect(runZenMoneyRequestWithStoredToken).toHaveBeenCalledTimes(1);
+    expect(runZenmoneyRequestWithStoredToken).toHaveBeenCalledTimes(1);
     expect(syncDiff).toHaveBeenCalledWith('stored-token', 0);
     expect(mapResponseToCategories).toHaveBeenCalledWith(response);
     expect(saveCategories).toHaveBeenCalledWith(mappedCategories);
@@ -179,14 +199,14 @@ describe('createSettingsRepository', () => {
       account: [{ id: 'acc-1', title: 'Main account' }],
     };
 
-    vi.mocked(runZenMoneyRequestWithStoredToken).mockImplementation(async (request) =>
+    vi.mocked(runZenmoneyRequestWithStoredToken).mockImplementation(async (request) =>
       request('stored-token'),
     );
     vi.mocked(syncDiff).mockResolvedValue(response);
     vi.mocked(mapResponseToCategories).mockReturnValue([]);
 
     const repo = createSettingsRepository();
-    const result = await repo.reloadZenMoneyData();
+    const result = await repo.reloadZenmoneyData();
 
     expect(result.categoryCount).toBe(0);
     expect(result.lastSyncDate).not.toBeNull();
@@ -245,18 +265,18 @@ describe('createSettingsRepository', () => {
     );
   });
 
-  it('disconnects ZenMoney even if logout fetch fails', async () => {
+  it('disconnects Zenmoney even if logout fetch fails', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error('network down'));
     vi.stubGlobal('fetch', fetchMock);
 
     const repo = createSettingsRepository();
-    await expect(repo.disconnectZenMoney()).resolves.toBeUndefined();
+    await expect(repo.disconnectZenmoney()).resolves.toBeUndefined();
 
     expect(fetchMock).toHaveBeenCalledWith('/api/zenmoney/logout', {
       method: 'POST',
       credentials: 'include',
     });
-    expect(clearZenMoneyAccessToken).toHaveBeenCalledTimes(1);
+    expect(clearZenmoneyAccessToken).toHaveBeenCalledTimes(1);
     expect(saveSettings).toHaveBeenCalledWith({ zenmoneyToken: '' });
   });
 

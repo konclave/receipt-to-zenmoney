@@ -693,7 +693,7 @@ Replace the entire `src/routes/review/+page.svelte` with:
     await saveTransaction(tx)
     try {
       const settings = await getSettings()
-      if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
+      if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set')
       if (!settings.zenmoneyAccountId)
         throw new Error('No default account set — go to Settings → Reload Categories')
       const payload = buildTransactionPayload(tx, settings.zenmoneyAccountId)
@@ -754,7 +754,7 @@ Replace the entire `src/routes/review/+page.svelte` with:
         <input id="date" type="date" bind:value={date} required />
       </div>
       <button type="submit" class="btn-primary" disabled={submitting}>
-        {submitting ? 'Submitting…' : 'Submit to ZenMoney'}
+        {submitting ? 'Submitting…' : 'Submit to Zenmoney'}
       </button>
     </form>
   {/if}
@@ -923,7 +923,7 @@ Failed transactions are permanently stranded in the history list with no way to 
 
   async function retryTransaction(tx: Transaction): Promise<void> {
     const settings = await getSettings()
-    if (!settings.zenmoneyToken) throw new Error('ZenMoney token not set')
+    if (!settings.zenmoneyToken) throw new Error('Zenmoney token not set')
     if (!settings.zenmoneyAccountId)
       throw new Error('No default account set — go to Settings → Reload Categories')
 
@@ -1023,11 +1023,11 @@ In `src/routes/settings/+page.svelte`, replace the two `<section>` blocks for th
 
   <section>
     <label for="zm-token">
-      ZenMoney Token
+      Zenmoney Token
       <span class="key-dot" class:set={zenmoneyToken.length > 0} aria-label={zenmoneyToken.length > 0 ? 'saved' : 'not saved'}>●</span>
     </label>
     <input id="zm-token" type="password" bind:value={zenmoneyToken}
-      placeholder="Paste your ZenMoney token" autocomplete="off" />
+      placeholder="Paste your Zenmoney token" autocomplete="off" />
     <p class="hint">Get yours at app.zenmoney.ru/consumer</p>
   </section>
 ```

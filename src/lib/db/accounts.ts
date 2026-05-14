@@ -1,12 +1,12 @@
 import { getDb } from './index';
-import type { ZenMoneyAccount } from '$lib/types';
+import type { ZenmoneyAccount } from '$lib/types';
 
-export async function getAccounts(): Promise<ZenMoneyAccount[]> {
+export async function getAccounts(): Promise<ZenmoneyAccount[]> {
   const db = await getDb();
   return db.getAll('accounts');
 }
 
-export async function saveAccounts(accounts: ZenMoneyAccount[]): Promise<void> {
+export async function saveAccounts(accounts: ZenmoneyAccount[]): Promise<void> {
   const db = await getDb();
   const tx = db.transaction('accounts', 'readwrite');
   await tx.store.clear();

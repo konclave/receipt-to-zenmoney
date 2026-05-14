@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { resolveReviewAccountId } from './review-account';
-import type { ZenMoneyAccount } from '$lib/types';
+import type { ZenmoneyAccount } from '$lib/types';
 
-const ACCOUNTS: ZenMoneyAccount[] = [
+const ACCOUNTS: ZenmoneyAccount[] = [
   { id: 'acc-1', title: 'Cash' },
   { id: 'acc-2', title: 'Card' },
 ];

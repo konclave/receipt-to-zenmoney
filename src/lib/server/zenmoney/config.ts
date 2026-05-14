@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { PUBLIC_ZENMONEY_OAUTH_ENABLED } from '$env/static/public';
 
-export interface ZenMoneyServerConfig {
+export interface ZenmoneyServerConfig {
   clientId: string;
   clientSecret: string;
   redirectUri: string;
@@ -9,7 +9,7 @@ export interface ZenMoneyServerConfig {
   oauthEnabled: boolean;
 }
 
-function getMissingOAuthEnvVars(config: ZenMoneyServerConfig): string[] {
+function getMissingOAuthEnvVars(config: ZenmoneyServerConfig): string[] {
   const missing: string[] = [];
   if (!config.clientId) missing.push('ZENMONEY_CLIENT_ID');
   if (!config.clientSecret) missing.push('ZENMONEY_CLIENT_SECRET');
@@ -18,21 +18,21 @@ function getMissingOAuthEnvVars(config: ZenMoneyServerConfig): string[] {
   return missing;
 }
 
-export function assertZenMoneyServerConfig(config: ZenMoneyServerConfig): ZenMoneyServerConfig {
+export function assertZenmoneyServerConfig(config: ZenmoneyServerConfig): ZenmoneyServerConfig {
   if (!config.oauthEnabled) return config;
 
   const missing = getMissingOAuthEnvVars(config);
   if (missing.length > 0) {
     throw new Error(
-      `ZenMoney OAuth is enabled but server env vars are missing: ${missing.join(', ')}`,
+      `Zenmoney OAuth is enabled but server env vars are missing: ${missing.join(', ')}`,
     );
   }
 
   return config;
 }
 
-export function getZenMoneyServerConfig(): ZenMoneyServerConfig {
-  return assertZenMoneyServerConfig({
+export function getZenmoneyServerConfig(): ZenmoneyServerConfig {
+  return assertZenmoneyServerConfig({
     clientId: env.ZENMONEY_CLIENT_ID ?? '',
     clientSecret: env.ZENMONEY_CLIENT_SECRET ?? '',
     redirectUri: env.ZENMONEY_REDIRECT_URI ?? '',

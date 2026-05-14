@@ -42,14 +42,23 @@ describe('createBackupStore', () => {
     const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock');
     const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
-    return { click, remove, createElement, createObjectURL, revokeObjectURL, link };
+    return {
+      click,
+      remove,
+      createElement,
+      createObjectURL,
+      revokeObjectURL,
+      link,
+    };
   }
 
   it('updates status and refreshes stats after a successful import', async () => {
     repo.importBackup.mockResolvedValue({ imported: 3, skipped: 1 });
 
     const store = createBackupStore(repo, effects);
-    const file = new File(['backup'], 'backup.rzm.gz', { type: 'application/gzip' });
+    const file = new File(['backup'], 'backup.rzm.gz', {
+      type: 'application/gzip',
+    });
 
     await store.importFile(file);
 
@@ -82,7 +91,7 @@ describe('createBackupStore', () => {
     expect(repo.exportBackup).toHaveBeenCalledTimes(1);
     expect(share).toHaveBeenCalledTimes(1);
     const [{ files, title }] = share.mock.calls[0];
-    expect(title).toBe('ZenMoney Backup');
+    expect(title).toBe('Zenmoney Backup');
     expect(files).toHaveLength(1);
     expect(files[0]).toBeInstanceOf(File);
     expect(files[0].name).toBe('rzm-backup-2026-05-10.rzm.gz');
@@ -140,7 +149,7 @@ describe('createBackupStore', () => {
 
     expect(share).toHaveBeenCalledTimes(1);
     const [{ files, title }] = share.mock.calls[0];
-    expect(title).toBe('ZenMoney Backup');
+    expect(title).toBe('Zenmoney Backup');
     expect(files[0].name).toBe('rzm-backup-2026-05-10.rzm.gz');
     expect(createObjectURL).toHaveBeenCalledWith(blob);
     expect(link.download).toBe('rzm-backup-2026-05-10.rzm.gz');

@@ -82,9 +82,9 @@
 
 ### Features
 
-* add ZenMoney OAuth authentication ([9953d62](https://github.com/konclave/receipt-to-zenmoney/commit/9953d6229f1040ee0053b187217fc091060e864d))
-* add ZenMoney OAuth broker flow ([fe1092d](https://github.com/konclave/receipt-to-zenmoney/commit/fe1092d639ddfc909946c5136ff341e02f387450))
-* hide ZenMoney OAuth button when credentials not configured ([dc0e21c](https://github.com/konclave/receipt-to-zenmoney/commit/dc0e21c1b652e16e223ac3ef2414e1d6a1bca8da))
+* add Zenmoney OAuth authentication ([9953d62](https://github.com/konclave/receipt-to-zenmoney/commit/9953d6229f1040ee0053b187217fc091060e864d))
+* add Zenmoney OAuth broker flow ([fe1092d](https://github.com/konclave/receipt-to-zenmoney/commit/fe1092d639ddfc909946c5136ff341e02f387450))
+* hide Zenmoney OAuth button when credentials not configured ([dc0e21c](https://github.com/konclave/receipt-to-zenmoney/commit/dc0e21c1b652e16e223ac3ef2414e1d6a1bca8da))
 
 # [1.8.0](https://github.com/konclave/receipt-to-zenmoney/compare/v1.7.0...v1.8.0) (2026-05-07)
 
@@ -198,10 +198,10 @@
 
 ### Bug Fixes
 
-* add created and changed timestamps to ZenMoney transaction payload ([ad2e16b](https://github.com/konclave/receipt-to-zenmoney/commit/ad2e16bb5a29b6819bf1bafb54c0cb52b6116de7))
-* add incomeInstrument and outcomeInstrument to ZenMoney transaction payload ([920b326](https://github.com/konclave/receipt-to-zenmoney/commit/920b326ba17f71c08b75fbb135f21edaad0f1417))
-* include all required ZenMoney transaction fields in payload ([8832099](https://github.com/konclave/receipt-to-zenmoney/commit/88320998d28d8974f0665d3fe46b49bb8691bad1))
-* include user ID in ZenMoney transaction payload ([3767f99](https://github.com/konclave/receipt-to-zenmoney/commit/3767f99e24d842e35737f8e5eee948bcd4d37fb9))
+* add created and changed timestamps to Zenmoney transaction payload ([ad2e16b](https://github.com/konclave/receipt-to-zenmoney/commit/ad2e16bb5a29b6819bf1bafb54c0cb52b6116de7))
+* add incomeInstrument and outcomeInstrument to Zenmoney transaction payload ([920b326](https://github.com/konclave/receipt-to-zenmoney/commit/920b326ba17f71c08b75fbb135f21edaad0f1417))
+* include all required Zenmoney transaction fields in payload ([8832099](https://github.com/konclave/receipt-to-zenmoney/commit/88320998d28d8974f0665d3fe46b49bb8691bad1))
+* include user ID in Zenmoney transaction payload ([3767f99](https://github.com/konclave/receipt-to-zenmoney/commit/3767f99e24d842e35737f8e5eee948bcd4d37fb9))
 * sort accounts alphabetical ([fc036d2](https://github.com/konclave/receipt-to-zenmoney/commit/fc036d2d51ec04a8488f81379e43f528557c17b9))
 
 
@@ -247,9 +247,9 @@
 * add history screen with transaction list ([d3ebb76](https://github.com/konclave/receipt-to-zenmoney/commit/d3ebb763c4ed9faaffb092b84b190184e3d826f8))
 * add IndexedDB layer for settings, categories, and transactions ([7530dd7](https://github.com/konclave/receipt-to-zenmoney/commit/7530dd79befd3d4c4c456c7710b07e87d623006e))
 * add PWA configuration with service worker and app manifest ([58f6097](https://github.com/konclave/receipt-to-zenmoney/commit/58f6097460141993cd46a1ff1235ca1b6c18e866))
-* add review screen with Claude parsing and ZenMoney submission ([b331b02](https://github.com/konclave/receipt-to-zenmoney/commit/b331b020d86928660efea0a3b3565a2a12e89d1f))
+* add review screen with Claude parsing and Zenmoney submission ([b331b02](https://github.com/konclave/receipt-to-zenmoney/commit/b331b020d86928660efea0a3b3565a2a12e89d1f))
 * add semantic-release with changelog and GitHub Actions workflow ([0bee7dc](https://github.com/konclave/receipt-to-zenmoney/commit/0bee7dc5ea575d41d85f859da8bf6e976d13ccb2))
 * add settings screen with key management and category sync ([e837c59](https://github.com/konclave/receipt-to-zenmoney/commit/e837c59e75de5e1d470b1140beea779cdf596626))
 * add shared TypeScript types ([a20b535](https://github.com/konclave/receipt-to-zenmoney/commit/a20b53556bfa0a17d4f75eef9f9774a039500b59))
-* add ZenMoney sync API service ([8ac2bcc](https://github.com/konclave/receipt-to-zenmoney/commit/8ac2bccdaf4b5519eec5911532de371b6f698435))
+* add Zenmoney sync API service ([8ac2bcc](https://github.com/konclave/receipt-to-zenmoney/commit/8ac2bccdaf4b5519eec5911532de371b6f698435))
 * scaffold SvelteKit project with adapter-static and Vitest ([d688a6d](https://github.com/konclave/receipt-to-zenmoney/commit/d688a6d99fd3add2d41c516fb14d55cd370de94f))

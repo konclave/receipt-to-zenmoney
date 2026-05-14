@@ -1,11 +1,12 @@
 <script lang="ts">
-  import type { createZenMoneyDataStore } from '$lib/settings/zenmoney-data.store.svelte';
+  import type { createZenmoneyDataStore } from "$lib/settings/zenmoney-data.store.svelte";
 
-  let { store }: { store: ReturnType<typeof createZenMoneyDataStore> } = $props();
+  let { store }: { store: ReturnType<typeof createZenmoneyDataStore> } =
+    $props();
 </script>
 
 <section>
-  <h2>ZenMoney Data</h2>
+  <h2>Zenmoney Data</h2>
   {#if store.error}<div class="alert error">{store.error}</div>{/if}
   {#if store.success}<div class="alert success">{store.success}</div>{/if}
 
@@ -13,7 +14,9 @@
     Categories
     <span class="hint">
       ({store.categoryCount} cached
-      {store.lastSyncDate ? `· Last synced ${store.lastSyncDate}` : '· Not synced yet'})
+      {store.lastSyncDate
+        ? `· Last synced ${store.lastSyncDate}`
+        : "· Not synced yet"})
     </span>
   </label>
   <button
@@ -22,7 +25,7 @@
     onclick={store.reloadCategories}
     disabled={store.syncing}
   >
-    {store.syncing ? 'Loading…' : 'Reload Categories'}
+    {store.syncing ? "Loading…" : "Reload Categories"}
   </button>
 
   {#if store.hasMultipleAccounts}
@@ -43,7 +46,7 @@
       onclick={store.saveAccount}
       disabled={store.savingAccount || !store.accountDirty}
     >
-      {store.savingAccount ? 'Saving…' : 'Save Account'}
+      {store.savingAccount ? "Saving…" : "Save Account"}
     </button>
   {/if}
 </section>

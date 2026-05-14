@@ -2,7 +2,7 @@
 
 ## Context
 
-Building a mobile-first PWA from scratch that lets the user photograph a receipt, parse it with Claude AI to extract transaction amount, merchant name, and category, then submit the transaction to ZenMoney. It is a personal tool (single user), so there is no backend — the user stores their own API keys locally in the browser. ZenMoney is the source of truth for transaction data; the app keeps a local cache for offline access.
+Building a mobile-first PWA from scratch that lets the user photograph a receipt, parse it with Claude AI to extract transaction amount, merchant name, and category, then submit the transaction to Zenmoney. It is a personal tool (single user), so there is no backend — the user stores their own API keys locally in the browser. Zenmoney is the source of truth for transaction data; the app keeps a local cache for offline access.
 
 ---
 
@@ -10,10 +10,10 @@ Building a mobile-first PWA from scratch that lets the user photograph a receipt
 
 **Pure client-side PWA.** No server. No hosted infrastructure.
 
-- User enters their Claude API key and ZenMoney token once in Settings
+- User enters their Claude API key and Zenmoney token once in Settings
 - Keys are encrypted in IndexedDB via Web Crypto AES-GCM
-- All API calls (Claude + ZenMoney) are made directly from the browser
-- ZenMoney CORS support is an unknown — test early; if blocked, add a minimal Cloudflare Worker proxy as a fallback
+- All API calls (Claude + Zenmoney) are made directly from the browser
+- Zenmoney CORS support is an unknown — test early; if blocked, add a minimal Cloudflare Worker proxy as a fallback
 - SvelteKit with `adapter-static` produces a static build deployable to any host (Vercel, Netlify, home server, GitHub Pages)
 
 ---
@@ -38,7 +38,7 @@ Building a mobile-first PWA from scratch that lets the user photograph a receipt
 ## Screens & Flow
 
 ```
-[First launch] → Settings (no keys) → enter Claude key + ZenMoney token → Load categories
+[First launch] → Settings (no keys) → enter Claude key + Zenmoney token → Load categories
 [Normal use]   → Capture → (Claude parse ~2-3s) → Review & Edit → Submit → History
 [Settings]     → manually reload categories at any time
 ```
@@ -58,19 +58,19 @@ Building a mobile-first PWA from scratch that lets the user photograph a receipt
   - **Date** — date input (defaults to today)
 - Low-confidence parse shows a warning badge
 - If parse fails entirely, fields are blank — user fills manually
-- "Submit to ZenMoney" button → saves to local history, POSTs to ZenMoney sync API
+- "Submit to Zenmoney" button → saves to local history, POSTs to Zenmoney sync API
 - On success: navigates to History screen
 - On failure: inline error, transaction stays in `pending` status
 
 ### 3. History screen (`/history`)
 - List of locally cached submitted transactions (newest first)
 - Each entry: merchant, amount, category, date, status badge (submitted / failed)
-- Pull-to-refresh syncs with ZenMoney (updates `zenmoneyId` on pending items)
+- Pull-to-refresh syncs with Zenmoney (updates `zenmoneyId` on pending items)
 
 ### 4. Settings screen (`/settings`)
 - Claude API key input (masked, stored encrypted)
-- ZenMoney token input (masked, stored encrypted)
-- "Reload categories" button — triggers ZenMoney diff sync, updates IndexedDB
+- Zenmoney token input (masked, stored encrypted)
+- "Reload categories" button — triggers Zenmoney diff sync, updates IndexedDB
 - Shows count of cached categories and last sync timestamp
 - On first launch with no keys, app redirects here automatically
 
@@ -84,14 +84,14 @@ Building a mobile-first PWA from scratch that lets the user photograph a receipt
   claudeApiKey: string             // AES-GCM encrypted
   zenmoneyToken: string            // AES-GCM encrypted
   zenmoneyServerTimestamp: number  // last known sync timestamp
-  zenmoneyAccountId: string        // selected ZenMoney account for transactions
+  zenmoneyAccountId: string        // selected Zenmoney account for transactions
 }
 ```
 
 ### `categories` store
 ```ts
 {
-  id: string             // ZenMoney tag ID
+  id: string             // Zenmoney tag ID
   title: string
   parentId: string | null
   syncedAt: number       // unix timestamp
@@ -102,7 +102,7 @@ Building a mobile-first PWA from scratch that lets the user photograph a receipt
 ```ts
 {
   id: string             // local UUID (crypto.randomUUID())
-  zenmoneyId: string | null  // set after successful ZenMoney submission
+  zenmoneyId: string | null  // set after successful Zenmoney submission
   amount: number
   currency: string       // ISO 4217
   merchant: string
@@ -161,9 +161,9 @@ Respond ONLY with valid JSON, no markdown:
 
 ---
 
-## ZenMoney Integration
+## Zenmoney Integration
 
-**Auth:** Bearer token (user pastes from https://app.zenmoney.ru/consumer/).  
+**Auth:** Bearer token (user pastes from https://app.zenmoney.ru/consumer/).
 **Endpoint:** `POST https://api.zenmoney.ru/v8/diff`
 
 ### Fetch categories (on Settings → "Reload categories")
@@ -248,11 +248,11 @@ receipt-to-zenmoney/
 ## Verification Plan
 
 1. **Setup check** — `pnpm dev` starts dev server; app loads on mobile browser (via LAN IP)
-2. **Settings** — enter Claude API key + ZenMoney token → save → "Reload categories" → categories count > 0
+2. **Settings** — enter Claude API key + Zenmoney token → save → "Reload categories" → categories count > 0
 3. **Capture** — tap camera button → viewfinder opens → photo taken → navigates to Review
 4. **Parsing** — Review screen shows parsed amount, merchant, and a matching category; low-confidence items flagged
-5. **Submit** — confirm Review → transaction appears in ZenMoney app + in local History with status "submitted"
+5. **Submit** — confirm Review → transaction appears in Zenmoney app + in local History with status "submitted"
 6. **Offline** — disable network → app shell loads from service worker → History readable → Capture available → Submit queues as "pending" → re-enable network → transaction submits
-7. **Category reload** — Settings → "Reload categories" → cache updates with latest ZenMoney tags
+7. **Category reload** — Settings → "Reload categories" → cache updates with latest Zenmoney tags
 8. **PWA install** — browser prompts "Add to Home Screen" → installs → opens in standalone mode (no browser chrome)
-9. **CORS test** — verify ZenMoney API calls succeed from browser; if blocked, document Cloudflare Worker fallback
+9. **CORS test** — verify Zenmoney API calls succeed from browser; if blocked, document Cloudflare Worker fallback

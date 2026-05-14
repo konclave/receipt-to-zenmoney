@@ -1,41 +1,41 @@
-# ZenMoney OAuth Broker Design
+# Zenmoney OAuth Broker Design
 
 **Date:** 2026-05-08
 
 ## Goal
 
-Replace the current browser-side ZenMoney OAuth code exchange with a minimal Vercel-hosted auth broker that keeps `client_secret` and `refresh_token` on the server, while preserving the existing client-side pattern where the SPA talks directly to the ZenMoney API and persists a short-lived ZenMoney `access_token` locally.
+Replace the current browser-side Zenmoney OAuth code exchange with a minimal Vercel-hosted auth broker that keeps `client_secret` and `refresh_token` on the server, while preserving the existing client-side pattern where the SPA talks directly to the Zenmoney API and persists a short-lived Zenmoney `access_token` locally.
 
 ## Context
 
-The current app is a client-rendered SvelteKit PWA deployed on Vercel as a static site. ZenMoney OAuth is currently implemented in the browser:
+The current app is a client-rendered SvelteKit PWA deployed on Vercel as a static site. Zenmoney OAuth is currently implemented in the browser:
 
 - The frontend bundle contains `PUBLIC_ZENMONEY_CLIENT_ID` and `PUBLIC_ZENMONEY_CLIENT_SECRET`.
-- The browser exchanges the OAuth `code` for an access token directly against ZenMoney.
-- The resulting ZenMoney token is stored in IndexedDB alongside other app settings.
+- The browser exchanges the OAuth `code` for an access token directly against Zenmoney.
+- The resulting Zenmoney token is stored in IndexedDB alongside other app settings.
 
-This design exposes the ZenMoney `client_secret` to all users and has no server-side refresh-token handling. ZenMoney does not support PKCE, so a public-client-only SPA cannot implement OAuth correctly without introducing a trusted server component.
+This design exposes the Zenmoney `client_secret` to all users and has no server-side refresh-token handling. Zenmoney does not support PKCE, so a public-client-only SPA cannot implement OAuth correctly without introducing a trusted server component.
 
 ## Non-Goals
 
-- Do not proxy all ZenMoney API calls through Vercel.
+- Do not proxy all Zenmoney API calls through Vercel.
 - Do not convert the app into a server-rendered application.
 - Do not add multi-user accounts or any app-specific login system.
 - Do not redesign unrelated Settings, capture, review, or history flows.
-- Do not remove support for manual ZenMoney personal-token auth.
+- Do not remove support for manual Zenmoney personal-token auth.
 
 ## High-Level Approach
 
 Add a narrow auth broker to the existing SvelteKit app using Vercel server routes. The broker will:
 
-- start the ZenMoney OAuth flow
+- start the Zenmoney OAuth flow
 - receive the OAuth callback
-- exchange authorization codes using server-only ZenMoney credentials
+- exchange authorization codes using server-only Zenmoney credentials
 - store the refresh token in Vercel KV
-- issue short-lived ZenMoney access tokens to the SPA on initial connect and on demand
+- issue short-lived Zenmoney access tokens to the SPA on initial connect and on demand
 - clear server-side session state on logout
 
-The SPA will continue calling ZenMoney directly for `diff` and transaction sync. It will persist the current ZenMoney `access_token` and expiry timestamp in IndexedDB, use that token for direct ZenMoney calls, and request a fresh token from the broker when the stored token is missing, expired, near expiry, or rejected with `401`.
+The SPA will continue calling Zenmoney directly for `diff` and transaction sync. It will persist the current Zenmoney `access_token` and expiry timestamp in IndexedDB, use that token for direct Zenmoney calls, and request a fresh token from the broker when the stored token is missing, expired, near expiry, or rejected with `401`.
 
 ## Architecture
 
@@ -49,7 +49,7 @@ The current `vercel.json` catch-all rewrite to `index.html` must be removed or r
 
 ### Server-Side Session Model
 
-The server will own the ZenMoney refresh token.
+The server will own the Zenmoney refresh token.
 
 Each connected browser session receives:
 
@@ -58,20 +58,20 @@ Each connected browser session receives:
 
 The corresponding session record is stored in Vercel KV. The browser never receives the refresh token and cannot read the session cookie from JavaScript.
 
-This keeps the ZenMoney confidential client credentials and long-lived refresh capability off the device while avoiding a larger backend proxy.
+This keeps the Zenmoney confidential client credentials and long-lived refresh capability off the device while avoiding a larger backend proxy.
 
 ### Authentication Modes
 
-The app will support two explicit ZenMoney authentication modes:
+The app will support two explicit Zenmoney authentication modes:
 
-- `oauth`: ZenMoney OAuth via the Vercel broker
-- `manual`: user-pasted personal ZenMoney token stored locally
+- `oauth`: Zenmoney OAuth via the Vercel broker
+- `manual`: user-pasted personal Zenmoney token stored locally
 
 The active auth mode must be stored in local settings and used to decide:
 
 - which UI controls are shown in Settings
-- how the app determines whether ZenMoney is connected
-- where the bearer token comes from before each ZenMoney API call
+- how the app determines whether Zenmoney is connected
+- where the bearer token comes from before each Zenmoney API call
 
 OAuth and manual-token state must remain separate. The app must not infer auth state from the presence of a token alone.
 
@@ -80,14 +80,14 @@ OAuth and manual-token state must remain separate. The app must not infer auth s
 - Server owns: `client_secret`, refresh token, refresh flow, token expiry metadata
 - Browser owns:
   - for `oauth` mode: short-lived access token returned by broker endpoints plus access-token expiry metadata
-  - for `manual` mode: the user-provided personal ZenMoney token
+  - for `manual` mode: the user-provided personal Zenmoney token
   - for both modes: existing local app state such as categories, account selection, sync timestamps, and transaction drafts
 
-The browser persists the ZenMoney access token in IndexedDB together with `expiresAt`. That token is the local credential used for direct ZenMoney API calls, but it is not independently refreshable. The broker session remains the durable server-side authority that can mint a new ZenMoney access token using the stored refresh token.
+The browser persists the Zenmoney access token in IndexedDB together with `expiresAt`. That token is the local credential used for direct Zenmoney API calls, but it is not independently refreshable. The broker session remains the durable server-side authority that can mint a new Zenmoney access token using the stored refresh token.
 
 ### Session Lifetime Policy
 
-The broker session cookie identifies the server-side refresh-token session. It does not need to match the ZenMoney access-token lifetime.
+The broker session cookie identifies the server-side refresh-token session. It does not need to match the Zenmoney access-token lifetime.
 
 Policy:
 
@@ -96,7 +96,7 @@ Policy:
 - refresh the cookie expiry on successful `/api/zenmoney/access-token` calls
 - clear the cookie immediately on logout, missing KV session, or refresh-token failure
 
-ZenMoney access tokens remain governed by ZenMoney's own expiry response and are expected to be much shorter-lived, typically around 24 hours.
+Zenmoney access tokens remain governed by Zenmoney's own expiry response and are expected to be much shorter-lived, typically around 24 hours.
 
 ## Server Components
 
@@ -106,8 +106,8 @@ Responsibilities:
 
 - generate a CSRF `state` value
 - store that `state` in a short-lived cookie
-- construct the ZenMoney authorize URL
-- redirect the browser to ZenMoney
+- construct the Zenmoney authorize URL
+- redirect the browser to Zenmoney
 
 Notes:
 
@@ -120,12 +120,12 @@ Responsibilities:
 
 - read `code` and `state` from the callback URL
 - validate the returned `state` against the stored cookie
-- exchange the authorization code for ZenMoney tokens using server-only env vars
+- exchange the authorization code for Zenmoney tokens using server-only env vars
 - create a new auth session id
 - persist session data in Vercel KV
 - set the `HttpOnly` session cookie
 - clear the temporary OAuth state cookie
-- redirect back to the client callback page so the app can fetch and persist the initial ZenMoney access token
+- redirect back to the client callback page so the app can fetch and persist the initial Zenmoney access token
 
 Failure behavior:
 
@@ -135,7 +135,7 @@ Failure behavior:
 Notes:
 
 - The server stores the refresh token in KV and may also cache the returned access token there.
-- The client callback page should immediately call `/api/zenmoney/access-token`, persist the returned ZenMoney token in IndexedDB, and then continue to `/settings`.
+- The client callback page should immediately call `/api/zenmoney/access-token`, persist the returned Zenmoney token in IndexedDB, and then continue to `/settings`.
 
 ### `GET /api/zenmoney/access-token`
 
@@ -143,7 +143,7 @@ Responsibilities:
 
 - read the session cookie
 - load the session record from Vercel KV
-- determine whether the cached ZenMoney access token is still valid
+- determine whether the cached Zenmoney access token is still valid
 - refresh the access token with the stored refresh token when necessary
 - update the KV record after refresh
 - return `{ accessToken, expiresAt }` JSON to the SPA
@@ -152,7 +152,7 @@ Notes:
 
 - Refresh should happen slightly before hard expiry to reduce race conditions during client requests.
 - Successful responses should also extend the rolling broker session cookie expiry.
-- If session lookup fails or refresh fails, this endpoint should return an auth failure that the SPA treats as “Reconnect ZenMoney”.
+- If session lookup fails or refresh fails, this endpoint should return an auth failure that the SPA treats as “Reconnect Zenmoney”.
 
 ### `POST /api/zenmoney/logout`
 
@@ -191,7 +191,7 @@ The refresh token should be encrypted before storage. Encryption keys live in se
 
 ### Client-visible
 
-No ZenMoney OAuth secret material should remain in `PUBLIC_*` variables.
+No Zenmoney OAuth secret material should remain in `PUBLIC_*` variables.
 
 If the client needs to know whether OAuth is configured, that should come from a server-derived flag or a build-time public boolean that does not expose secrets.
 
@@ -199,34 +199,34 @@ If the client needs to know whether OAuth is configured, that should come from a
 
 ## Settings Page
 
-The Settings screen will stop initiating OAuth directly against ZenMoney. Instead:
+The Settings screen will stop initiating OAuth directly against Zenmoney. Instead:
 
 - the manual personal-token input remains visible and editable at all times
 - the app still stores the active auth mode explicitly
-- in `oauth` mode, “Connect with ZenMoney” navigates to `/api/zenmoney/oauth/start`
+- in `oauth` mode, “Connect with Zenmoney” navigates to `/api/zenmoney/oauth/start`
 - in `oauth` mode, “Disconnect” calls `/api/zenmoney/logout` and clears the locally cached OAuth access token
 - OAuth controls are rendered only when the developer enables them via public config such as `PUBLIC_ZENMONEY_OAUTH_ENABLED`
 
 The connected state should be mode-aware:
 
 - `oauth` mode: based on the presence of a usable locally cached OAuth access token and successful broker refresh when needed
-- `manual` mode: based on the presence of a saved manual ZenMoney token
+- `manual` mode: based on the presence of a saved manual Zenmoney token
 
 Mode switching should be explicit. The user does not need to leave manual-token mode to edit the token field. Changing the active mode should clear only the credentials belonging to the other mode if the user confirms the switch.
 
 ## Client Token Helper
 
-Add client helpers responsible for obtaining the bearer token used for ZenMoney API requests.
+Add client helpers responsible for obtaining the bearer token used for Zenmoney API requests.
 
 Responsibilities:
 
 - `oauth` helper:
-  - read the persisted ZenMoney `access_token` and `expiresAt` from IndexedDB
+  - read the persisted Zenmoney `access_token` and `expiresAt` from IndexedDB
   - decide whether the stored token is still usable
   - fetch the current access token from the broker when refresh is needed
   - persist refreshed token data back to IndexedDB
 - `manual` helper:
-  - read the saved manual ZenMoney token from IndexedDB
+  - read the saved manual Zenmoney token from IndexedDB
   - return a clear error when manual mode is selected but the token is missing
 - shared behavior:
   - resolve the current auth mode
@@ -234,19 +234,19 @@ Responsibilities:
 
 The OAuth helper should refresh proactively shortly before expiry rather than waiting for the exact timestamp to pass.
 
-## Existing ZenMoney Client Calls
+## Existing Zenmoney Client Calls
 
-Current client-side ZenMoney operations such as category reload and transaction submission will keep calling ZenMoney directly, but they will first acquire an access token from the broker helper.
+Current client-side Zenmoney operations such as category reload and transaction submission will keep calling Zenmoney directly, but they will first acquire an access token from the broker helper.
 
-ZenMoney-specific local settings that are not credentials can remain in IndexedDB:
+Zenmoney-specific local settings that are not credentials can remain in IndexedDB:
 
 - selected account id
-- ZenMoney user id
+- Zenmoney user id
 - last known server timestamp
 
-Browser-stored ZenMoney OAuth refresh tokens must not exist.
-Browser-stored ZenMoney access-token data may remain in IndexedDB for OAuth mode.
-Browser-stored manual ZenMoney tokens remain valid for manual mode.
+Browser-stored Zenmoney OAuth refresh tokens must not exist.
+Browser-stored Zenmoney access-token data may remain in IndexedDB for OAuth mode.
+Browser-stored manual Zenmoney tokens remain valid for manual mode.
 
 ## Error Handling
 
@@ -255,7 +255,7 @@ The new flow should make auth failures explicit and recoverable.
 ### OAuth initiation and callback
 
 - missing or invalid state: fail callback, clear temporary auth state, redirect to settings with reconnect guidance
-- ZenMoney token exchange failure: redirect to settings with a clear connection error
+- Zenmoney token exchange failure: redirect to settings with a clear connection error
 
 ### Session and token lifecycle
 
@@ -263,18 +263,18 @@ The new flow should make auth failures explicit and recoverable.
 - missing KV session record: clear cookie and require reconnect
 - refresh failure: clear session record and require reconnect
 - KV outage: surface a temporary auth infrastructure error and avoid silently using stale local state
-- locally stored OAuth access token expired or near expiry: fetch a new token from broker before calling ZenMoney
+- locally stored OAuth access token expired or near expiry: fetch a new token from broker before calling Zenmoney
 - manual mode with missing saved token: show manual-token guidance in Settings
 
-### Direct ZenMoney API calls from the SPA
+### Direct Zenmoney API calls from the SPA
 
-If ZenMoney responds with `401` during a direct client call in OAuth mode:
+If Zenmoney responds with `401` during a direct client call in OAuth mode:
 
 1. request a fresh access token once from `/api/zenmoney/access-token`
-2. retry the ZenMoney request once
+2. retry the Zenmoney request once
 3. if it still fails, show reconnect guidance and stop retrying
 
-If ZenMoney responds with `401` during a direct client call in manual mode:
+If Zenmoney responds with `401` during a direct client call in manual mode:
 
 1. do not call the broker
 2. show manual-token failure guidance
@@ -284,8 +284,8 @@ This keeps retry behavior bounded and auth-mode-specific.
 
 ## Security Considerations
 
-- ZenMoney `client_secret` must never be imported into client code.
-- ZenMoney refresh tokens must never be returned to the browser.
+- Zenmoney `client_secret` must never be imported into client code.
+- Zenmoney refresh tokens must never be returned to the browser.
 - Session cookies must be `HttpOnly`, `Secure`, and `SameSite=Lax`.
 - OAuth state must be generated server-side and validated server-side.
 - Refresh tokens stored in KV must be encrypted at rest by the application before writing.
@@ -293,7 +293,7 @@ This keeps retry behavior bounded and auth-mode-specific.
 - Broker session cookies should use a 30-day rolling lifetime with a 90-day absolute cap.
 - Manual-token mode must not accidentally inherit OAuth broker state.
 
-This design improves the current secret exposure problem but does not attempt to fully hide short-lived ZenMoney access tokens from the browser, because direct browser-to-ZenMoney API calls remain an explicit requirement.
+This design improves the current secret exposure problem but does not attempt to fully hide short-lived Zenmoney access tokens from the browser, because direct browser-to-Zenmoney API calls remain an explicit requirement.
 
 ## Testing Strategy
 
@@ -331,20 +331,20 @@ Add client coverage for:
 - connect/disconnect actions wiring to broker endpoints
 - access-token helper behavior
 - persisted token reuse until near expiry
-- one-time retry on ZenMoney `401`
+- one-time retry on Zenmoney `401`
 
 ### Manual Verification
 
 Verify on a real Vercel preview deployment with:
 
-- configured ZenMoney OAuth redirect URI
+- configured Zenmoney OAuth redirect URI
 - Vercel KV enabled
 - server-only env vars set
 
 Manual checks:
 
 - connect from `/settings`
-- return successfully from ZenMoney
+- return successfully from Zenmoney
 - reload categories
 - submit a transaction
 - disconnect and verify reconnect is required
@@ -359,6 +359,6 @@ Manual checks:
 
 ## Implementation Constraint
 
-Manual ZenMoney personal-token auth remains supported as an explicit alternate auth mode.
+Manual Zenmoney personal-token auth remains supported as an explicit alternate auth mode.
 
 The implementation plan must keep manual-token and OAuth session state clearly separated in UI, settings persistence, and runtime token acquisition.

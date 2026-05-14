@@ -10,7 +10,7 @@ file) and import (restore from a backup file) to safeguard and move transaction 
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Backup scope | Transactions only | Categories/accounts/instruments are re-syncable from ZenMoney |
+| Backup scope | Transactions only | Categories/accounts/instruments are re-syncable from Zenmoney |
 | File format | JSON5 + gzip | Clean serialization; native CompressionStream (no extra runtime dep) |
 | Import strategy | Merge (skip duplicates by `id`) | Safe, non-destructive, idempotent |
 | Export UX | Web Share API → `<a download>` fallback | Native share sheet on iOS; works on desktop |
@@ -18,7 +18,7 @@ file) and import (restore from a backup file) to safeguard and move transaction 
 
 ## Backup File Format
 
-Extension: `.rzm.gz`  
+Extension: `.rzm.gz`
 Filename: `rzm-backup-YYYY-MM-DD.rzm.gz`
 
 Envelope (JSON5, then gzip-compressed):

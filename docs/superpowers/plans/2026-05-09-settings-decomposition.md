@@ -19,17 +19,17 @@
 - `src/lib/settings/ai-settings.store.svelte.ts` — AI settings state, dirty tracking, model loading, save flow
 - `src/lib/settings/ai-settings.store.test.ts` — AI settings store tests
 - `src/lib/settings/zenmoney-connection.store.svelte.ts` — OAuth/manual token connection state and actions
-- `src/lib/settings/zenmoney-connection.store.test.ts` — ZenMoney connection store tests
+- `src/lib/settings/zenmoney-connection.store.test.ts` — Zenmoney connection store tests
 - `src/lib/settings/zenmoney-data.store.svelte.ts` — categories/accounts/default-account sync state and actions
-- `src/lib/settings/zenmoney-data.store.test.ts` — ZenMoney data store tests
+- `src/lib/settings/zenmoney-data.store.test.ts` — Zenmoney data store tests
 - `src/lib/settings/backup.store.svelte.ts` — backup export/import state and actions
 - `src/lib/settings/backup.store.test.ts` — backup store tests
 - `src/lib/settings/cleanup.store.svelte.ts` — storage stats, cleanup modal state, cleanup execution
 - `src/lib/settings/cleanup.store.test.ts` — cleanup store tests
 - `src/lib/settings/settings-page.store.svelte.ts` — page bootstrap store that wires feature stores together
 - `src/lib/components/settings/AiSettingsSection.svelte` — AI provider/settings UI
-- `src/lib/components/settings/ZenMoneyConnectionSection.svelte` — ZenMoney connect/disconnect/manual token UI
-- `src/lib/components/settings/ZenMoneyDataSection.svelte` — category sync plus default-account UI
+- `src/lib/components/settings/ZenmoneyConnectionSection.svelte` — Zenmoney connect/disconnect/manual token UI
+- `src/lib/components/settings/ZenmoneyDataSection.svelte` — category sync plus default-account UI
 - `src/lib/components/settings/BackupRestoreSection.svelte` — export/import UI
 - `src/lib/components/settings/StorageCleanupSection.svelte` — storage stats and cleanup UI
 - `src/lib/components/settings/settings-sections.test.ts` — smoke tests for the extracted settings sections
@@ -84,10 +84,10 @@ vi.mock('$lib/services/zenmoney', () => ({
   mapResponseToCategories: vi.fn(),
 }));
 vi.mock('$lib/services/zenmoney-access', () => ({
-  clearZenMoneyAccessToken: vi.fn(),
+  clearZenmoneyAccessToken: vi.fn(),
 }));
 vi.mock('$lib/services/zenmoney-client', () => ({
-  runZenMoneyRequestWithStoredToken: vi.fn(),
+  runZenmoneyRequestWithStoredToken: vi.fn(),
 }));
 
 import { getSettings, saveSettings } from '$lib/db/settings';
@@ -96,7 +96,7 @@ import { getAccounts, saveAccounts } from '$lib/db/accounts';
 import { saveInstruments } from '$lib/db/instruments';
 import { getStorageStats } from '$lib/services/storage-stats';
 import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney';
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
 import { createSettingsRepository } from './settings.repository';
 
 describe('createSettingsRepository', () => {
@@ -144,7 +144,7 @@ describe('createSettingsRepository', () => {
   });
 
   it('persists synced categories, accounts, instruments, and account auto-selection', async () => {
-    vi.mocked(runZenMoneyRequestWithStoredToken).mockImplementation(async (callback) =>
+    vi.mocked(runZenmoneyRequestWithStoredToken).mockImplementation(async (callback) =>
       callback('stored-token'),
     );
     vi.mocked(syncDiff).mockResolvedValue({
@@ -159,7 +159,7 @@ describe('createSettingsRepository', () => {
     ]);
 
     const repo = createSettingsRepository();
-    const result = await repo.reloadZenMoneyData();
+    const result = await repo.reloadZenmoneyData();
 
     expect(saveCategories).toHaveBeenCalledTimes(1);
     expect(saveAccounts).toHaveBeenCalledWith([{ id: 'acc-9', title: 'Main account' }]);
@@ -196,16 +196,16 @@ import {
 } from '$lib/services/backup';
 import { getStorageStats, type StorageStats } from '$lib/services/storage-stats';
 import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney';
-import { clearZenMoneyAccessToken } from '$lib/services/zenmoney-access';
-import { runZenMoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
-import type { Settings, ZenMoneyAccount } from '$lib/types';
+import { clearZenmoneyAccessToken } from '$lib/services/zenmoney-access';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import type { Settings, ZenmoneyAccount } from '$lib/types';
 
 export interface SettingsPageSnapshot {
   oauthEnabled: boolean;
   settings: Settings;
   categoryCount: number;
   lastSyncDate: string | null;
-  accounts: ZenMoneyAccount[];
+  accounts: ZenmoneyAccount[];
   storageStats: StorageStats | null;
 }
 
@@ -218,12 +218,12 @@ export interface SettingsRepository {
     openrouterApiKey: string;
     openrouterModel: string;
   }): Promise<void>;
-  saveManualZenMoneyToken(token: string): Promise<void>;
-  disconnectZenMoney(): Promise<void>;
-  reloadZenMoneyData(): Promise<{
+  saveManualZenmoneyToken(token: string): Promise<void>;
+  disconnectZenmoney(): Promise<void>;
+  reloadZenmoneyData(): Promise<{
     categoryCount: number;
     lastSyncDate: string;
-    accounts: ZenMoneyAccount[];
+    accounts: ZenmoneyAccount[];
     selectedAccountId: string;
   }>;
   saveDefaultAccount(accountId: string): Promise<void>;
@@ -233,7 +233,7 @@ export interface SettingsRepository {
   getStorageStats(): Promise<StorageStats>;
   deleteTransactionsByPeriod(period: number | 'all'): Promise<string[]>;
   bulkDeleteReceiptImages(ids: string[]): Promise<void>;
-  clearZenMoneyAccessToken(): Promise<void>;
+  clearZenmoneyAccessToken(): Promise<void>;
 }
 
 export function createSettingsRepository(): SettingsRepository {
@@ -292,19 +292,19 @@ export function createSettingsRepository(): SettingsRepository {
     async saveAiSettings(input) {
       await saveSettings(input);
     },
-    async saveManualZenMoneyToken(token) {
+    async saveManualZenmoneyToken(token) {
       await saveSettings({ zenmoneyToken: token });
     },
-    async disconnectZenMoney() {
+    async disconnectZenmoney() {
       await fetch('/api/zenmoney/logout', {
         method: 'POST',
         credentials: 'include',
       }).catch(() => {});
-      await clearZenMoneyAccessToken();
+      await clearZenmoneyAccessToken();
       await saveSettings({ zenmoneyToken: '' });
     },
-    async reloadZenMoneyData() {
-      const response = await runZenMoneyRequestWithStoredToken((token) => syncDiff(token, 0));
+    async reloadZenmoneyData() {
+      const response = await runZenmoneyRequestWithStoredToken((token) => syncDiff(token, 0));
       const categories = mapResponseToCategories(response);
       const sortedAccounts = [...response.account].sort((a, b) => a.title.localeCompare(b.title));
       const selectedAccountId = sortedAccounts.length === 1 ? sortedAccounts[0].id : '';
@@ -336,7 +336,7 @@ export function createSettingsRepository(): SettingsRepository {
     getStorageStats,
     deleteTransactionsByPeriod,
     bulkDeleteReceiptImages,
-    clearZenMoneyAccessToken,
+    clearZenmoneyAccessToken,
   };
 }
 ```
@@ -345,7 +345,7 @@ export function createSettingsRepository(): SettingsRepository {
 
 Run: `pnpm exec vitest run src/lib/settings/settings.repository.test.ts`
 
-Expected: PASS for the snapshot-loading and ZenMoney reload contract tests.
+Expected: PASS for the snapshot-loading and Zenmoney reload contract tests.
 
 - [ ] **Step 5: Commit**
 
@@ -600,7 +600,7 @@ git add src/lib/settings/ai-settings.store.svelte.ts src/lib/settings/ai-setting
 git commit -m "refactor: extract ai settings store"
 ```
 
-## Task 3: Extract the ZenMoney connection and data stores
+## Task 3: Extract the Zenmoney connection and data stores
 
 **Files:**
 - Create: `src/lib/settings/zenmoney-connection.store.svelte.ts`
@@ -608,26 +608,26 @@ git commit -m "refactor: extract ai settings store"
 - Test: `src/lib/settings/zenmoney-connection.store.test.ts`
 - Test: `src/lib/settings/zenmoney-data.store.test.ts`
 
-- [ ] **Step 1: Write the failing ZenMoney store tests**
+- [ ] **Step 1: Write the failing Zenmoney store tests**
 
 ```ts
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createZenMoneyConnectionStore } from './zenmoney-connection.store.svelte';
-import { createZenMoneyDataStore } from './zenmoney-data.store.svelte';
+import { createZenmoneyConnectionStore } from './zenmoney-connection.store.svelte';
+import { createZenmoneyDataStore } from './zenmoney-data.store.svelte';
 
-describe('createZenMoneyConnectionStore', () => {
+describe('createZenmoneyConnectionStore', () => {
   const repo = {
-    saveManualZenMoneyToken: vi.fn(),
-    disconnectZenMoney: vi.fn(),
+    saveManualZenmoneyToken: vi.fn(),
+    disconnectZenmoney: vi.fn(),
   };
 
   beforeEach(() => {
-    repo.saveManualZenMoneyToken.mockReset();
-    repo.disconnectZenMoney.mockReset();
+    repo.saveManualZenmoneyToken.mockReset();
+    repo.disconnectZenmoney.mockReset();
   });
 
   it('reports connected when a saved manual or access token exists', () => {
-    const store = createZenMoneyConnectionStore(
+    const store = createZenmoneyConnectionStore(
       {
         zenmoneyToken: '',
         zenmoneyAccessToken: 'oauth-token',
@@ -639,7 +639,7 @@ describe('createZenMoneyConnectionStore', () => {
   });
 
   it('saves a pasted manual token and updates the saved snapshot', async () => {
-    const store = createZenMoneyConnectionStore(
+    const store = createZenmoneyConnectionStore(
       {
         zenmoneyToken: '',
         zenmoneyAccessToken: '',
@@ -650,32 +650,32 @@ describe('createZenMoneyConnectionStore', () => {
     store.manualToken = 'zm-token-123';
     await store.saveManualToken();
 
-    expect(repo.saveManualZenMoneyToken).toHaveBeenCalledWith('zm-token-123');
+    expect(repo.saveManualZenmoneyToken).toHaveBeenCalledWith('zm-token-123');
     expect(store.success).toBe('Saved');
     expect(store.connected).toBe(true);
   });
 });
 
-describe('createZenMoneyDataStore', () => {
+describe('createZenmoneyDataStore', () => {
   const repo = {
-    reloadZenMoneyData: vi.fn(),
+    reloadZenmoneyData: vi.fn(),
     saveDefaultAccount: vi.fn(),
   };
 
   beforeEach(() => {
-    repo.reloadZenMoneyData.mockReset();
+    repo.reloadZenmoneyData.mockReset();
     repo.saveDefaultAccount.mockReset();
   });
 
   it('auto-selects and saves the only account returned by sync', async () => {
-    repo.reloadZenMoneyData.mockResolvedValue({
+    repo.reloadZenmoneyData.mockResolvedValue({
       categoryCount: 3,
       lastSyncDate: '5/9/2026',
       accounts: [{ id: 'acc-1', title: 'Checking' }],
       selectedAccountId: 'acc-1',
     });
 
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 0,
         lastSyncDate: null,
@@ -693,7 +693,7 @@ describe('createZenMoneyDataStore', () => {
   });
 
   it('tracks accountDirty independently from category sync', async () => {
-    const store = createZenMoneyDataStore(
+    const store = createZenmoneyDataStore(
       {
         categoryCount: 2,
         lastSyncDate: '5/8/2026',
@@ -717,23 +717,23 @@ describe('createZenMoneyDataStore', () => {
 });
 ```
 
-- [ ] **Step 2: Run the ZenMoney store tests to verify they fail**
+- [ ] **Step 2: Run the Zenmoney store tests to verify they fail**
 
 Run: `pnpm exec vitest run src/lib/settings/zenmoney-connection.store.test.ts src/lib/settings/zenmoney-data.store.test.ts`
 
 Expected: FAIL with missing module/export errors.
 
-- [ ] **Step 3: Write the minimal ZenMoney stores**
+- [ ] **Step 3: Write the minimal Zenmoney stores**
 
 ```ts
-export function createZenMoneyConnectionStore(
+export function createZenmoneyConnectionStore(
   initial: {
     zenmoneyToken: string;
     zenmoneyAccessToken: string;
   },
   repo: {
-    saveManualZenMoneyToken(token: string): Promise<void>;
-    disconnectZenMoney(): Promise<void>;
+    saveManualZenmoneyToken(token: string): Promise<void>;
+    disconnectZenmoney(): Promise<void>;
   },
 ) {
   let manualToken = $state(initial.zenmoneyToken);
@@ -774,7 +774,7 @@ export function createZenMoneyConnectionStore(
       saving = true;
       error = null;
       try {
-        await repo.saveManualZenMoneyToken(manualToken);
+        await repo.saveManualZenmoneyToken(manualToken);
         savedManualToken = manualToken;
         success = 'Saved';
       } catch (cause) {
@@ -787,7 +787,7 @@ export function createZenMoneyConnectionStore(
       disconnecting = true;
       error = null;
       try {
-        await repo.disconnectZenMoney();
+        await repo.disconnectZenmoney();
         manualToken = '';
         savedManualToken = '';
         accessToken = '';
@@ -802,20 +802,20 @@ export function createZenMoneyConnectionStore(
 ```
 
 ```ts
-import type { ZenMoneyAccount } from '$lib/types';
+import type { ZenmoneyAccount } from '$lib/types';
 
-export function createZenMoneyDataStore(
+export function createZenmoneyDataStore(
   initial: {
     categoryCount: number;
     lastSyncDate: string | null;
-    accounts: ZenMoneyAccount[];
+    accounts: ZenmoneyAccount[];
     selectedAccountId: string;
   },
   repo: {
-    reloadZenMoneyData(): Promise<{
+    reloadZenmoneyData(): Promise<{
       categoryCount: number;
       lastSyncDate: string;
-      accounts: ZenMoneyAccount[];
+      accounts: ZenmoneyAccount[];
       selectedAccountId: string;
     }>;
     saveDefaultAccount(accountId: string): Promise<void>;
@@ -871,7 +871,7 @@ export function createZenMoneyDataStore(
       syncing = true;
       error = null;
       try {
-        const result = await repo.reloadZenMoneyData();
+        const result = await repo.reloadZenmoneyData();
         categoryCount = result.categoryCount;
         lastSyncDate = result.lastSyncDate;
         accounts = result.accounts;
@@ -903,7 +903,7 @@ export function createZenMoneyDataStore(
 }
 ```
 
-- [ ] **Step 4: Run the ZenMoney store tests to verify they pass**
+- [ ] **Step 4: Run the Zenmoney store tests to verify they pass**
 
 Run: `pnpm exec vitest run src/lib/settings/zenmoney-connection.store.test.ts src/lib/settings/zenmoney-data.store.test.ts`
 
@@ -1049,7 +1049,7 @@ export function createBackupStore(
       try {
         await navigator.share({
           files: [shareFile],
-          title: 'ZenMoney Backup',
+          title: 'Zenmoney Backup',
         });
         shared = true;
       } catch (shareError) {
@@ -1142,7 +1142,7 @@ export function createCleanupStore(repo: {
       try {
         await navigator.share({
           files: [shareFile],
-          title: 'ZenMoney Backup',
+          title: 'Zenmoney Backup',
         });
         shared = true;
       } catch (shareError) {
@@ -1265,8 +1265,8 @@ git commit -m "refactor: extract backup and cleanup stores"
 **Files:**
 - Create: `src/lib/settings/settings-page.store.svelte.ts`
 - Create: `src/lib/components/settings/AiSettingsSection.svelte`
-- Create: `src/lib/components/settings/ZenMoneyConnectionSection.svelte`
-- Create: `src/lib/components/settings/ZenMoneyDataSection.svelte`
+- Create: `src/lib/components/settings/ZenmoneyConnectionSection.svelte`
+- Create: `src/lib/components/settings/ZenmoneyDataSection.svelte`
 - Create: `src/lib/components/settings/BackupRestoreSection.svelte`
 - Create: `src/lib/components/settings/StorageCleanupSection.svelte`
 - Test: `src/lib/components/settings/settings-sections.test.ts`
@@ -1280,12 +1280,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { mount, unmount } from 'svelte';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import ZenMoneyDataSection from './ZenMoneyDataSection.svelte';
+import ZenmoneyDataSection from './ZenmoneyDataSection.svelte';
 
 describe('settings sections', () => {
   it('hides the default-account controls unless multiple accounts exist', () => {
     const target = document.createElement('div');
-    const component = mount(ZenMoneyDataSection, {
+    const component = mount(ZenmoneyDataSection, {
       target,
       props: {
         store: {
@@ -1320,8 +1320,8 @@ describe('settings route composition', () => {
 
     expect(route).toContain('createSettingsPageStore');
     expect(route).toContain('AiSettingsSection');
-    expect(route).toContain('ZenMoneyConnectionSection');
-    expect(route).toContain('ZenMoneyDataSection');
+    expect(route).toContain('ZenmoneyConnectionSection');
+    expect(route).toContain('ZenmoneyDataSection');
     expect(route).toContain('BackupRestoreSection');
     expect(route).toContain('StorageCleanupSection');
     expect(route).not.toContain('handleReloadCategories');
@@ -1342,8 +1342,8 @@ Expected: FAIL with missing components/page store or legacy route content still 
 ```ts
 import { createSettingsRepository } from './settings.repository';
 import { createAiSettingsStore } from './ai-settings.store.svelte';
-import { createZenMoneyConnectionStore } from './zenmoney-connection.store.svelte';
-import { createZenMoneyDataStore } from './zenmoney-data.store.svelte';
+import { createZenmoneyConnectionStore } from './zenmoney-connection.store.svelte';
+import { createZenmoneyDataStore } from './zenmoney-data.store.svelte';
 import { createBackupStore } from './backup.store.svelte';
 import { createCleanupStore } from './cleanup.store.svelte';
 
@@ -1352,8 +1352,8 @@ export function createSettingsPageStore(input: { oauthEnabled: boolean }) {
   let ready = $state(false);
   let loadError = $state<string | null>(null);
   let ai = $state<ReturnType<typeof createAiSettingsStore> | null>(null);
-  let zenmoneyConnection = $state<ReturnType<typeof createZenMoneyConnectionStore> | null>(null);
-  let zenmoneyData = $state<ReturnType<typeof createZenMoneyDataStore> | null>(null);
+  let zenmoneyConnection = $state<ReturnType<typeof createZenmoneyConnectionStore> | null>(null);
+  let zenmoneyData = $state<ReturnType<typeof createZenmoneyDataStore> | null>(null);
   let cleanup = $state<ReturnType<typeof createCleanupStore> | null>(null);
   let backup = $state<ReturnType<typeof createBackupStore> | null>(null);
 
@@ -1362,8 +1362,8 @@ export function createSettingsPageStore(input: { oauthEnabled: boolean }) {
       const snapshot = await repo.loadPageSnapshot({ oauthEnabled: input.oauthEnabled });
       cleanup = createCleanupStore(repo, snapshot.storageStats);
       ai = createAiSettingsStore(snapshot.settings, repo);
-      zenmoneyConnection = createZenMoneyConnectionStore(snapshot.settings, repo);
-      zenmoneyData = createZenMoneyDataStore(
+      zenmoneyConnection = createZenmoneyConnectionStore(snapshot.settings, repo);
+      zenmoneyData = createZenmoneyDataStore(
         {
           categoryCount: snapshot.categoryCount,
           lastSyncDate: snapshot.lastSyncDate,
@@ -1414,8 +1414,8 @@ export function createSettingsPageStore(input: { oauthEnabled: boolean }) {
   import { env } from '$env/dynamic/public';
   import AppFeedback from '$lib/components/AppFeedback.svelte';
   import AiSettingsSection from '$lib/components/settings/AiSettingsSection.svelte';
-  import ZenMoneyConnectionSection from '$lib/components/settings/ZenMoneyConnectionSection.svelte';
-  import ZenMoneyDataSection from '$lib/components/settings/ZenMoneyDataSection.svelte';
+  import ZenmoneyConnectionSection from '$lib/components/settings/ZenmoneyConnectionSection.svelte';
+  import ZenmoneyDataSection from '$lib/components/settings/ZenmoneyDataSection.svelte';
   import BackupRestoreSection from '$lib/components/settings/BackupRestoreSection.svelte';
   import StorageCleanupSection from '$lib/components/settings/StorageCleanupSection.svelte';
   import { createSettingsPageStore } from '$lib/settings/settings-page.store.svelte';
@@ -1440,12 +1440,12 @@ export function createSettingsPageStore(input: { oauthEnabled: boolean }) {
   {:else if page.ai && page.zenmoneyConnection && page.zenmoneyData && page.backup && page.cleanup}
     <AiSettingsSection store={page.ai} />
     <hr />
-    <ZenMoneyConnectionSection
+    <ZenmoneyConnectionSection
       store={page.zenmoneyConnection}
       oauthEnabled={env.PUBLIC_ZENMONEY_OAUTH_ENABLED === 'true'}
     />
     <hr />
-    <ZenMoneyDataSection store={page.zenmoneyData} />
+    <ZenmoneyDataSection store={page.zenmoneyData} />
     <hr />
     <BackupRestoreSection store={page.backup} />
     <hr />
@@ -1485,6 +1485,6 @@ git commit -m "refactor: decompose settings page"
 
 ## Self-Review Notes
 
-- Spec coverage: repository/store/page/component split is covered by Tasks 1-5; local feedback and route thinning are covered by Tasks 2-5; ZenMoney data plus default account coupling is covered in Task 3 and Task 5.
+- Spec coverage: repository/store/page/component split is covered by Tasks 1-5; local feedback and route thinning are covered by Tasks 2-5; Zenmoney data plus default account coupling is covered in Task 3 and Task 5.
 - Placeholder scan: no `TODO`, `TBD`, or “similar to previous task” placeholders remain.
-- Type consistency: the plan uses `createAiSettingsStore`, `createZenMoneyConnectionStore`, `createZenMoneyDataStore`, `createBackupStore`, `createCleanupStore`, and `createSettingsPageStore` consistently throughout.
+- Type consistency: the plan uses `createAiSettingsStore`, `createZenmoneyConnectionStore`, `createZenmoneyDataStore`, `createBackupStore`, `createCleanupStore`, and `createSettingsPageStore` consistently throughout.
