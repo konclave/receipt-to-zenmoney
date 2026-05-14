@@ -781,7 +781,7 @@ Append these two handlers after the existing `handleImport` function (before the
         let shared = false
         if (navigator.canShare?.({ files: [shareFile] })) {
           try {
-            await navigator.share({ files: [shareFile], title: 'ZenMoney Backup' })
+            await navigator.share({ files: [shareFile], title: 'Zenmoney Backup' })
             shared = true
           } catch (shareErr) {
             if (shareErr instanceof Error && shareErr.name === 'AbortError') return

@@ -1,6 +1,6 @@
 export interface PendingCapture {
   imageBase64: string;
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
 }
 
 export interface Category {
@@ -19,13 +19,13 @@ export interface Transaction {
   merchant: string;
   categoryId: string;
   date: string;
-  status: 'pending' | 'submitted' | 'failed';
+  status: "pending" | "submitted" | "failed";
   createdAt: number;
   hasReceipt?: boolean;
 }
 
 export interface ReceiptImage {
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
   blob: Blob;
 }
 
@@ -42,7 +42,7 @@ export interface ParseResult {
   merchant: string;
   categoryId: string;
   date: string;
-  confidence: 'high' | 'medium' | 'low';
+  confidence: "high" | "medium" | "low";
   receipt_bounds: ReceiptBounds | null;
 }
 
@@ -54,35 +54,35 @@ export interface Settings {
   zenmoneyServerTimestamp: number;
   zenmoneyAccountId: string;
   zenmoneyUserId: number;
-  aiProvider: 'anthropic' | 'openrouter';
+  aiProvider: "anthropic" | "openrouter";
   openrouterApiKey: string;
   openrouterModel: string;
 }
 
-export interface ZenMoneyTag {
+export interface ZenmoneyTag {
   id: string;
   title: string;
   parent: string | null;
 }
 
-export interface ZenMoneyAccount {
+export interface ZenmoneyAccount {
   id: string;
   title: string;
 }
 
-export interface ZenMoneyUser {
+export interface ZenmoneyUser {
   id: number;
 }
 
-export interface ZenMoneyInstrument {
+export interface ZenmoneyInstrument {
   id: number;
   shortTitle: string;
 }
 
-export interface ZenMoneySyncResponse {
+export interface ZenmoneySyncResponse {
   serverTimestamp: number;
-  user: ZenMoneyUser[];
-  instrument: ZenMoneyInstrument[];
-  tag: ZenMoneyTag[];
-  account: ZenMoneyAccount[];
+  user: ZenmoneyUser[];
+  instrument: ZenmoneyInstrument[];
+  tag: ZenmoneyTag[];
+  account: ZenmoneyAccount[];
 }

@@ -1,10 +1,10 @@
-export interface ZenMoneyTokenResponse {
+export interface ZenmoneyTokenResponse {
   access_token: string;
   refresh_token: string;
   expires_in: number;
 }
 
-export interface ZenMoneySessionRecord {
+export interface ZenmoneySessionRecord {
   sessionId: string;
   refreshToken: string;
   accessToken: string | null;

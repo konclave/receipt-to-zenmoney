@@ -1,29 +1,29 @@
-import type { ZenMoneyAccount } from '$lib/types';
+import type { ZenmoneyAccount } from "$lib/types";
 
-interface ReloadZenMoneyDataResult {
+interface ReloadZenmoneyDataResult {
   categoryCount: number;
   lastSyncDate: string | null;
-  accounts: ZenMoneyAccount[];
+  accounts: ZenmoneyAccount[];
   selectedAccountId: string;
 }
 
-interface ZenMoneyDataRepo {
-  reloadZenMoneyData(): Promise<ReloadZenMoneyDataResult>;
+interface ZenmoneyDataRepo {
+  reloadZenmoneyData(): Promise<ReloadZenmoneyDataResult>;
   saveDefaultAccount(accountId: string): Promise<void>;
 }
 
-export function createZenMoneyDataStore(
+export function createZenmoneyDataStore(
   initial: {
     categoryCount: number;
     lastSyncDate: string | null;
-    accounts: ZenMoneyAccount[];
+    accounts: ZenmoneyAccount[];
     selectedAccountId: string;
   },
-  repo: ZenMoneyDataRepo,
+  repo: ZenmoneyDataRepo,
 ) {
   let categoryCount = $state(initial.categoryCount);
   let lastSyncDate = $state(initial.lastSyncDate);
-  let accounts = $state<ZenMoneyAccount[]>(initial.accounts);
+  let accounts = $state<ZenmoneyAccount[]>(initial.accounts);
   let selectedAccountId = $state(initial.selectedAccountId);
   let savedSelectedAccountId = $state(initial.selectedAccountId);
   let syncing = $state(false);
@@ -44,7 +44,7 @@ export function createZenMoneyDataStore(
     success = null;
 
     try {
-      const next = await repo.reloadZenMoneyData();
+      const next = await repo.reloadZenmoneyData();
       categoryCount = next.categoryCount;
       lastSyncDate = next.lastSyncDate;
       accounts = next.accounts;
@@ -54,7 +54,7 @@ export function createZenMoneyDataStore(
         savedSelectedAccountId = next.selectedAccountId;
       }
 
-      success = 'Categories reloaded';
+      success = "Categories reloaded";
     } catch (cause) {
       success = null;
       error = cause instanceof Error ? cause.message : String(cause);
@@ -72,7 +72,7 @@ export function createZenMoneyDataStore(
     try {
       await repo.saveDefaultAccount(accountIdToSave);
       savedSelectedAccountId = accountIdToSave;
-      success = 'Saved';
+      success = "Saved";
     } catch (cause) {
       success = null;
       error = cause instanceof Error ? cause.message : String(cause);

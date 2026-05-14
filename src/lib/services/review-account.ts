@@ -1,9 +1,10 @@
-import type { ZenMoneyAccount } from '$lib/types';
+import type { ZenmoneyAccount } from "$lib/types";
 
 export function resolveReviewAccountId(
-  accounts: ZenMoneyAccount[],
+  accounts: ZenmoneyAccount[],
   defaultAccountId: string,
 ): string {
-  if (accounts.some((account) => account.id === defaultAccountId)) return defaultAccountId;
-  return accounts[0]?.id ?? '';
+  if (accounts.some((account) => account.id === defaultAccountId))
+    return defaultAccountId;
+  return accounts[0]?.id ?? "";
 }

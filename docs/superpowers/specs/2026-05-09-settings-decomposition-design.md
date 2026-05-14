@@ -17,8 +17,8 @@ Decompose `src/routes/settings/+page.svelte` into smaller, feature-focused compo
 `src/routes/settings/+page.svelte` is large and mixes multiple unrelated responsibilities:
 
 - AI provider configuration
-- ZenMoney authentication and connection state
-- ZenMoney category/account sync
+- Zenmoney authentication and connection state
+- Zenmoney category/account sync
 - default account selection
 - backup/export/import workflows
 - storage stats and cleanup workflows
@@ -52,7 +52,7 @@ Non-responsibilities:
 
 - direct DB/service calls
 - OpenRouter model fetching
-- ZenMoney sync logic
+- Zenmoney sync logic
 - backup/export/import workflows
 - cleanup execution logic
 - feature-specific dirty-state calculations
@@ -108,17 +108,17 @@ Create `src/lib/settings/` with the following modules.
 Create `src/lib/components/settings/` with:
 
 - `AiSettingsSection.svelte`
-- `ZenMoneyConnectionSection.svelte`
-- `ZenMoneyDataSection.svelte`
+- `ZenmoneyConnectionSection.svelte`
+- `ZenmoneyDataSection.svelte`
 - `BackupRestoreSection.svelte`
 - `StorageCleanupSection.svelte`
 
-`ZenMoneyDataSection.svelte` intentionally includes both:
+`ZenmoneyDataSection.svelte` intentionally includes both:
 
 - category sync UI
 - default account UI
 
-Those behaviors belong to the same ZenMoney data lifecycle and should not be split into separate components.
+Those behaviors belong to the same Zenmoney data lifecycle and should not be split into separate components.
 
 ## Initial Snapshot
 
@@ -149,7 +149,7 @@ Notes:
 - the store owns current-vs-saved comparison
 - the UI should not calculate dirty state
 
-### ZenMoney Connection Store
+### Zenmoney Connection Store
 
 Suggested public surface:
 
@@ -164,7 +164,7 @@ Notes:
 - this store owns only auth/connection concerns
 - it should not know about categories or account lists
 
-### ZenMoney Data Store
+### Zenmoney Data Store
 
 Suggested public surface:
 
@@ -265,7 +265,7 @@ Add repository tests only where the adapter performs non-trivial transformation.
 ## Refactor Constraints
 
 - preserve current behavior; this is a decomposition refactor, not a product redesign
-- keep `ZenMoneyDataSection` as the combined sync/account section
+- keep `ZenmoneyDataSection` as the combined sync/account section
 - keep `zenmoney-connection` separate from `zenmoney-data`
 - prefer Svelte-native stores over plain controller modules for reactive UI state
 - keep the route thin after extraction
@@ -275,7 +275,7 @@ Add repository tests only where the adapter performs non-trivial transformation.
 - changing settings navigation or splitting into nested subroutes
 - redesigning the visual layout
 - changing persistence formats
-- changing ZenMoney/OAuth product behavior
+- changing Zenmoney/OAuth product behavior
 
 ## Implementation Outcome
 

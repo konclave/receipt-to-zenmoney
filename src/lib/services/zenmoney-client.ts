@@ -1,12 +1,15 @@
-import { getConfiguredZenMoneyToken, getZenMoneyAuthMode } from './zenmoney-access';
+import {
+  getConfiguredZenmoneyToken,
+  getZenmoneyAuthMode,
+} from "./zenmoney-access";
 
 function isUnauthorized(error: unknown): boolean {
-  return error instanceof Error && error.message.includes('401');
+  return error instanceof Error && error.message.includes("401");
 }
 
-export async function runZenMoneyRequest<T>(
+export async function runZenmoneyRequest<T>(
   tokenProvider: (forceRefresh?: boolean) => Promise<string>,
-  authModeProvider: () => Promise<'manual' | 'oauth'>,
+  authModeProvider: () => Promise<"manual" | "oauth">,
   request: (token: string) => Promise<T>,
 ): Promise<T> {
   try {
@@ -15,15 +18,19 @@ export async function runZenMoneyRequest<T>(
     if (!isUnauthorized(error)) throw error;
   }
 
-  if ((await authModeProvider()) !== 'oauth') {
-    throw new Error('ZenMoney API error: 401 Unauthorized');
+  if ((await authModeProvider()) !== "oauth") {
+    throw new Error("Zenmoney API error: 401 Unauthorized");
   }
 
   return request(await tokenProvider(true));
 }
 
-export async function runZenMoneyRequestWithStoredToken<T>(
+export async function runZenmoneyRequestWithStoredToken<T>(
   request: (token: string) => Promise<T>,
 ): Promise<T> {
-  return runZenMoneyRequest(getConfiguredZenMoneyToken, getZenMoneyAuthMode, request);
+  return runZenmoneyRequest(
+    getConfiguredZenmoneyToken,
+    getZenmoneyAuthMode,
+    request,
+  );
 }

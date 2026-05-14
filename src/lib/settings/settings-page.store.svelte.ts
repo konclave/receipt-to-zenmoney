@@ -1,13 +1,13 @@
-import { createAiSettingsStore } from './ai-settings.store.svelte';
-import { createBackupStore } from './backup.store.svelte';
-import { createCleanupStore } from './cleanup.store.svelte';
-import { createSettingsRepository } from './settings.repository';
-import { createZenMoneyConnectionStore } from './zenmoney-connection.store.svelte';
-import { createZenMoneyDataStore } from './zenmoney-data.store.svelte';
+import { createAiSettingsStore } from "./ai-settings.store.svelte";
+import { createBackupStore } from "./backup.store.svelte";
+import { createCleanupStore } from "./cleanup.store.svelte";
+import { createSettingsRepository } from "./settings.repository";
+import { createZenmoneyConnectionStore } from "./zenmoney-connection.store.svelte";
+import { createZenmoneyDataStore } from "./zenmoney-data.store.svelte";
 
 type AiStore = ReturnType<typeof createAiSettingsStore>;
-type ZenMoneyConnectionStore = ReturnType<typeof createZenMoneyConnectionStore>;
-type ZenMoneyDataStore = ReturnType<typeof createZenMoneyDataStore>;
+type ZenmoneyConnectionStore = ReturnType<typeof createZenmoneyConnectionStore>;
+type ZenmoneyDataStore = ReturnType<typeof createZenmoneyDataStore>;
 type BackupStore = ReturnType<typeof createBackupStore>;
 type CleanupStore = ReturnType<typeof createCleanupStore>;
 
@@ -21,8 +21,8 @@ export function createSettingsPageStore(input: { oauthEnabled: boolean }) {
   let ready = $state(false);
   let loadError = $state<string | null>(null);
   let ai = $state<AiStore | null>(null);
-  let zenmoneyConnection = $state<ZenMoneyConnectionStore | null>(null);
-  let zenmoneyData = $state<ZenMoneyDataStore | null>(null);
+  let zenmoneyConnection = $state<ZenmoneyConnectionStore | null>(null);
+  let zenmoneyData = $state<ZenmoneyDataStore | null>(null);
   let backup = $state<BackupStore | null>(null);
   let cleanup = $state<CleanupStore | null>(null);
 
@@ -47,14 +47,14 @@ export function createSettingsPageStore(input: { oauthEnabled: boolean }) {
         },
         repo,
       );
-      zenmoneyConnection = createZenMoneyConnectionStore(
+      zenmoneyConnection = createZenmoneyConnectionStore(
         {
           zenmoneyToken: snapshot.settings.zenmoneyToken,
           zenmoneyAccessToken: snapshot.settings.zenmoneyAccessToken,
         },
         repo,
       );
-      zenmoneyData = createZenMoneyDataStore(
+      zenmoneyData = createZenmoneyDataStore(
         {
           categoryCount: snapshot.categoryCount,
           lastSyncDate: snapshot.lastSyncDate,

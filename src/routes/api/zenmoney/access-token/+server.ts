@@ -1,11 +1,25 @@
-import { json } from '@sveltejs/kit';
-import type { Cookies } from '@sveltejs/kit';
-import { getZenMoneyServerConfig } from '$lib/server/zenmoney/config';
-import { SESSION_COOKIE, SESSION_IDLE_TTL_SECONDS } from '$lib/server/zenmoney/cookies';
-import { decryptRefreshToken, encryptRefreshToken } from '$lib/server/zenmoney/crypto';
-import { buildRefreshBody, isAccessTokenStale, TOKEN_URL } from '$lib/server/zenmoney/oauth';
-import { deleteSession, getSession, saveSession } from '$lib/server/zenmoney/session-store';
-import type { ZenMoneyTokenResponse } from '$lib/server/zenmoney/types';
+import { json } from "@sveltejs/kit";
+import type { Cookies } from "@sveltejs/kit";
+import { getZenmoneyServerConfig } from "$lib/server/zenmoney/config";
+import {
+  SESSION_COOKIE,
+  SESSION_IDLE_TTL_SECONDS,
+} from "$lib/server/zenmoney/cookies";
+import {
+  decryptRefreshToken,
+  encryptRefreshToken,
+} from "$lib/server/zenmoney/crypto";
+import {
+  buildRefreshBody,
+  isAccessTokenStale,
+  TOKEN_URL,
+} from "$lib/server/zenmoney/oauth";
+import {
+  deleteSession,
+  getSession,
+  saveSession,
+} from "$lib/server/zenmoney/session-store";
+import type { ZenmoneyTokenResponse } from "$lib/server/zenmoney/types";
 
 export const GET = async ({
   cookies,
@@ -14,27 +28,30 @@ export const GET = async ({
   cookies: Cookies;
   fetch: typeof globalThis.fetch;
 }) => {
-  const config = getZenMoneyServerConfig();
+  const config = getZenmoneyServerConfig();
   if (!config.oauthEnabled) {
-    return json({ message: 'OAuth disabled' }, { status: 404 });
+    return json({ message: "OAuth disabled" }, { status: 404 });
   }
 
   const sessionId = cookies.get(SESSION_COOKIE);
   if (!sessionId) {
-    return json({ message: 'Not connected' }, { status: 401 });
+    return json({ message: "Not connected" }, { status: 401 });
   }
 
   const session = await getSession(sessionId);
   if (!session || session.absoluteExpiresAt <= Date.now()) {
-    cookies.delete(SESSION_COOKIE, { path: '/' });
-    return json({ message: 'Session expired' }, { status: 401 });
+    cookies.delete(SESSION_COOKIE, { path: "/" });
+    return json({ message: "Session expired" }, { status: 401 });
   }
 
   if (isAccessTokenStale(session.accessTokenExpiresAt)) {
-    const refreshToken = await decryptRefreshToken(session.refreshToken, config.tokenEncryptionKey);
+    const refreshToken = await decryptRefreshToken(
+      session.refreshToken,
+      config.tokenEncryptionKey,
+    );
     const refreshResponse = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: buildRefreshBody({
         clientId: config.clientId,
         clientSecret: config.clientSecret,
@@ -44,11 +61,11 @@ export const GET = async ({
 
     if (!refreshResponse.ok) {
       await deleteSession(sessionId);
-      cookies.delete(SESSION_COOKIE, { path: '/' });
-      return json({ message: 'Refresh failed' }, { status: 401 });
+      cookies.delete(SESSION_COOKIE, { path: "/" });
+      return json({ message: "Refresh failed" }, { status: 401 });
     }
 
-    const tokenData = (await refreshResponse.json()) as ZenMoneyTokenResponse;
+    const tokenData = (await refreshResponse.json()) as ZenmoneyTokenResponse;
     session.accessToken = tokenData.access_token;
     session.accessTokenExpiresAt = Date.now() + tokenData.expires_in * 1000;
     if (tokenData.refresh_token) {
@@ -62,10 +79,10 @@ export const GET = async ({
   }
 
   cookies.set(SESSION_COOKIE, sessionId, {
-    path: '/',
+    path: "/",
     httpOnly: true,
     secure: true,
-    sameSite: 'lax',
+    sameSite: "lax",
     maxAge: SESSION_IDLE_TTL_SECONDS,
   });
 
