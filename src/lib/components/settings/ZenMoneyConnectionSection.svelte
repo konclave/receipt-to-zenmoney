@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { createZenMoneyConnectionStore } from '$lib/settings/zenmoney-connection.store.svelte';
+  import type { createZenMoneyConnectionStore } from "$lib/settings/zenmoney-connection.store.svelte";
 
   let {
     oauthEnabled,
@@ -25,7 +25,7 @@
           onclick={store.disconnect}
           disabled={store.disconnecting}
         >
-          {store.disconnecting ? 'Disconnecting…' : 'Disconnect'}
+          {store.disconnecting ? "Disconnecting…" : "Disconnect"}
         </button>
       </div>
     {:else}
@@ -33,19 +33,22 @@
         Connect with ZenMoney
       </button>
       <p class="hint divider">— or paste a token manually —</p>
+      <input
+        id="zm-token"
+        type="password"
+        bind:value={store.manualToken}
+        placeholder="Paste your ZenMoney token"
+        autocomplete="off"
+      />
     {/if}
   {/if}
 
-  <input
-    id="zm-token"
-    type="password"
-    bind:value={store.manualToken}
-    placeholder="Paste your ZenMoney token"
-    autocomplete="off"
-  />
-
-  <button class="btn-primary" onclick={store.saveManualToken} disabled={store.saving || !store.dirty}>
-    {store.saving ? 'Saving…' : 'Save Settings'}
+  <button
+    class="btn-primary"
+    onclick={store.saveManualToken}
+    disabled={store.saving || !store.dirty}
+  >
+    {store.saving ? "Saving…" : "Save Settings"}
   </button>
 </section>
 
