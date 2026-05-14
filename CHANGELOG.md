@@ -1,3 +1,12 @@
+## [1.13.4](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.3...v1.13.4) (2026-05-14)
+
+
+### Bug Fixes
+
+* filenames ([db4e13a](https://github.com/konclave/receipt-to-zenmoney/commit/db4e13a8d40f1cac8c2bb8fcde17a1a576721c90))
+* set the proper Zenmoney name ([888c517](https://github.com/konclave/receipt-to-zenmoney/commit/888c517b3251c6e44ffae03c54d9faa4edfaed78))
+* short name ([2de31ec](https://github.com/konclave/receipt-to-zenmoney/commit/2de31ecf3a40cb9223516a02e3f292b699099567))
+
 ## [1.13.3](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.2...v1.13.3) (2026-05-14)
 
 
