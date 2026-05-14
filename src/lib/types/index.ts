@@ -29,13 +29,6 @@ export interface ReceiptImage {
   blob: Blob;
 }
 
-export interface ReceiptBounds {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
 export interface ParseResult {
   amount: number;
   currency: string;
@@ -43,7 +36,6 @@ export interface ParseResult {
   categoryId: string;
   date: string;
   confidence: 'high' | 'medium' | 'low';
-  receipt_bounds: ReceiptBounds | null;
 }
 
 export interface Settings {
