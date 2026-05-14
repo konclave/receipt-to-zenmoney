@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createZenmoneyConnectionStore } from "./zenmoney-connection.store.svelte";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createZenmoneyConnectionStore } from './zenmoney-connection.store.svelte';
 
-describe("createZenmoneyConnectionStore", () => {
+describe('createZenmoneyConnectionStore', () => {
   const repo = {
     saveManualZenmoneyToken: vi.fn(),
     disconnectZenmoney: vi.fn(),
@@ -11,21 +11,21 @@ describe("createZenmoneyConnectionStore", () => {
     vi.unstubAllGlobals();
     repo.saveManualZenmoneyToken.mockReset();
     repo.disconnectZenmoney.mockReset();
-    window.history.replaceState({}, "", "http://localhost/");
+    window.history.replaceState({}, '', 'http://localhost/');
   });
 
-  it("is connected when a saved manual token exists or a saved access token exists", () => {
+  it('is connected when a saved manual token exists or a saved access token exists', () => {
     const withManualToken = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "manual-token",
-        zenmoneyAccessToken: "",
+        zenmoneyToken: 'manual-token',
+        zenmoneyAccessToken: '',
       },
       repo,
     );
     const withAccessToken = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "",
-        zenmoneyAccessToken: "access-token",
+        zenmoneyToken: '',
+        zenmoneyAccessToken: 'access-token',
       },
       repo,
     );
@@ -34,35 +34,35 @@ describe("createZenmoneyConnectionStore", () => {
     expect(withAccessToken.connected).toBe(true);
   });
 
-  it("saves a pasted manual token, reports success, and becomes connected", async () => {
+  it('saves a pasted manual token, reports success, and becomes connected', async () => {
     const store = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "",
-        zenmoneyAccessToken: "",
+        zenmoneyToken: '',
+        zenmoneyAccessToken: '',
       },
       repo,
     );
 
-    store.manualToken = "manual-token";
+    store.manualToken = 'manual-token';
     await store.saveManualToken();
 
-    expect(repo.saveManualZenmoneyToken).toHaveBeenCalledWith("manual-token");
-    expect(store.success).toBe("Saved");
+    expect(repo.saveManualZenmoneyToken).toHaveBeenCalledWith('manual-token');
+    expect(store.success).toBe('Saved');
     expect(store.connected).toBe(true);
   });
 
-  it("tracks dirty state from the saved manual token and clears it after save", async () => {
+  it('tracks dirty state from the saved manual token and clears it after save', async () => {
     const store = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "",
-        zenmoneyAccessToken: "",
+        zenmoneyToken: '',
+        zenmoneyAccessToken: '',
       },
       repo,
     );
 
     expect(store.dirty).toBe(false);
 
-    store.manualToken = "manual-token";
+    store.manualToken = 'manual-token';
     expect(store.dirty).toBe(true);
 
     await store.saveManualToken();
@@ -70,23 +70,23 @@ describe("createZenmoneyConnectionStore", () => {
     expect(store.dirty).toBe(false);
   });
 
-  it("starts the OAuth flow by navigating to the Zenmoney start endpoint", () => {
-    const stubWindow = { location: { href: "http://localhost/" } };
-    vi.stubGlobal("window", stubWindow);
+  it('starts the OAuth flow by navigating to the Zenmoney start endpoint', () => {
+    const stubWindow = { location: { href: 'http://localhost/' } };
+    vi.stubGlobal('window', stubWindow);
     const store = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "",
-        zenmoneyAccessToken: "",
+        zenmoneyToken: '',
+        zenmoneyAccessToken: '',
       },
       repo,
     );
 
     store.startOAuthFlow();
 
-    expect(stubWindow.location.href).toBe("/api/zenmoney/oauth/start");
+    expect(stubWindow.location.href).toBe('/api/zenmoney/oauth/start');
   });
 
-  it("captures the manual token being saved so later edits do not rewrite the saved snapshot", async () => {
+  it('captures the manual token being saved so later edits do not rewrite the saved snapshot', async () => {
     let resolveSave!: () => void;
     repo.saveManualZenmoneyToken.mockReturnValue(
       new Promise<void>((resolve) => {
@@ -96,23 +96,21 @@ describe("createZenmoneyConnectionStore", () => {
 
     const store = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "",
-        zenmoneyAccessToken: "",
+        zenmoneyToken: '',
+        zenmoneyAccessToken: '',
       },
       repo,
     );
 
-    store.manualToken = "token-before-save";
+    store.manualToken = 'token-before-save';
     const savePromise = store.saveManualToken();
     expect(store.saving).toBe(true);
 
-    store.manualToken = "token-after-save-started";
+    store.manualToken = 'token-after-save-started';
     resolveSave();
     await savePromise;
 
-    expect(repo.saveManualZenmoneyToken).toHaveBeenCalledWith(
-      "token-before-save",
-    );
+    expect(repo.saveManualZenmoneyToken).toHaveBeenCalledWith('token-before-save');
     expect(store.connected).toBe(true);
 
     await store.disconnect();
@@ -120,45 +118,41 @@ describe("createZenmoneyConnectionStore", () => {
     expect(store.connected).toBe(false);
   });
 
-  it("clears current and saved connection state after disconnect succeeds", async () => {
+  it('clears current and saved connection state after disconnect succeeds', async () => {
     const store = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "manual-token",
-        zenmoneyAccessToken: "access-token",
+        zenmoneyToken: 'manual-token',
+        zenmoneyAccessToken: 'access-token',
       },
       repo,
     );
 
-    store.manualToken = "edited-token";
+    store.manualToken = 'edited-token';
     await store.disconnect();
 
     expect(repo.disconnectZenmoney).toHaveBeenCalledTimes(1);
-    expect(store.manualToken).toBe("");
+    expect(store.manualToken).toBe('');
     expect(store.connected).toBe(false);
     expect(store.error).toBeNull();
   });
 
-  it("sets error when connection actions fail", async () => {
-    repo.saveManualZenmoneyToken.mockRejectedValueOnce(
-      new Error("save failed"),
-    );
-    repo.disconnectZenmoney.mockRejectedValueOnce(
-      new Error("disconnect failed"),
-    );
+  it('sets error when connection actions fail', async () => {
+    repo.saveManualZenmoneyToken.mockRejectedValueOnce(new Error('save failed'));
+    repo.disconnectZenmoney.mockRejectedValueOnce(new Error('disconnect failed'));
 
     const store = createZenmoneyConnectionStore(
       {
-        zenmoneyToken: "manual-token",
-        zenmoneyAccessToken: "",
+        zenmoneyToken: 'manual-token',
+        zenmoneyAccessToken: '',
       },
       repo,
     );
 
-    store.manualToken = "next-token";
+    store.manualToken = 'next-token';
     await store.saveManualToken();
-    expect(store.error).toBe("save failed");
+    expect(store.error).toBe('save failed');
 
     await store.disconnect();
-    expect(store.error).toBe("disconnect failed");
+    expect(store.error).toBe('disconnect failed');
   });
 });

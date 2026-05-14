@@ -1,24 +1,20 @@
-import { getSettings, saveSettings } from "$lib/db/settings";
-import { getCategories, saveCategories } from "$lib/db/categories";
-import { getAccounts, saveAccounts } from "$lib/db/accounts";
-import { saveInstruments } from "$lib/db/instruments";
-import { clearZenmoneyAccessToken } from "$lib/services/zenmoney-access";
-import { runZenmoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
-import { syncDiff, mapResponseToCategories } from "$lib/services/zenmoney";
-import {
-  exportBackup,
-  importBackup,
-  exportBackupForPeriod,
-} from "$lib/services/backup";
-import { getStorageStats } from "$lib/services/storage-stats";
-import { deleteTransactionsByPeriod } from "$lib/db/transactions";
-import { bulkDeleteReceiptImages } from "$lib/db/receipt-images";
-import type { Settings, ZenmoneyAccount } from "$lib/types";
-import type { StorageStats } from "$lib/services/storage-stats";
+import { getSettings, saveSettings } from '$lib/db/settings';
+import { getCategories, saveCategories } from '$lib/db/categories';
+import { getAccounts, saveAccounts } from '$lib/db/accounts';
+import { saveInstruments } from '$lib/db/instruments';
+import { clearZenmoneyAccessToken } from '$lib/services/zenmoney-access';
+import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+import { syncDiff, mapResponseToCategories } from '$lib/services/zenmoney';
+import { exportBackup, importBackup, exportBackupForPeriod } from '$lib/services/backup';
+import { getStorageStats } from '$lib/services/storage-stats';
+import { deleteTransactionsByPeriod } from '$lib/db/transactions';
+import { bulkDeleteReceiptImages } from '$lib/db/receipt-images';
+import type { Settings, ZenmoneyAccount } from '$lib/types';
+import type { StorageStats } from '$lib/services/storage-stats';
 
 export type AiSettingsInput = Pick<
   Settings,
-  "aiProvider" | "claudeApiKey" | "openrouterApiKey" | "openrouterModel"
+  'aiProvider' | 'claudeApiKey' | 'openrouterApiKey' | 'openrouterModel'
 >;
 
 export interface LoadPageSnapshotInput {
@@ -42,9 +38,7 @@ export interface ReloadZenmoneyDataResult {
 }
 
 export interface SettingsRepository {
-  loadPageSnapshot(
-    input: LoadPageSnapshotInput,
-  ): Promise<LoadPageSnapshotResult>;
+  loadPageSnapshot(input: LoadPageSnapshotInput): Promise<LoadPageSnapshotResult>;
   fetchOpenRouterModels(): Promise<Array<{ id: string; name: string }>>;
   saveAiSettings(input: AiSettingsInput): Promise<void>;
   saveManualZenmoneyToken(token: string): Promise<void>;
@@ -75,9 +69,7 @@ interface OpenRouterModelsResponse {
 }
 
 function sortAccounts(accounts: ZenmoneyAccount[]): ZenmoneyAccount[] {
-  return [...accounts].sort((left, right) =>
-    left.title.localeCompare(right.title),
-  );
+  return [...accounts].sort((left, right) => left.title.localeCompare(right.title));
 }
 
 function toDateStringOrNull(timestamp: number | undefined): string | null {
@@ -87,15 +79,14 @@ function toDateStringOrNull(timestamp: number | undefined): string | null {
 
 function isImageCapableModel(model: OpenRouterModel): boolean {
   return (
-    model.architecture?.input_modalities?.includes("image") === true ||
-    model.architecture?.modality?.includes("image") === true
+    model.architecture?.input_modalities?.includes('image') === true ||
+    model.architecture?.modality?.includes('image') === true
   );
 }
 
 function formatOpenRouterModelName(model: OpenRouterModel): string {
-  const free =
-    model.pricing?.prompt === "0" && model.pricing?.completion === "0";
-  return `${free ? "🆓 " : ""}${model.name || model.id}`;
+  const free = model.pricing?.prompt === '0' && model.pricing?.completion === '0';
+  return `${free ? '🆓 ' : ''}${model.name || model.id}`;
 }
 
 async function loadPageSnapshot({
@@ -118,14 +109,10 @@ async function loadPageSnapshot({
   };
 }
 
-async function fetchOpenRouterModels(): Promise<
-  Array<{ id: string; name: string }>
-> {
-  const response = await fetch("https://openrouter.ai/api/v1/models");
+async function fetchOpenRouterModels(): Promise<Array<{ id: string; name: string }>> {
+  const response = await fetch('https://openrouter.ai/api/v1/models');
   if (!response.ok) {
-    throw new Error(
-      `OpenRouter API error: ${response.status} ${response.statusText}`,
-    );
+    throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
   }
 
   const json = (await response.json()) as OpenRouterModelsResponse;
@@ -147,22 +134,20 @@ async function saveManualZenmoneyToken(token: string): Promise<void> {
 }
 
 async function disconnectZenmoney(): Promise<void> {
-  await fetch("/api/zenmoney/logout", {
-    method: "POST",
-    credentials: "include",
+  await fetch('/api/zenmoney/logout', {
+    method: 'POST',
+    credentials: 'include',
   }).catch(() => {});
   await clearZenmoneyAccessToken();
-  await saveSettings({ zenmoneyToken: "" });
+  await saveSettings({ zenmoneyToken: '' });
 }
 
 async function reloadZenmoneyData(): Promise<ReloadZenmoneyDataResult> {
   const lastSyncDate = new Date().toLocaleDateString();
-  const response = await runZenmoneyRequestWithStoredToken((token) =>
-    syncDiff(token, 0),
-  );
+  const response = await runZenmoneyRequestWithStoredToken((token) => syncDiff(token, 0));
   const categories = mapResponseToCategories(response);
   const accounts = sortAccounts(response.account);
-  const selectedAccountId = accounts.length === 1 ? accounts[0].id : "";
+  const selectedAccountId = accounts.length === 1 ? accounts[0].id : '';
 
   await Promise.all([
     saveCategories(categories),

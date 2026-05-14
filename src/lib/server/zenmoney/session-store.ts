@@ -1,12 +1,8 @@
-import { SESSION_ABSOLUTE_TTL_MS, SESSION_IDLE_TTL_SECONDS } from "./cookies";
-import type { ZenmoneySessionRecord } from "./types";
+import { SESSION_ABSOLUTE_TTL_MS, SESSION_IDLE_TTL_SECONDS } from './cookies';
+import type { ZenmoneySessionRecord } from './types';
 
 type KvLike = {
-  set: (
-    key: string,
-    value: unknown,
-    options?: { ex?: number },
-  ) => Promise<unknown>;
+  set: (key: string, value: unknown, options?: { ex?: number }) => Promise<unknown>;
   get: <T>(key: string) => Promise<T | null>;
   del: (key: string) => Promise<unknown>;
 };
@@ -25,13 +21,13 @@ const fallbackKv: KvLike = {
   },
 };
 
-const loadModule = new Function("specifier", "return import(specifier)") as (
+const loadModule = new Function('specifier', 'return import(specifier)') as (
   specifier: string,
 ) => Promise<{ kv: KvLike }>;
 
 async function getKvClient(): Promise<KvLike> {
   try {
-    const mod = await loadModule("@vercel/kv");
+    const mod = await loadModule('@vercel/kv');
     return mod.kv as KvLike;
   } catch {
     return fallbackKv;
@@ -42,18 +38,14 @@ function sessionKey(sessionId: string): string {
   return `zenmoney:session:${sessionId}`;
 }
 
-export async function saveSession(
-  record: ZenmoneySessionRecord,
-): Promise<void> {
+export async function saveSession(record: ZenmoneySessionRecord): Promise<void> {
   const kv = await getKvClient();
   await kv.set(sessionKey(record.sessionId), record, {
     ex: SESSION_IDLE_TTL_SECONDS,
   });
 }
 
-export async function getSession(
-  sessionId: string,
-): Promise<ZenmoneySessionRecord | null> {
+export async function getSession(sessionId: string): Promise<ZenmoneySessionRecord | null> {
   const kv = await getKvClient();
   return (await kv.get<ZenmoneySessionRecord>(sessionKey(sessionId))) ?? null;
 }

@@ -1,4 +1,4 @@
-import type { ZenmoneyAccount } from "$lib/types";
+import type { ZenmoneyAccount } from '$lib/types';
 
 interface ReloadZenmoneyDataResult {
   categoryCount: number;
@@ -54,7 +54,7 @@ export function createZenmoneyDataStore(
         savedSelectedAccountId = next.selectedAccountId;
       }
 
-      success = "Categories reloaded";
+      success = 'Categories reloaded';
     } catch (cause) {
       success = null;
       error = cause instanceof Error ? cause.message : String(cause);
@@ -72,7 +72,7 @@ export function createZenmoneyDataStore(
     try {
       await repo.saveDefaultAccount(accountIdToSave);
       savedSelectedAccountId = accountIdToSave;
-      success = "Saved";
+      success = 'Saved';
     } catch (cause) {
       success = null;
       error = cause instanceof Error ? cause.message : String(cause);

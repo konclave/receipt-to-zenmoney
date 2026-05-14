@@ -4,10 +4,7 @@ function toErrorMessage(cause: unknown): string {
 
 function isAbortError(cause: unknown): boolean {
   return (
-    typeof cause === "object" &&
-    cause !== null &&
-    "name" in cause &&
-    cause.name === "AbortError"
+    typeof cause === 'object' && cause !== null && 'name' in cause && cause.name === 'AbortError'
   );
 }
 
@@ -15,24 +12,21 @@ function getBackupDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function shareOrDownloadBackup(
-  blob: Blob,
-  filename: string,
-): Promise<boolean> {
+async function shareOrDownloadBackup(blob: Blob, filename: string): Promise<boolean> {
   const file = new File([blob], filename, {
-    type: blob.type || "application/gzip",
+    type: blob.type || 'application/gzip',
   });
 
   if (
-    typeof navigator !== "undefined" &&
-    typeof navigator.share === "function" &&
-    typeof navigator.canShare === "function" &&
+    typeof navigator !== 'undefined' &&
+    typeof navigator.share === 'function' &&
+    typeof navigator.canShare === 'function' &&
     navigator.canShare({ files: [file] })
   ) {
     try {
       await navigator.share({
         files: [file],
-        title: "Zenmoney Backup",
+        title: 'Zenmoney Backup',
       });
       return true;
     } catch (cause) {
@@ -45,7 +39,7 @@ async function shareOrDownloadBackup(
   const url = URL.createObjectURL(blob);
 
   try {
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -80,10 +74,7 @@ export function createBackupStore(repo: BackupRepo, effects: BackupEffects) {
 
     try {
       const { blob, count } = await repo.exportBackup();
-      const completed = await shareOrDownloadBackup(
-        blob,
-        `rzm-backup-${getBackupDate()}.rzm.gz`,
-      );
+      const completed = await shareOrDownloadBackup(blob, `rzm-backup-${getBackupDate()}.rzm.gz`);
       if (!completed) return;
       status = `Exported ${count} transaction(s)`;
     } catch (cause) {

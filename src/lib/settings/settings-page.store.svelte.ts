@@ -1,9 +1,9 @@
-import { createAiSettingsStore } from "./ai-settings.store.svelte";
-import { createBackupStore } from "./backup.store.svelte";
-import { createCleanupStore } from "./cleanup.store.svelte";
-import { createSettingsRepository } from "./settings.repository";
-import { createZenmoneyConnectionStore } from "./zenmoney-connection.store.svelte";
-import { createZenmoneyDataStore } from "./zenmoney-data.store.svelte";
+import { createAiSettingsStore } from './ai-settings.store.svelte';
+import { createBackupStore } from './backup.store.svelte';
+import { createCleanupStore } from './cleanup.store.svelte';
+import { createSettingsRepository } from './settings.repository';
+import { createZenmoneyConnectionStore } from './zenmoney-connection.store.svelte';
+import { createZenmoneyDataStore } from './zenmoney-data.store.svelte';
 
 type AiStore = ReturnType<typeof createAiSettingsStore>;
 type ZenmoneyConnectionStore = ReturnType<typeof createZenmoneyConnectionStore>;

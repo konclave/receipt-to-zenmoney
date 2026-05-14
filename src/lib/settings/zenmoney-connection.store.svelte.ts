@@ -1,4 +1,4 @@
-import type { Settings } from "$lib/types";
+import type { Settings } from '$lib/types';
 
 interface ZenmoneyConnectionRepo {
   saveManualZenmoneyToken(token: string): Promise<void>;
@@ -6,7 +6,7 @@ interface ZenmoneyConnectionRepo {
 }
 
 export function createZenmoneyConnectionStore(
-  initial: Pick<Settings, "zenmoneyToken" | "zenmoneyAccessToken">,
+  initial: Pick<Settings, 'zenmoneyToken' | 'zenmoneyAccessToken'>,
   repo: ZenmoneyConnectionRepo,
 ) {
   let manualToken = $state(initial.zenmoneyToken);
@@ -21,7 +21,7 @@ export function createZenmoneyConnectionStore(
   const dirty = $derived(manualToken !== savedManualToken);
 
   function startOAuthFlow() {
-    window.location.href = "/api/zenmoney/oauth/start";
+    window.location.href = '/api/zenmoney/oauth/start';
   }
 
   async function saveManualToken() {
@@ -33,7 +33,7 @@ export function createZenmoneyConnectionStore(
     try {
       await repo.saveManualZenmoneyToken(tokenToSave);
       savedManualToken = tokenToSave;
-      success = "Saved";
+      success = 'Saved';
     } catch (cause) {
       success = null;
       error = cause instanceof Error ? cause.message : String(cause);
@@ -49,9 +49,9 @@ export function createZenmoneyConnectionStore(
 
     try {
       await repo.disconnectZenmoney();
-      manualToken = "";
-      savedManualToken = "";
-      savedAccessToken = "";
+      manualToken = '';
+      savedManualToken = '';
+      savedAccessToken = '';
     } catch (cause) {
       error = cause instanceof Error ? cause.message : String(cause);
     } finally {
