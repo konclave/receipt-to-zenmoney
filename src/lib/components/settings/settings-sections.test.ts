@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 describe('settings section components', () => {
   it('hides default-account controls when there is only one account', () => {
     const section = readFileSync(
-      resolve(process.cwd(), 'src/lib/components/settings/ZenmoneyDataSection.svelte'),
+      resolve(process.cwd(), 'src/lib/components/settings/ZenMoneyDataSection.svelte'),
       'utf8',
     );
     const guardedDefaultAccountControls =

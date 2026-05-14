@@ -6,8 +6,8 @@
   import AiSettingsSection from "$lib/components/settings/AiSettingsSection.svelte";
   import BackupRestoreSection from "$lib/components/settings/BackupRestoreSection.svelte";
   import StorageCleanupSection from "$lib/components/settings/StorageCleanupSection.svelte";
-  import ZenmoneyConnectionSection from "$lib/components/settings/ZenmoneyConnectionSection.svelte";
-  import ZenmoneyDataSection from "$lib/components/settings/ZenmoneyDataSection.svelte";
+  import ZenmoneyConnectionSection from "$lib/components/settings/ZenMoneyConnectionSection.svelte";
+  import ZenmoneyDataSection from "$lib/components/settings/ZenMoneyDataSection.svelte";
   import { createSettingsPageStore } from "$lib/settings/settings-page.store.svelte";
 
   const oauthEnabled = env.PUBLIC_ZENMONEY_OAUTH_ENABLED === "true";
