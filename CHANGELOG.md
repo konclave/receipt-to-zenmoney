@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.2...v1.13.3) (2026-05-14)
+
+
+### Bug Fixes
+
+* **settings:** hide zenmoney related fields when connected ([4e58a0d](https://github.com/konclave/receipt-to-zenmoney/commit/4e58a0de975226f8e1054a21fb85fdb708b5175e))
+
 ## [1.13.2](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.1...v1.13.2) (2026-05-14)
 
 
