@@ -1,9 +1,10 @@
+import { PUBLIC_ZENMONEY_OAUTH_ENABLED } from '$env/static/public';
 import { getSettings, saveSettings } from '$lib/db/settings';
 
 const REFRESH_WINDOW_MS = 5 * 60_000;
 
 function isOAuthEnabled(): boolean {
-  return import.meta.env.PUBLIC_ZENMONEY_OAUTH_ENABLED === 'true';
+  return PUBLIC_ZENMONEY_OAUTH_ENABLED === 'true';
 }
 
 function tokenNeedsRefresh(expiresAt: number, now = Date.now()): boolean {
