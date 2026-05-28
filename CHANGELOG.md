@@ -1,3 +1,11 @@
+## [1.13.8](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.7...v1.13.8) (2026-05-28)
+
+
+### Bug Fixes
+
+* alert styles ([48dd3ce](https://github.com/konclave/receipt-to-zenmoney/commit/48dd3ce22178de35a6a5e468cdcd32b518e530a1))
+* typing errors ([6e097a4](https://github.com/konclave/receipt-to-zenmoney/commit/6e097a494af27fbd2ff9bf66cd88f713e5c80f36))
+
 ## [1.13.7](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.6...v1.13.7) (2026-05-28)
 
 
