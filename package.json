@@ -1,6 +1,6 @@
 {
   "name": "receipt-to-zenmoney",
-  "version": "1.13.6",
+  "version": "1.13.7",
   "private": true,
   "type": "module",
   "scripts": {

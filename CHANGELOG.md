@@ -1,3 +1,10 @@
+## [1.13.7](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.6...v1.13.7) (2026-05-28)
+
+
+### Bug Fixes
+
+* remove buymeacoffee ([2e04298](https://github.com/konclave/receipt-to-zenmoney/commit/2e04298dbd136b60f266b751afbcf69d856b7d3b))
+
 ## [1.13.6](https://github.com/konclave/receipt-to-zenmoney/compare/v1.13.5...v1.13.6) (2026-05-14)
 
 
