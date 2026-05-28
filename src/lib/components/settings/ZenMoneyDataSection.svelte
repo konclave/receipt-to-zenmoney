@@ -1,5 +1,7 @@
 <script lang="ts">
-  import type { createZenmoneyDataStore } from "$lib/settings/zenmoney-data.store.svelte";
+  import type { createZenmoneyDataStore } from '$lib/settings/zenmoney-data.store.svelte';
+  import Alert from '$lib/components/ui/Alert.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   let { store }: { store: ReturnType<typeof createZenmoneyDataStore> } =
     $props();
@@ -7,8 +9,8 @@
 
 <section>
   <h2>Zenmoney Data</h2>
-  {#if store.error}<div class="alert error">{store.error}</div>{/if}
-  {#if store.success}<div class="alert success">{store.success}</div>{/if}
+  <Alert type="error" message={store.error} />
+  <Alert type="success" message={store.success} />
 
   <label for="reload-categories">
     Categories
@@ -16,17 +18,17 @@
       ({store.categoryCount} cached
       {store.lastSyncDate
         ? `· Last synced ${store.lastSyncDate}`
-        : "· Not synced yet"})
+        : '· Not synced yet'})
     </span>
   </label>
-  <button
+  <Button
     id="reload-categories"
-    class="btn-secondary"
+    variant="secondary"
     onclick={store.reloadCategories}
     disabled={store.syncing}
   >
-    {store.syncing ? "Loading…" : "Reload Categories"}
-  </button>
+    {store.syncing ? 'Loading…' : 'Reload Categories'}
+  </Button>
 
   {#if store.hasMultipleAccounts}
     <label for="account">Default Account</label>
@@ -41,13 +43,12 @@
         <option value={account.id}>{account.title}</option>
       {/each}
     </select>
-    <button
-      class="btn-primary"
+    <Button
       onclick={store.saveAccount}
       disabled={store.savingAccount || !store.accountDirty}
     >
-      {store.savingAccount ? "Saving…" : "Save Account"}
-    </button>
+      {store.savingAccount ? 'Saving…' : 'Save Account'}
+    </Button>
   {/if}
 </section>
 
@@ -61,48 +62,5 @@
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 4px;
-  }
-  label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text-muted);
-  }
-  .hint {
-    font-size: 12px;
-    color: var(--color-text-muted);
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
-  .alert.success {
-    background: color-mix(in srgb, var(--color-success) 15%, transparent);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
-  }
-  .btn-primary {
-    background: var(--color-primary);
-    color: white;
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    font-weight: 600;
-    font-size: 15px;
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .btn-secondary {
-    background: var(--color-surface-2);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-    font-weight: 500;
   }
 </style>

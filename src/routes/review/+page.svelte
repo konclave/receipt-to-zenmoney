@@ -18,6 +18,8 @@
   } from '$lib/db/pending-capture';
   import { saveReceiptImage } from '$lib/db/receipt-images';
   import type { Category, PendingCapture, ZenmoneyAccount } from '$lib/types';
+  import Alert from '$lib/components/ui/Alert.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   let capture = $state<PendingCapture | null>(get(captureStore));
   let categories = $state<Category[]>([]);
@@ -184,15 +186,20 @@
       <p>Parsing receipt…</p>
     </div>
   {:else}
-    {#if parseError}<div class="alert warning">{parseError}</div>{/if}
-    {#if lowConfidence}<div class="alert warning">
-        Low confidence — please double-check values.
-      </div>{/if}
-    {#if accounts.length === 0}<div class="alert warning">
-        No accounts loaded — go to Settings and tap Reload Categories before
-        submitting.
-      </div>{/if}
-    {#if submitError}<div class="alert error">{submitError}</div>{/if}
+    <Alert type="warning" message={parseError} />
+    <Alert
+      type="warning"
+      message={lowConfidence
+        ? 'Low confidence — please double-check values.'
+        : undefined}
+    />
+    <Alert
+      type="warning"
+      message={accounts.length === 0
+        ? 'No accounts loaded — go to Settings and tap Reload Categories before submitting.'
+        : undefined}
+    />
+    <Alert type="error" message={submitError} />
 
     <form
       class="form"
@@ -238,9 +245,13 @@
         <label for="date">Date</label>
         <input id="date" type="date" bind:value={date} required />
       </div>
-      <button type="submit" class="btn-primary" disabled={submitting}>
+      <Button
+        type="submit"
+        disabled={submitting}
+        style="padding: 16px; font-size: 16px; margin-top: 8px;"
+      >
         {submitting ? 'Submitting…' : 'Submit to Zenmoney'}
-      </button>
+      </Button>
     </form>
   {/if}
 </div>
@@ -304,11 +315,6 @@
     flex-direction: column;
     gap: 6px;
   }
-  label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text-muted);
-  }
   select {
     appearance: none;
     background: var(--color-surface-2);
@@ -317,32 +323,5 @@
     padding: 12px;
     font-size: 15px;
     color: var(--color-text);
-  }
-  .btn-primary {
-    background: var(--color-primary);
-    color: white;
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    font-weight: 600;
-    font-size: 16px;
-    margin-top: 8px;
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.warning {
-    background: color-mix(in srgb, var(--color-warning) 15%, transparent);
-    border: 1px solid var(--color-warning);
-    color: var(--color-warning);
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
   }
 </style>

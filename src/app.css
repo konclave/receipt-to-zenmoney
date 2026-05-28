@@ -80,3 +80,14 @@ select:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}

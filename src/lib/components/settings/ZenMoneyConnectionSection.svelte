@@ -1,5 +1,7 @@
 <script lang="ts">
-  import type { createZenmoneyConnectionStore } from "$lib/settings/zenmoney-connection.store.svelte";
+  import type { createZenmoneyConnectionStore } from '$lib/settings/zenmoney-connection.store.svelte';
+  import Alert from '$lib/components/ui/Alert.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
 
   let {
     oauthEnabled,
@@ -12,8 +14,8 @@
 
 <section>
   <h2>Zenmoney Connection</h2>
-  {#if store.error}<div class="alert error">{store.error}</div>{/if}
-  {#if store.success}<div class="alert success">{store.success}</div>{/if}
+  <Alert type="error" message={store.error} />
+  <Alert type="success" message={store.success} />
 
   {#if oauthEnabled}
     {#if store.connected}
@@ -25,7 +27,7 @@
           onclick={store.disconnect}
           disabled={store.disconnecting}
         >
-          {store.disconnecting ? "Disconnecting…" : "Disconnect"}
+          {store.disconnecting ? 'Disconnecting…' : 'Disconnect'}
         </button>
       </div>
     {:else}
@@ -43,13 +45,12 @@
     {/if}
   {/if}
 
-  <button
-    class="btn-primary"
+  <Button
     onclick={store.saveManualToken}
     disabled={store.saving || !store.dirty}
   >
-    {store.saving ? "Saving…" : "Save Settings"}
-  </button>
+    {store.saving ? 'Saving…' : 'Save Settings'}
+  </Button>
 </section>
 
 <style>
@@ -63,27 +64,8 @@
     font-weight: 600;
     margin-bottom: 4px;
   }
-  .hint {
-    font-size: 12px;
-    color: var(--color-text-muted);
-  }
   .hint.divider {
     text-align: center;
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
-  .alert.success {
-    background: color-mix(in srgb, var(--color-success) 15%, transparent);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
   }
   .connected-row {
     display: flex;
@@ -125,17 +107,5 @@
   }
   .btn-oauth:hover {
     opacity: 0.9;
-  }
-  .btn-primary {
-    background: var(--color-primary);
-    color: white;
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    font-weight: 600;
-    font-size: 15px;
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 </style>

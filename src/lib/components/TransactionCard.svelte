@@ -1,49 +1,56 @@
 <script lang="ts">
-  import type { Transaction, Category, ReceiptImage } from '$lib/types'
+  import type { Transaction, Category, ReceiptImage } from '$lib/types';
+  import Badge from '$lib/components/ui/Badge.svelte';
 
   let {
     transaction,
     categories,
     receiptImage,
-    onRetry
+    onRetry,
   }: {
-    transaction: Transaction
-    categories: Category[]
-    receiptImage?: ReceiptImage
-    onRetry?: (tx: Transaction) => Promise<void>
-  } = $props()
+    transaction: Transaction;
+    categories: Category[];
+    receiptImage?: ReceiptImage;
+    onRetry?: (tx: Transaction) => Promise<void>;
+  } = $props();
 
-  const category = $derived(categories.find((c) => c.id === transaction.categoryId))
+  const category = $derived(
+    categories.find((c) => c.id === transaction.categoryId),
+  );
   const formattedAmount = $derived(
-    new Intl.NumberFormat('ru-RU', { style: 'currency', currency: transaction.currency }).format(
-      transaction.amount
-    )
-  )
+    new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: transaction.currency,
+    }).format(transaction.amount),
+  );
   const formattedDate = $derived(
-    new Date(transaction.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
-  )
+    new Date(transaction.date).toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'short',
+    }),
+  );
 
-  let retrying = $state(false)
-  let retryError = $state<string | null>(null)
+  let retrying = $state(false);
+  let retryError = $state<string | null>(null);
 
-  let thumbnailUrl = $state<string | null>(null)
+  let thumbnailUrl = $state<string | null>(null);
   $effect(() => {
-    if (!receiptImage) return
-    const url = URL.createObjectURL(receiptImage.blob)
-    thumbnailUrl = url
-    return () => URL.revokeObjectURL(url)
-  })
+    if (!receiptImage) return;
+    const url = URL.createObjectURL(receiptImage.blob);
+    thumbnailUrl = url;
+    return () => URL.revokeObjectURL(url);
+  });
 
   async function handleRetry() {
-    if (!onRetry) return
-    retrying = true
-    retryError = null
+    if (!onRetry) return;
+    retrying = true;
+    retryError = null;
     try {
-      await onRetry(transaction)
+      await onRetry(transaction);
     } catch (e) {
-      retryError = e instanceof Error ? e.message : String(e)
+      retryError = e instanceof Error ? e.message : String(e);
     } finally {
-      retrying = false
+      retrying = false;
     }
   }
 </script>
@@ -52,11 +59,13 @@
   <div class="row">
     <div class="left">
       <span class="merchant">{transaction.merchant || 'Unknown'}</span>
-      <span class="meta">{category?.title ?? 'Uncategorized'} · {formattedDate}</span>
+      <span class="meta"
+        >{category?.title ?? 'Uncategorized'} · {formattedDate}</span
+      >
     </div>
     <div class="right">
       <span class="amount">−{formattedAmount}</span>
-      <span class="badge badge-{transaction.status}">{transaction.status}</span>
+      <Badge status={transaction.status} />
     </div>
   </div>
   {#if thumbnailUrl}
@@ -77,21 +86,77 @@
 </div>
 
 <style>
-  .card { padding: 14px 16px; border-bottom: 1px solid var(--color-border); }
-  .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .merchant { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .meta { font-size: 12px; color: var(--color-text-muted); }
-  .right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-  .amount { font-size: 15px; font-weight: 600; }
-  .badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
-  .badge-submitted { background: color-mix(in srgb, var(--color-success) 20%, transparent); color: var(--color-success); }
-  .badge-pending { background: color-mix(in srgb, var(--color-warning) 20%, transparent); color: var(--color-warning); }
-  .badge-failed { background: color-mix(in srgb, var(--color-error) 20%, transparent); color: var(--color-error); }
-  .thumbnail-row { margin-top: 8px; }
-  .thumbnail { width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-border); display: block; }
-  .retry-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; }
-  .retry-error { font-size: 11px; color: var(--color-error); flex: 1; }
-  .btn-retry { font-size: 12px; font-weight: 600; color: var(--color-primary); padding: 4px 12px; border: 1px solid var(--color-primary); border-radius: var(--radius-sm); }
-  .btn-retry:disabled { opacity: 0.5; cursor: not-allowed; }
+  .card {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .merchant {
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .meta {
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+  .right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .amount {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .thumbnail-row {
+    margin-top: 8px;
+  }
+  .thumbnail {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    display: block;
+  }
+  .retry-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .retry-error {
+    font-size: 11px;
+    color: var(--color-error);
+    flex: 1;
+  }
+  .btn-retry {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+    padding: 4px 12px;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+  }
+  .btn-retry:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 </style>
