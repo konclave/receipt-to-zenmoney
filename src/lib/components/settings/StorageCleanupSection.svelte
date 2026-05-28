@@ -7,7 +7,8 @@
   let { store }: { store: ReturnType<typeof createCleanupStore> } = $props();
 
   const totalTransactions = $derived(
-    store.storageStats?.byYear.reduce((sum, year) => sum + year.txCount, 0) ?? 0,
+    store.storageStats?.byYear.reduce((sum, year) => sum + year.txCount, 0) ??
+      0,
   );
 </script>
 
@@ -24,7 +25,8 @@
     {#if store.storageStats}
       <span class="hint">
         {store.storageStats.byYear.length}
-        {store.storageStats.byYear.length === 1 ? 'year' : 'years'} · {totalTransactions} transactions
+        {store.storageStats.byYear.length === 1 ? 'year' : 'years'} · {totalTransactions}
+        transactions
       </span>
     {:else if store.loadingStats}
       <span class="hint">Loading storage usage…</span>
@@ -32,7 +34,9 @@
     <button
       class="btn-danger"
       onclick={store.openCleanupModal}
-      disabled={!store.storageStats || store.storageStats.byYear.length === 0 || store.cleaning}
+      disabled={!store.storageStats ||
+        store.storageStats.byYear.length === 0 ||
+        store.cleaning}
     >
       {store.cleaning ? 'Cleaning…' : 'Clean Up…'}
     </button>
@@ -71,21 +75,6 @@
   .hint {
     font-size: 12px;
     color: var(--color-text-muted);
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
-  .alert.success {
-    background: color-mix(in srgb, var(--color-success) 15%, transparent);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
   }
   .storage-stats {
     display: flex;

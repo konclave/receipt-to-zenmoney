@@ -330,19 +330,4 @@
   .btn-primary:disabled {
     opacity: 0.5;
   }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.warning {
-    background: color-mix(in srgb, var(--color-warning) 15%, transparent);
-    border: 1px solid var(--color-warning);
-    color: var(--color-warning);
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
 </style>

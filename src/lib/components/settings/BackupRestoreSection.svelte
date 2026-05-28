@@ -19,7 +19,11 @@
   {#if store.error}<div class="alert error">{store.error}</div>{/if}
   {#if store.status}<div class="alert success">{store.status}</div>{/if}
 
-  <button class="btn-secondary" onclick={store.exportAll} disabled={store.exporting || store.importing}>
+  <button
+    class="btn-secondary"
+    onclick={store.exportAll}
+    disabled={store.exporting || store.importing}
+  >
     {store.exporting ? 'Exporting…' : 'Export backup'}
   </button>
   <button
@@ -49,21 +53,6 @@
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 4px;
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
-  .alert.success {
-    background: color-mix(in srgb, var(--color-success) 15%, transparent);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
   }
   .btn-secondary {
     background: var(--color-surface-2);

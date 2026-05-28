@@ -86,7 +86,11 @@
     {/if}
   {/if}
 
-  <button class="btn-primary" onclick={store.save} disabled={store.saving || !store.dirty}>
+  <button
+    class="btn-primary"
+    onclick={store.save}
+    disabled={store.saving || !store.dirty}
+  >
     {store.saving ? 'Saving…' : 'Save AI Settings'}
   </button>
 </section>
@@ -110,21 +114,6 @@
   .hint {
     font-size: 12px;
     color: var(--color-text-muted);
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
-  .alert.success {
-    background: color-mix(in srgb, var(--color-success) 15%, transparent);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
   }
   .provider-tabs {
     display: flex;

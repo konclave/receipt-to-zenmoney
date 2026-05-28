@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { createZenmoneyDataStore } from "$lib/settings/zenmoney-data.store.svelte";
+  import type { createZenmoneyDataStore } from '$lib/settings/zenmoney-data.store.svelte';
 
   let { store }: { store: ReturnType<typeof createZenmoneyDataStore> } =
     $props();
@@ -16,7 +16,7 @@
       ({store.categoryCount} cached
       {store.lastSyncDate
         ? `· Last synced ${store.lastSyncDate}`
-        : "· Not synced yet"})
+        : '· Not synced yet'})
     </span>
   </label>
   <button
@@ -25,7 +25,7 @@
     onclick={store.reloadCategories}
     disabled={store.syncing}
   >
-    {store.syncing ? "Loading…" : "Reload Categories"}
+    {store.syncing ? 'Loading…' : 'Reload Categories'}
   </button>
 
   {#if store.hasMultipleAccounts}
@@ -46,7 +46,7 @@
       onclick={store.saveAccount}
       disabled={store.savingAccount || !store.accountDirty}
     >
-      {store.savingAccount ? "Saving…" : "Save Account"}
+      {store.savingAccount ? 'Saving…' : 'Save Account'}
     </button>
   {/if}
 </section>
@@ -70,21 +70,6 @@
   .hint {
     font-size: 12px;
     color: var(--color-text-muted);
-  }
-  .alert {
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-  .alert.error {
-    background: color-mix(in srgb, var(--color-error) 15%, transparent);
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-  }
-  .alert.success {
-    background: color-mix(in srgb, var(--color-success) 15%, transparent);
-    border: 1px solid var(--color-success);
-    color: var(--color-success);
   }
   .btn-primary {
     background: var(--color-primary);
