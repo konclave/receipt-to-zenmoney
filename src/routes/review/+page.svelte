@@ -1,24 +1,23 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
-  import { get } from "svelte/store";
-  import { goto } from "$app/navigation";
-  import { captureStore } from "$lib/stores/capture";
-  import { parseReceipt, type AiConfig } from "$lib/services/claude";
-  import { resolveReviewAccountId } from "$lib/services/review-account";
-  import { runZenmoneyRequestWithStoredToken } from "$lib/services/zenmoney-client";
-  import { renderBuyMeACoffeeButton } from "$lib/services/buy-me-a-coffee";
-  import { syncDiff, buildTransactionPayload } from "$lib/services/zenmoney";
-  import { getAccounts } from "$lib/db/accounts";
-  import { getInstrumentByCurrency } from "$lib/db/instruments";
-  import { getSettings, saveSettings } from "$lib/db/settings";
-  import { getCategories } from "$lib/db/categories";
-  import { saveTransaction, updateTransaction } from "$lib/db/transactions";
+  import { onMount, tick } from 'svelte';
+  import { get } from 'svelte/store';
+  import { goto } from '$app/navigation';
+  import { captureStore } from '$lib/stores/capture';
+  import { parseReceipt, type AiConfig } from '$lib/services/claude';
+  import { resolveReviewAccountId } from '$lib/services/review-account';
+  import { runZenmoneyRequestWithStoredToken } from '$lib/services/zenmoney-client';
+  import { syncDiff, buildTransactionPayload } from '$lib/services/zenmoney';
+  import { getAccounts } from '$lib/db/accounts';
+  import { getInstrumentByCurrency } from '$lib/db/instruments';
+  import { getSettings, saveSettings } from '$lib/db/settings';
+  import { getCategories } from '$lib/db/categories';
+  import { saveTransaction, updateTransaction } from '$lib/db/transactions';
   import {
     getPendingCapture,
     clearPendingCapture,
-  } from "$lib/db/pending-capture";
-  import { saveReceiptImage } from "$lib/db/receipt-images";
-  import type { Category, PendingCapture, ZenmoneyAccount } from "$lib/types";
+  } from '$lib/db/pending-capture';
+  import { saveReceiptImage } from '$lib/db/receipt-images';
+  import type { Category, PendingCapture, ZenmoneyAccount } from '$lib/types';
 
   let capture = $state<PendingCapture | null>(get(captureStore));
   let categories = $state<Category[]>([]);
@@ -28,14 +27,13 @@
   let parseError = $state<string | null>(null);
   let submitError = $state<string | null>(null);
   let lowConfidence = $state(false);
-  let buyMeACoffeeHost = $state<HTMLDivElement | null>(null);
 
-  let amount = $state("");
-  let merchant = $state("");
-  let categoryId = $state("");
-  let selectedAccountId = $state("");
+  let amount = $state('');
+  let merchant = $state('');
+  let categoryId = $state('');
+  let selectedAccountId = $state('');
   let date = $state(new Date().toISOString().slice(0, 10));
-  let currency = $state("RUB");
+  let currency = $state('RUB');
 
   onMount(async () => {
     if (!capture) {
@@ -46,7 +44,7 @@
       }
     }
     if (!capture) {
-      goto("/");
+      goto('/');
       return;
     }
 
@@ -62,16 +60,16 @@
 
     try {
       const aiConfig: AiConfig =
-        settings.aiProvider === "openrouter"
+        settings.aiProvider === 'openrouter'
           ? {
-              provider: "openrouter",
+              provider: 'openrouter',
               apiKey: settings.openrouterApiKey,
               model: settings.openrouterModel,
             }
-          : { provider: "anthropic", apiKey: settings.claudeApiKey };
-      if (!aiConfig.apiKey) throw new Error("AI API key not set in Settings");
-      if (aiConfig.provider === "openrouter" && !aiConfig.model.trim())
-        throw new Error("OpenRouter model not set in Settings");
+          : { provider: 'anthropic', apiKey: settings.claudeApiKey };
+      if (!aiConfig.apiKey) throw new Error('AI API key not set in Settings');
+      if (aiConfig.provider === 'openrouter' && !aiConfig.model.trim())
+        throw new Error('OpenRouter model not set in Settings');
       const result = await parseReceipt(
         capture.imageBase64,
         categories,
@@ -82,22 +80,18 @@
       categoryId = result.categoryId;
       date = result.date;
       currency = result.currency;
-      lowConfidence = result.confidence === "low";
+      lowConfidence = result.confidence === 'low';
     } catch (e) {
       parseError = `Parsing failed: ${e}. Fill in the fields manually.`;
     } finally {
       parsing = false;
-      await tick();
-      if (buyMeACoffeeHost) {
-        renderBuyMeACoffeeButton(buyMeACoffeeHost);
-      }
     }
   });
 
   async function handleBack() {
     await clearPendingCapture();
     captureStore.set(null);
-    goto("/");
+    goto('/');
   }
 
   async function handleSubmit() {
@@ -114,7 +108,7 @@
       merchant,
       categoryId,
       date,
-      status: "pending" as const,
+      status: 'pending' as const,
       createdAt: Date.now(),
     };
     await saveTransaction(tx);
@@ -134,11 +128,11 @@
       const settings = await getSettings();
       if (!reviewAccountId)
         throw new Error(
-          "No Zenmoney account available — go to Settings and reload categories",
+          'No Zenmoney account available — go to Settings and reload categories',
         );
       if (!settings.zenmoneyUserId)
         throw new Error(
-          "No Zenmoney user ID — go to Settings and reload categories",
+          'No Zenmoney user ID — go to Settings and reload categories',
         );
       const instrument = await getInstrumentByCurrency(tx.currency);
       if (!instrument)
@@ -157,16 +151,16 @@
       await saveSettings({
         zenmoneyServerTimestamp: diffResponse.serverTimestamp,
       });
-      await updateTransaction(txId, { status: "submitted", zenmoneyId: txId });
+      await updateTransaction(txId, { status: 'submitted', zenmoneyId: txId });
     } catch (e) {
-      await updateTransaction(txId, { status: "failed" });
+      await updateTransaction(txId, { status: 'failed' });
       submitError = String(e);
       submitting = false;
       return;
     }
     await clearPendingCapture();
     captureStore.set(null);
-    goto("/history");
+    goto('/history');
   }
 </script>
 
@@ -245,9 +239,8 @@
         <input id="date" type="date" bind:value={date} required />
       </div>
       <button type="submit" class="btn-primary" disabled={submitting}>
-        {submitting ? "Submitting…" : "Submit to Zenmoney"}
+        {submitting ? 'Submitting…' : 'Submit to Zenmoney'}
       </button>
-      <div class="buy-me-a-coffee" bind:this={buyMeACoffeeHost}></div>
     </form>
   {/if}
 </div>
@@ -336,10 +329,6 @@
   }
   .btn-primary:disabled {
     opacity: 0.5;
-  }
-  .buy-me-a-coffee {
-    display: flex;
-    justify-content: center;
   }
   .alert {
     padding: 12px;
