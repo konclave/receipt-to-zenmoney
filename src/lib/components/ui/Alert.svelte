@@ -7,7 +7,7 @@
     children,
   }: {
     type: 'error' | 'success' | 'warning';
-    message?: string;
+    message?: string | null;
     children?: Snippet;
   } = $props();
 </script>

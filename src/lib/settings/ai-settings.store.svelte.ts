@@ -50,7 +50,7 @@ export function createAiSettingsStore(
       models = next.some((model) => model.id === openrouterModel)
         ? next
         : [{ id: openrouterModel, name: openrouterModel }, ...next];
-    } catch (cause) {
+    } catch {
       modelsFailed = true;
     } finally {
       modelsLoading = false;
